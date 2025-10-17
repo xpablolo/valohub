@@ -1,26 +1,46 @@
-import os
-import json
-import requests
 import datetime
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
+import json
 import os
 import pickle
-from flask import session
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from hashlib import sha256
-from flask import request
-from datetime import timedelta
-from bs4 import BeautifulSoup
-from google.cloud import storage
-from collections import defaultdict
 import re
+from collections import defaultdict
+from datetime import timedelta
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(__file__)          # folder where the script is
-SETTINGS_PATH = os.path.join(BASE_DIR, "api_keys/settings.json")
+import requests
+from bs4 import BeautifulSoup
+from flask import request, session
+from google.auth.transport.requests import Request
+from google.cloud import storage
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from hashlib import sha256
 
-MAP_RANKINGS_FILE = os.path.join(BASE_DIR, "map_rankings.json")
+from .config import PROJECT_ROOT, get_settings
+from .riot_api import (
+    get_agent_by_puuid,
+    get_map_by_id,
+    get_match_by_match_id,
+    get_matchlist_by_puuid,
+    get_minimap_by_uuid,
+    get_playerlocations_by_id,
+    get_playerstats_by_id,
+    get_puuid_by_riotid,
+    get_riotid_by_puuid,
+    get_team_by_id,
+    get_teamstats_by_id,
+    get_teams,
+    get_weapon_by_puuid,
+)
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+MAP_RANKINGS_FILE = DATA_DIR / "map_rankings.json"
+settings = get_settings()
+openai_key = settings.openai_key
+
 MAP_POOL = [
     "Haven",
     "Corrode",
@@ -36,90 +56,6 @@ _MAP_ALIASES = {
     re.sub(r'[^a-z]', '', name.lower()): name
     for name in MAP_POOL
 }
-
-
-with open(SETTINGS_PATH, "r") as file:
-    file = json.load(file)
-    api = file["riot_api_key"]
-    valolytics_api = file["valolytics_key"]
-    openai_key = file["openai_key"]
-
-def get_match_by_match_id(match_id: str, region: str):
-    url = f"https://api.valolytics.gg/api/matches/{region}/{match_id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    match = response.json()
-    return match
-
-def get_puuid_by_riotid(gameName: str, tagLine: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-riot-id/{region}/{gameName}/{tagLine}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    player_id = response.json()
-    return player_id
-
-def get_matchlist_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/match/v1/matchlists/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    matchlist = response.json()
-    return matchlist
-
-def get_riotid_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    riotid = response.json()
-    return riotid
-
-def get_playerlocations_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerlocations/{region}/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    playerlocations = response.json()
-    return playerlocations
-
-def get_playerstats_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_teamstats_by_id(id, region:str):
-    url = f"https://api.valolytics.gg/api/stats/teamstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_minimap_by_uuid(uuid:str):
-    url = f"https://api.valolytics.gg/api/stats/minimap/{uuid}"
-    minimap = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    return minimap
-
-def get_teams():
-    url = "https://api.valolytics.gg/teams"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    teams = response.json()
-    return teams
-
-def get_team_by_id(id:str):
-    url = f"https://api.valolytics.gg/teams/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    team = response.json()
-    return team
-
-def get_agent_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/agents/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    agent = response.json()
-    return agent
-
-def get_weapon_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/weapons/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
-
-def get_maps():
-    url = "https://valorant-api.com/v1/maps"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
 
 def get_map_by_id(id):
     maps = get_maps()["data"]
@@ -652,10 +588,10 @@ def compute_head_to_head_summary(scrim_data):
 
 def load_map_rankings():
     """Return stored map rankings sorted by creation timestamp ascending."""
-    if not os.path.exists(MAP_RANKINGS_FILE):
+    if not MAP_RANKINGS_FILE.exists():
         return []
     try:
-        with open(MAP_RANKINGS_FILE, "r", encoding="utf-8") as handle:
+        with MAP_RANKINGS_FILE.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
             if isinstance(data, list):
                 return data
@@ -666,7 +602,8 @@ def load_map_rankings():
 
 def save_map_rankings(rankings):
     """Persist map rankings payload."""
-    with open(MAP_RANKINGS_FILE, "w", encoding="utf-8") as handle:
+    MAP_RANKINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with MAP_RANKINGS_FILE.open("w", encoding="utf-8") as handle:
         json.dump(rankings, handle, indent=2)
 
 

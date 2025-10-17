@@ -17,6 +17,7 @@ from google.cloud import storage
 from google.oauth2 import service_account
 import calendar
 import uuid
+from functions import PROJECT_ROOT
 
 app = Flask(__name__)
 app.secret_key = 'teamheretics'
@@ -90,10 +91,6 @@ def get_scrim_data():
     values = result.get('values', [])
     return values
 
-
-with open("static/opponents.json") as f:
-    opponents_data = json.load(f)
-
 MAP_RANKING_PLAYERS = [
     {"id": "miniboo", "label": "MiniBoo"},
     {"id": "woot", "label": "Wo0t"},
@@ -101,6 +98,15 @@ MAP_RANKING_PLAYERS = [
     {"id": "benjy", "label": "Benjy"},
     {"id": "boo", "label": "Boo"},
 ]
+
+DATA_DIR = PROJECT_ROOT / "data"
+STATIC_DIR = PROJECT_ROOT / "static"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+PUUID_LIST_PATH = STATIC_DIR / "puuid_list.json"
+OPPONENTS_PATH = STATIC_DIR / "opponents.json"
+
+with OPPONENTS_PATH.open("r", encoding="utf-8") as f:
+    opponents_data = json.load(f)
 
 # Decorator to check user role
 def login_required(f):
@@ -687,7 +693,14 @@ def time_filter(date_str):
     date = convert_number_to_date(date_str)
     return date
 
-from functions.rankeds import get_players_data, regenerate_kda, get_other_players_data
+from functions.rankeds import (
+    get_players_data,
+    regenerate_kda,
+    get_other_players_data,
+    RANKEDS_FILE,
+    RANKEDS_KDA_FILE,
+    RANKEDS_OTHER_FILE,
+)
 @app.route('/rankeds')
 @login_required
 def rankeds():
@@ -716,7 +729,8 @@ def rankeds():
 
     # decide which table to rebuild
     which = request.args.get('which', "rankeds")
-    full_list = json.load(open("static/puuid_list.json"))
+    with PUUID_LIST_PATH.open("r", encoding="utf-8") as handle:
+        full_list = json.load(handle)
     if which is None:
         get_players_data(start_date, end_date)
         get_other_players_data(start_date_2, end_date_2, full_list)
@@ -726,18 +740,18 @@ def rankeds():
         get_other_players_data(start_date_2, end_date_2, full_list)
 
     # now read both data files (they’re up-to-date)
-    with open("rankeds.json") as f:
+    with RANKEDS_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
         number_competitive = {p: sum(d["competitive"] for d in days.values()) for p, days in data.items()}
         number_deathmatchs = {p: sum(d["deathmatch"] for d in days.values()) for p, days in data.items()}
         number_hurms        = {p: sum(d["hurm"]        for d in days.values()) for p, days in data.items()}
 
-    with open("rankeds_kda.json") as f:
+    with RANKEDS_KDA_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
         kd  = {p: round(d["all"][0]/d["all"][1], 2) for p, d in data.items()}
         vlr = {p: d["all"][2]/d["all"][1]          for p, d in data.items()}
 
-    with open("rankeds_other.json") as f:
+    with RANKEDS_OTHER_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
         rankds_2 = {p: sum(d["competitive"] for d in days.values()) for p, days in data.items()}
         dms_2    = {p: sum(d["deathmatch"]   for d in days.values()) for p, days in data.items()}
@@ -794,7 +808,7 @@ def search_player():
     #time_range = request.form.get("time_range")
     time_range = "last_week"
     try:
-        with open("static/opponents.json", "r") as json_file:
+        with OPPONENTS_PATH.open("r", encoding="utf-8") as json_file:
             data = json.load(json_file)
         if player_name not in data:
             print("Player not found")

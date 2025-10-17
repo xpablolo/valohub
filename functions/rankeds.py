@@ -1,96 +1,18 @@
-import json
-import requests
-import time
 import datetime
+import json
+import time
 from datetime import timedelta
 
-with open("api_keys/settings.json", "r") as file:
-    file = json.load(file)
-    api = file["riot_api_key"]
-    valolytics_api = file["valolytics_key"]
+from .config import PROJECT_ROOT
+from .riot_api import get_match_by_match_id, get_matchlist_by_puuid
 
-def get_match_by_match_id(match_id: str, region: str):
-    url = f"https://api.valolytics.gg/api/matches/{region}/{match_id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    match = response.json()
-    return match
-
-def get_puuid_by_riotid(gameName: str, tagLine: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-riot-id/{region}/{gameName}/{tagLine}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    player_id = response.json()
-    return player_id
-
-def get_matchlist_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/match/v1/matchlists/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    matchlist = response.json()
-    return matchlist
-
-def get_riotid_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    riotid = response.json()
-    return riotid
-
-def get_playerlocations_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerlocations/{region}/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    playerlocations = response.json()
-    return playerlocations
-
-def get_playerstats_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_teamstats_by_id(id, region:str):
-    url = f"https://api.valolytics.gg/api/stats/teamstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_minimap_by_uuid(uuid:str):
-    url = f"https://api.valolytics.gg/api/stats/minimap/{uuid}"
-    minimap = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    return minimap
-
-def get_teams():
-    url = "https://api.valolytics.gg/teams"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    teams = response.json()
-    return teams
-
-def get_team_by_id(id:str):
-    url = f"https://api.valolytics.gg/teams/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    team = response.json()
-    return team
-
-def get_agent_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/agents/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    agent = response.json()
-    return agent
-
-def get_weapon_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/weapons/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
-
-def get_maps():
-    url = "https://valorant-api.com/v1/maps"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
-
-def get_map_by_id(id):
-    maps = get_maps()["data"]
-    for mapa in maps:
-        if mapa["mapUrl"] == id:
-            return mapa["displayName"]
+RANKEDS_DIR = PROJECT_ROOT / "data" / "rankeds"
+PLAYERS_DIR = RANKEDS_DIR / "players"
+RANKEDS_DIR.mkdir(parents=True, exist_ok=True)
+PLAYERS_DIR.mkdir(parents=True, exist_ok=True)
+RANKEDS_FILE = RANKEDS_DIR / "rankeds.json"
+RANKEDS_KDA_FILE = RANKEDS_DIR / "rankeds_kda.json"
+RANKEDS_OTHER_FILE = RANKEDS_DIR / "rankeds_other.json"
 
 two_weeks_ago = datetime.datetime.today() - timedelta(weeks=2)
 players = {"benjy": 'vhTtIAHoN9juR-MTHWhQsRmSipbTmHdZxh-GKsnLI6qOElJiy9Lc5rWF8DIItfqjP9aJUjee6nYqaw',
@@ -100,11 +22,11 @@ players = {"benjy": 'vhTtIAHoN9juR-MTHWhQsRmSipbTmHdZxh-GKsnLI6qOElJiy9Lc5rWF8DI
             "RieNs": 'zkJA6-Zw_2s8Iaz5iouDA-22DC1j7S8kE4D4JG3rRxXyd6ibkrAD__0mNmucghI7RLN1CSh8nSfRuA'}
 
 STATIC_FILES = {
-    "benjy": "Benjyfishy.json",
-    "Boo": "Boo.json",
-    "MiniBoo": "MiniBoo.json",
-    "wo0t": "Wo0t.json",
-    "RieNs": "Riens.json",
+    "benjy": PLAYERS_DIR / "Benjyfishy.json",
+    "Boo": PLAYERS_DIR / "Boo.json",
+    "MiniBoo": PLAYERS_DIR / "MiniBoo.json",
+    "wo0t": PLAYERS_DIR / "Wo0t.json",
+    "RieNs": PLAYERS_DIR / "Riens.json",
 }
 
 # Load static data for each player
@@ -112,7 +34,7 @@ def load_static_data():
     static_data = {}
     for player, filepath in STATIC_FILES.items():
         try:
-            with open(filepath, "r") as f:
+            with filepath.open("r", encoding="utf-8") as f:
                 raw = json.load(f)
         except FileNotFoundError:
             static_data[player] = []
@@ -137,9 +59,10 @@ def save_static_data(static_data):
         filepath = STATIC_FILES.get(player)
         if not filepath:
             continue
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         # Wrap back as a dict keyed by player for consistency
         out = {player: entries}
-        with open(filepath, "w") as f:
+        with filepath.open("w", encoding="utf-8") as f:
             json.dump(out, f, indent=4)
 
 
@@ -200,7 +123,7 @@ def get_players_data(start_date: datetime.date, end_date: datetime.date, static_
     # Save back static files
     save_static_data(static_data)
 
-    with open("rankeds.json", "w") as f:
+    with RANKEDS_FILE.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
     return data
 
@@ -225,7 +148,7 @@ def regenerate_kda():
                     data[player]["all"][0] += player_i["stats"]["kills"]
                     data[player]["all"][1] += player_i["stats"]["deaths"]
                     data[player]["all"][2] += player_i["stats"]["vlrRating2"]
-    with open("rankeds_kda.json", "w") as f:
+    with RANKEDS_KDA_FILE.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
     return data
 
@@ -249,6 +172,16 @@ def get_other_players_data(start_date: datetime.date, end_date: datetime.date, p
         except:
             continue
 
-    with open("rankeds_other.json", "w") as f:
+    with RANKEDS_OTHER_FILE.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
     return data
+
+
+__all__ = [
+    "get_players_data",
+    "regenerate_kda",
+    "get_other_players_data",
+    "RANKEDS_FILE",
+    "RANKEDS_KDA_FILE",
+    "RANKEDS_OTHER_FILE",
+]

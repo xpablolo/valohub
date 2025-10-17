@@ -11,102 +11,26 @@ import numpy as np
 import joypy
 import random
 from matplotlib import cm
-import os
-import json
-import requests
 from collections import defaultdict
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.discovery import build
 import matplotlib.image as mpimg
-
-with open("settings.json", "r") as file:
-    file = json.load(file)
-    api = file["riot_api_key"]
-    valolytics_api = file["valolytics_key"]
-
-def get_match_by_match_id(match_id: str, region: str):
-    url = f"https://api.valolytics.gg/api/matches/{region}/{match_id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    match = response.json()
-    return match
-
-def get_puuid_by_riotid(gameName: str, tagLine: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-riot-id/{region}/{gameName}/{tagLine}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    player_id = response.json()
-    return player_id
-
-def get_matchlist_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/match/v1/matchlists/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    matchlist = response.json()
-    return matchlist
-
-def get_riotid_by_puuid(puuid: str, region: str):
-    url = f"https://api.valolytics.gg/api/riot/account/v1/accounts/by-puuid/{region}/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    riotid = response.json()
-    return riotid
-
-def get_playerlocations_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerlocations/{region}/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    playerlocations = response.json()
-    return playerlocations
-
-def get_playerstats_by_id(id:str, region:str):
-    url = f"https://api.valolytics.gg/api/stats/playerstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_teamstats_by_id(id, region:str):
-    url = f"https://api.valolytics.gg/api/stats/teamstats/{region}/{id}"
-    response = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    stats = response.json()
-    return stats
-
-def get_minimap_by_uuid(uuid:str):
-    url = f"https://api.valolytics.gg/api/stats/minimap/{uuid}"
-    minimap = requests.post(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    return minimap
-
-def get_teams():
-    url = "https://api.valolytics.gg/teams"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    teams = response.json()
-    return teams
-
-def get_team_by_id(id:str):
-    url = f"https://api.valolytics.gg/teams/{id}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0", "x-api-key": valolytics_api})
-    team = response.json()
-    return team
-
-def get_agent_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/agents/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    agent = response.json()
-    return agent
-
-def get_weapon_by_puuid(puuid: str):
-    url = f"https://valorant-api.com/v1/weapons/{puuid}"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
-
-def get_maps():
-    url = "https://valorant-api.com/v1/maps"
-    response = requests.get(url, headers={"user-agent": "mozilla/5.0"})
-    weapon = response.json()
-    return weapon
-
-def get_map_by_id(id):
-    maps = get_maps()["data"]
-    for mapa in maps:
-        if mapa["mapUrl"] == id:
-            return mapa["displayName"]
-
+from .riot_api import (
+    get_match_by_match_id,
+    get_puuid_by_riotid,
+    get_matchlist_by_puuid,
+    get_riotid_by_puuid,
+    get_playerlocations_by_id,
+    get_playerstats_by_id,
+    get_teamstats_by_id,
+    get_minimap_by_uuid,
+    get_teams,
+    get_team_by_id,
+    get_agent_by_puuid,
+    get_weapon_by_puuid,
+    get_maps,
+    get_map_by_id,
+)
 
 
 #GET BASIC INFO
