@@ -8,7 +8,7 @@ import json
 import datetime as dt
 from datetime import datetime, date
 from google.oauth2.credentials import Credentials
-from help_functions import *
+from functions.help_functions import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -91,7 +91,7 @@ def get_scrim_data():
     return values
 
 
-with open("opponents.json") as f:
+with open("static/opponents.json") as f:
     opponents_data = json.load(f)
 
 MAP_RANKING_PLAYERS = [
@@ -687,7 +687,7 @@ def time_filter(date_str):
     date = convert_number_to_date(date_str)
     return date
 
-from rankeds import get_players_data, regenerate_kda, get_other_players_data
+from functions.rankeds import get_players_data, regenerate_kda, get_other_players_data
 @app.route('/rankeds')
 @login_required
 def rankeds():
@@ -716,7 +716,7 @@ def rankeds():
 
     # decide which table to rebuild
     which = request.args.get('which', "rankeds")
-    full_list = json.load(open("puuid_list.json"))
+    full_list = json.load(open("static/puuid_list.json"))
     if which is None:
         get_players_data(start_date, end_date)
         get_other_players_data(start_date_2, end_date_2, full_list)
@@ -794,7 +794,7 @@ def search_player():
     #time_range = request.form.get("time_range")
     time_range = "last_week"
     try:
-        with open("opponents.json", "r") as json_file:
+        with open("static/opponents.json", "r") as json_file:
             data = json.load(json_file)
         if player_name not in data:
             print("Player not found")
