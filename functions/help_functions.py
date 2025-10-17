@@ -57,12 +57,6 @@ _MAP_ALIASES = {
     for name in MAP_POOL
 }
 
-def get_map_by_id(id):
-    maps = get_maps()["data"]
-    for mapa in maps:
-        if mapa["mapUrl"] == id:
-            return mapa["displayName"]
-        
 def get_ranked_info(matchlist, puuid, data_player):
     data = {"All": {}}
     for match in matchlist["history"]:
@@ -117,28 +111,6 @@ def get_ranked_info_twoweeks(matchlist, puuid, data_player):
     for key in data:
         data[key] = dict(sorted(data[key].items(), key=lambda item: item[1], reverse=True))
     return data, last_day
-
-def load_strategies():
-    if os.path.exists('strategies.json'):
-        with open('strategies.json', 'r') as f:
-            return json.load(f)
-    return {}
-
-def save_strategy_to_file(map_name, comp_name, url):
-    strategies = load_strategies()
-    
-    if map_name not in strategies:
-        strategies[map_name] = {}
-    
-    strategies[map_name][comp_name] = url
-    
-    with open('strategies.json', 'w') as f:
-        json.dump(strategies, f, indent=4)
-
-def save_strategies(strategies):
-    """Save strategies to the JSON file."""
-    with open("strategies.json", 'w') as file:
-        json.dump(strategies, file, indent=4)
 
 def convert_number_to_date(date_str):
     """Converts a date string into 'Month Day, Year' format."""
