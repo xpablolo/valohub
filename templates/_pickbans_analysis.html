@@ -1,0 +1,13 @@
+{# templates/_pickbans_analysis.html #}
+
+<div class="surface-card bg-white rounded-xl ring-muted p-4">
+  <h5 class="m-0 text-gray-900">AI-Predicted Map Strengths for {{ team }}</h5>
+  <ol class="mt-2 divide-y divide-gray-100">
+    {% for map, score in analysis %}
+      <li class="flex items-center justify-between py-2">
+        <span class="text-sm text-gray-900 font-medium">{{ map }}</span>
+        <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{ '%.1f'%(score*100) }}%</span>
+      </li>
+    {% endfor %}
+  </ol>
+</div>

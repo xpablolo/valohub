@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Analytical Reports{% endblock %}
+
+{% block content %}
+<style>
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .dark-mode .analytical-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .analytical-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .analytical-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .analytical-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .analytical-page .text-gray-500 { color: #9ca3af !important; }
+  .dark-mode .analytical-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .analytical-page .border-gray-200 { border-color: #374151 !important; }
+  .analytical-page .iframe-container { position: relative; width: 100%; height: 56vh; overflow: hidden; padding: 10px; border-radius: 10px; }
+  .analytical-page .iframe-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  @media (min-width: 1200px) { .analytical-page .iframe-container { height: 64vh; } }
+  @media (max-width: 768px)  { .analytical-page .iframe-container { height: 64vh; } }
+</style>
+
+<div class="analytical-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Analytical Reports</h1>
+      <p class="text-sm text-gray-500">Google Sheets reports with overall and map-focused statistics by team.</p>
+      <p class="mt-1 text-sm text-yellow-600">Note: Some map and comp winrates are not correct right now.</p>
+    </div>
+    <span class="inline-flex items-center rounded-lg bg-gray-900 px-3 py-1.5 text-base font-semibold text-white shadow-sm">Analytics</span>
+  </div>
+
+  <div class="space-y-2">
+  <ul class="list-group space-y-2">
+    <!-- T1 -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>MIBR</strong><br />
+          <small>Created: Sep 23, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton9" onclick="toggleSheet(9)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container9">
+        <iframe
+          id="google-sheet9"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSm8s3rrv6EX8K8GuHoYXdjWkNjwD5amepYKHjy3v8JpVYW4xQw7xnkQ78FBTM3KeG4ygApIkFD8jNG/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+
+    <!-- T1 -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>T1</strong><br />
+          <small>Created: Sep 16, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton8" onclick="toggleSheet(8)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container8">
+        <iframe
+          id="google-sheet8"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQWl_UeYQ7q-dQx1qli8lTQw1yQSJUr9xYPVBwM2JU6JWxfdaxDMY6erp6YP6PJ95Af1a3HRkjbrpUy/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+
+    <!-- G2 -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>G2 Esports</strong><br />
+          <small>Created: Sep 4, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton7" onclick="toggleSheet(7)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container7">
+        <iframe
+          id="google-sheet7"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQYwi5MJ-e1y-UfVacDqZIagt0jEVQG0p71Gq-KdGw-1lT3TVEewAy5b5MOwh326qEhrzynhyhKjsuO/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+
+    <!-- TH -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Team Heretics</strong><br />
+          <small>Created: Sep 3, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton6" onclick="toggleSheet(6)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container6">
+        <iframe
+          id="google-sheet6"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQFz5eUhn8LiYr_70QgqvSW4IYP-hAkwXFmhzdYlDAX82WFbYj04wDyVQR9T2l8uI1glxZAKeircUo1/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+    
+    <!-- PRX -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Paper Rex (only EWC)</strong><br />
+          <small>Created: May 26, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton5" onclick="toggleSheet(5)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container5">
+        <iframe
+          id="google-sheet5"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTPdAniu0_3AZZxJ_BlnWfsHlpthgC5yRuarM0vJMOe5Wfk8ZVTzldZnT3j05BEKan7Ry-4vcB_p5u4/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+    
+    <!-- TH -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Team Heretics (self-report)</strong><br />
+          <small>Created: May 1, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton3" onclick="toggleSheet(3)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container3">
+        <iframe
+          id="google-sheet3"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ0TQlFVcvLbtDOoRJ2afqMc3fT622xjIojg1CfH7Mpuhcpu5LYyYq7-yOS2uHfO2snX6CamwOpoCd/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+    
+    <!-- TEAM VITALITY -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Team Vitality</strong><br />
+          <small>Created: January 30, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton4" onclick="toggleSheet(4)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container4">
+        <iframe
+          id="google-sheet4"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vT4u_2qPpXqvQ7hemqCcqWkbAcwX79znF6AcVGUN4Gu3koLvzYZe3mh0KxPUTrp4T1Nma75zDdGKv5u/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+
+    <!-- BBL ESPORTS -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>BBL Esports</strong><br />
+          <small>Created: January 24, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton1" onclick="toggleSheet(1)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container1">
+        <iframe
+          id="google-sheet1"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSaY9mAspet0vgszrkmLnh2zxvkNSwd-0C2XDXlm2R45_eGRSIO4goWGVaCLI5fYoafK77mGHq8fJfL/pubhtml"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </li>
+
+    <!-- GENTLE MATES -->
+    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Gentle Mates</strong><br />
+          <small>Created: January 17, 2025</small>
+        </div>
+        <button class="th-btn th-btn-primary" id="toggleButton2" onclick="toggleSheet(2)">Show Sheet</button>
+      </div>
+      <div class="iframe-container hidden mt-2" id="sheet-container2">
+        <iframe id="google-sheet2" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTqlYT6B9dryMktHIWL88he6N25xoBfnrPv30J7T6lhbsK41vflMcPE8Bp85rwmWsB-YFf0J6u-J86/pubhtml"></iframe>
+      </div>
+    </li>
+  </ul>
+</div>
+</div>
+
+<style>
+  .iframe-container {
+    position: relative;
+    height: 56vh;
+    width: 100%;
+    overflow: hidden;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  iframe {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1);
+    transform-origin: 0 0;
+  }
+
+  @media (min-width: 1200px) {
+    .iframe-container { height: 64vh; }
+  }
+
+  @media (max-width: 768px) {
+    .iframe-container { height: 64vh; }
+  }
+</style>
+
+<script>
+  // On page load, adjust iframe heights (optional).
+  window.onload = function () {
+    setTimeout(function () {
+      ["google-sheet1", "google-sheet2", "google-sheet3"].forEach(function(id) {
+        let iframe = document.getElementById(id);
+        if (iframe) {
+          iframe.style.height = "100%";
+        }
+      });
+    }, 100);
+  };
+
+  // Show/Hide the specific sheet container (Tailwind hidden class)
+  function toggleSheet(sheetNumber) {
+    const container = document.getElementById("sheet-container" + sheetNumber);
+    const button = document.getElementById("toggleButton" + sheetNumber);
+    const isHidden = container.classList.contains('hidden');
+    container.classList.toggle('hidden', !isHidden);
+    button.innerText = isHidden ? "Hide Sheet" : "Show Sheet";
+  }
+</script>
+{% endblock %}

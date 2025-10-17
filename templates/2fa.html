@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Two-Factor Authentication{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Two-Factor Authentication</h1>
+<p class="text-center">Please enter the authentication code from your authenticator app.</p>
+
+<!-- Displaying error messages if any -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert alert-danger text-center">
+            {% for category, message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- 2FA Form -->
+<form method="POST" action="{{ url_for('two_factor_auth') }}">
+    <div class="form-group">
+        <label for="code">Authentication Code</label>
+        <input type="text" class="form-control" id="code" name="code" required placeholder="Enter your code">
+    </div>
+    <button type="submit" class="th-btn th-btn-primary w-100">Verify Code</button>
+</form>
+
+{% endblock %}

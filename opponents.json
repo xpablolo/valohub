@@ -1,0 +1,344 @@
+{
+    "VIT kovaQ": {
+        "gameName": "VIT kovaQ",
+        "tagLine": "ice",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "M8 Comeback1": {
+        "gameName": "M8 Comeback1",
+        "tagLine": "Aegon",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "M8 Proxh": {
+        "gameName": "M8 Proxh",
+        "tagLine": "cold",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "M8 Minny": {
+        "gameName": "M8 Minny",
+        "tagLine": "M8M8",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "M8 Veqaj": {
+        "gameName": "M8 Veqaj",
+        "tagLine": "1810",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "M8 kamyk": {
+        "gameName": "M8 kamyk",
+        "tagLine": "mia",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS florescent": {
+        "gameName": "APEKS florescent",
+        "tagLine": "mei",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS hype": {
+        "gameName": "APEKS hype",
+        "tagLine": "TOMA",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS MOLSI": {
+        "gameName": "APEKS MOLSI",
+        "tagLine": "187",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS AvovA": {
+        "gameName": "APEKS AvovA",
+        "tagLine": "1422",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS oderus": {
+        "gameName": "APEKS oderus",
+        "tagLine": "nsic",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "APEKS batujnax": {
+        "gameName": "APEKS batujnax",
+        "tagLine": "2005",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FUT ATA KAPTAN": {
+        "gameName": "FUT ATA KAPTAN",
+        "tagLine": "3535",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FUT xeus": {
+        "gameName": "FUT xeus",
+        "tagLine": "reta",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "NAVI hiro": {
+        "gameName": "NAVI hiro",
+        "tagLine": "luna",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "NAVI koalanoob": {
+        "gameName": "NAVI koalanoob",
+        "tagLine": "MandA",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "NAVI ANGE1": {
+        "gameName": "NAVI Player1",
+        "tagLine": "AAA",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "NAVI Shao": {
+        "gameName": "NAVI Shao",
+        "tagLine": "GOD",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "NAVI Ruxic": {
+        "gameName": "NAVI Ruxic",
+        "tagLine": "AIM",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "KOI flyuh": {
+        "gameName": "KOI flyuh",
+        "tagLine": "kat",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "TH benjyfishy": {
+        "gameName": "TH benjyfishy",
+        "tagLine": "111",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FNATIC crashies": {
+        "gameName": "FNATIC crashies",
+        "tagLine": "999",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FNATIC Alfajer": {
+        "gameName": "FNATIC R9",
+        "tagLine": "ZENA",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FNATIC Boaster": {
+        "gameName": "FNATIC Boaster",
+        "tagLine": "1010",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FNATIC Chronicle": {
+        "gameName": "FNATIC Chronicle",
+        "tagLine": "777",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FNATIC kaajak": {
+        "gameName": "FNATIC L9",
+        "tagLine": "MAJA",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "GX runneR": {
+        "gameName": "GX runneR",
+        "tagLine": "003",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "GX westside": {
+        "gameName": "GX westside",
+        "tagLine": "uwu",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "GX purp0": {
+        "gameName": "GX purp0",
+        "tagLine": "yane0",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "GX Cloud": {
+        "gameName": "GX Cloud",
+        "tagLine": "001",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "GX tomaszy": {
+        "gameName": "GX TOMASZY",
+        "tagLine": "333",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "TH MiniBoo": {
+        "gameName": "TH MiniBoo",
+        "tagLine": "2440",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "TH Boo": {
+        "gameName": "TH Boo",
+        "tagLine": "16556",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "TH Wo0t": {
+        "gameName": "TH Wo0t",
+        "tagLine": "Limon",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "TH rienszinho": {
+        "gameName": "TH rienszinho",
+        "tagLine": "2025",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "BBL Jamppi": {
+        "gameName": "BBL Jamppi",
+        "tagLine": "Petri",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "BBL LewN": {
+        "gameName": "BBL LewN",
+        "tagLine": "mamba",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "BBL sociablEE": {
+        "gameName": "BBL sociablEE",
+        "tagLine": "k4t1l",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "BBL chiwa": {
+        "gameName": "BBL chiwa",
+        "tagLine": "Egor",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "BBL profek": {
+        "gameName": "BBL profek",
+        "tagLine": "TOFIK",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "Liquid n4ts": {
+        "gameName": "Liquid n4ts",
+        "tagLine": "TATAR",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "Liquid Serial": {
+        "gameName": "Liquid Serial",
+        "tagLine": "yuki",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "Liquid kamo": {
+        "gameName": "Liquid kamo",
+        "tagLine": "czapi",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "Liquid paTiTek": {
+        "gameName": "Liquid paTiTek",
+        "tagLine": "1108",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "Liquid keiko": {
+        "gameName": "Liquid keiko",
+        "tagLine": "lili",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FUT MrFaliN": {
+        "gameName": "FUT MrFaliN",
+        "tagLine": "DADAS",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FUT yetujey": {
+        "gameName": "FUT yetujey",
+        "tagLine": "star",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "FUT qRaxs": {
+        "gameName": "FUT qRaxs",
+        "tagLine": "8996",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "VIT UNFAKE": {
+        "gameName": "VIT UNFAKE",
+        "tagLine": "unf",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "VIT Less": {
+        "gameName": "dreamer boy",
+        "tagLine": "lll",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "VIT Derke": {
+        "gameName": "VIT Derke",
+        "tagLine": "BZZ",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "VIT Kicks": {
+        "gameName": "VIT Kicks",
+        "tagLine": "BONK",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "MIBR cortezia": {
+        "gameName": "MIBR cortezia",
+        "tagLine": "JESUS",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "MIBR artziN": {
+        "gameName": "MIBR artziN",
+        "tagLine": "2003",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "MIBR aspas": {
+        "gameName": "MIBR aspas",
+        "tagLine": "naxy",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "MIBR xenom": {
+        "gameName": "MIBR xenom",
+        "tagLine": "JESUS",
+        "region": "europe",
+        "region_matchlist": "eu"
+    },
+    "MIBR Verno": {
+        "gameName": "MIBR Verno",
+        "tagLine": "777",
+        "region": "europe",
+        "region_matchlist": "eu"
+    }
+}

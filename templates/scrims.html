@@ -1,0 +1,893 @@
+{% extends "base.html" %}
+{% block title %}Scrims{% endblock %}
+
+{% block content %}
+{# ---------------------------------------------------------
+  OPTION C — Tailwind + Flowbite
+  - Remove per-page Bootstrap/DataTables includes from this view.
+  - This page uses Tailwind CDN + Flowbite for a clean, modern UI.
+  - Keeps your original GET filter contract: start_date, end_date, mode, month
+---------------------------------------------------------- #}
+
+<!-- Tailwind utilities (preflight disabled to avoid Bootstrap conflicts) -->
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = { corePlugins: { preflight: false } };
+  // Optional: window.tailwind.config.theme = { extend: {} };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Keep native pickers; style only the inputs -->
+
+<style>
+  /* Light theme polish */
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .sticky-th    { position: sticky; top: 0; background: #fff; z-index: 10; }
+
+  /* Dark mode adaptations (scoped to scrims page) */
+  .dark-mode .scrims-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .scrims-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .scrims-page .sticky-th    { background: #111827 !important; color: #9ca3af !important; border-color: #374151 !important; }
+  .dark-mode .scrims-page table th,
+  .dark-mode .scrims-page table td { color: #e5e7eb; border-color: #374151 !important; }
+  .dark-mode .scrims-page tr:hover { background-color: #1f2937; }
+  .dark-mode .scrims-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .scrims-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .scrims-page .text-gray-600 { color: #d1d5db !important; }
+  .dark-mode .scrims-page .text-gray-500 { color: #9ca3af !important; }
+
+  /* Override white backgrounds from utility classes inside scrims page */
+  .dark-mode .scrims-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .scrims-page .bg-gray-50 { background-color: #111827 !important; }
+  .dark-mode .scrims-page .border-gray-100 { border-color: #374151 !important; }
+  .dark-mode .scrims-page .border-gray-200 { border-color: #374151 !important; }
+  .dark-mode .scrims-page .border-gray-300 { border-color: #4b5563 !important; }
+
+  /* Inputs/selects in filter area */
+  .dark-mode .scrims-page input,
+  .dark-mode .scrims-page select,
+  .dark-mode .scrims-page #monthDropdown {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none !important;
+  }
+  /* Input aesthetics (select/date boxes) */
+  .scrims-page select,
+  .scrims-page input[type="date"] {
+    border-radius: 0.375rem; /* rounded-md */
+    border: 1px solid #d1d5db; /* gray-300 */
+    padding: 0.375rem 0.625rem; /* py-1.5 px-2.5 */
+    font-size: 0.875rem; /* text-sm */
+    background-color: #ffffff;
+    color: #111827;
+  }
+  .scrims-page select:focus,
+  .scrims-page input[type="date"]:focus {
+    outline: none;
+    border-color: #60a5fa; /* blue-400 */
+    box-shadow: 0 0 0 1px #60a5fa inset;
+  }
+  .dark-mode .scrims-page select:focus,
+  .dark-mode .scrims-page #monthDropdown:focus,
+  .dark-mode .scrims-page input:focus {
+    outline: none !important;
+    border-color: #60a5fa !important; /* blue-400 */
+    box-shadow: 0 0 0 1px #60a5fa inset !important;
+  }
+  .dark-mode .scrims-page option { background-color: #111827; color: #e5e7eb; }
+  .dark-mode .scrims-page input::placeholder {
+    color: #9ca3af !important;
+  }
+
+  /* Mode buttons hover */
+  .dark-mode .scrims-page .mode-btn:hover {
+    background-color: #1f2937 !important;
+    color: #e5e7eb !important;
+  }
+
+  /* Mode buttons active state in dark mode */
+  .dark-mode .scrims-page .mode-btn[data-active="true"] {
+    background-color: #1f2937 !important;
+    color: #e5e7eb !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2) !important;
+  }
+
+  /* Winrate badges better contrast in dark mode */
+  .dark-mode .scrims-page .bg-green-50 { background-color: #064e3b !important; }
+  .dark-mode .scrims-page .bg-amber-50 { background-color: #78350f !important; }
+  .dark-mode .scrims-page .bg-rose-50  { background-color: #4c0519 !important; }
+  .dark-mode .scrims-page .text-green-700 { color: #86efac !important; }
+  .dark-mode .scrims-page .text-amber-700 { color: #fde68a !important; }
+  .dark-mode .scrims-page .text-rose-700  { color: #fca5a5 !important; }
+
+  /* Apply button style (match rankeds) */
+  .scrims-page .btn-apply { transition: transform .02s ease; }
+  .scrims-page .btn-apply:active { transform: translateY(1px); }
+  .dark-mode .scrims-page .btn-apply {
+    background-color: #60a5fa !important;
+    color: #0b1220 !important;
+  }
+  .dark-mode .scrims-page .btn-apply:hover {
+    background-color: #3b82f6 !important;
+  }
+
+  /* Thinner separators in Opponent Agent block */
+  .scrims-page .opp-rows > :not([hidden]) ~ :not([hidden]) { border-top-width: 0.5px !important; }
+
+  /* Even thinner opponent separators in dark mode */
+  .dark-mode .scrims-page .opp-rows > :not([hidden]) ~ :not([hidden]) {
+    border-top-width: 0.33px !important;
+  }
+
+  /* Preserve colored left borders in dark mode */
+  .dark-mode .scrims-page td.border-l-4.border-rose-500  { border-left-color: #f43f5e !important; }
+  .dark-mode .scrims-page td.border-l-4.border-amber-600 { border-left-color: #d97706 !important; }
+  .dark-mode .scrims-page td.border-l-4.border-green-500 { border-left-color: #22c55e !important; }
+
+  /* Sort arrows */
+  .scrims-page th.th-sort-asc::after  { content: " \25B2"; } /* ▲ */
+  .scrims-page th.th-sort-desc::after { content: " \25BC"; } /* ▼ */
+</style>
+
+{% macro winrate_badge(rate) -%}
+  {%- set r = rate|int -%}
+  {%- if r > 50 -%}
+    <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ r }}%</span>
+  {%- elif r == 50 -%}
+    <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ r }}%</span>
+  {%- else -%}
+    <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ r }}%</span>
+  {%- endif -%}
+{%- endmacro %}
+
+<div class="scrims-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Scrim Winrates</h1>
+      <p class="text-sm text-gray-500">Filter by month or custom dates and review scrim performance.</p>
+      {% if last_scrim_date %}
+        <p class="text-xs text-gray-500">Last scrim entry in data sheet: {{ last_scrim_date }}</p>
+      {% endif %}
+    </div>
+    <div>
+      {% if title_text %}
+        <span class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-base font-semibold text-white shadow-sm">{{ title_text }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="surface-card bg-white rounded-xl px-3 py-2 mb-4 ring-muted">
+    <form id="filter-form" method="GET" action="{{ url_for('scrims') }}" class="space-y-0">
+      <!-- Hidden fields for GET params -->
+      <input type="hidden" name="start_date" id="form_start_date" value="{{ start_date_default }}">
+      <input type="hidden" name="end_date"   id="form_end_date"   value="{{ end_date_default }}">
+      <input type="hidden" name="mode"       id="mode"            value="{{ mode|default('preset') }}">
+      <input type="hidden" name="month"      id="month"           value="">
+      <input type="hidden" name="scrim_type" id="scrim_type"      value="{{ scrim_type|default('all') }}">
+
+      <!-- Mode + Inline Range Selector + Actions -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Segmented mode toggle -->
+        <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          <button type="button" id="preset-month-btn"
+                  class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white data-[active=true]:bg-white data-[active=true]:shadow-sm data-[active=true]:text-gray-900"
+                  data-active="{{ (mode or 'preset') == 'preset' }}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"/></svg>
+            Month
+          </button>
+          <button type="button" id="custom-range-btn"
+                  class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white data-[active=true]:bg-white data-[active=true]:shadow-sm data-[active=true]:text-gray-900"
+                  data-active="{{ (mode or 'preset') == 'custom' }}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+                 d="M8 7h8m-8 4h8m-8 4h6M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>
+            Custom
+          </button>
+        </div>
+
+        <!-- Inline month dropdown (preset) -->
+        <div id="month-selection" class="flex items-center gap-2">
+          <label for="monthDropdown" class="sr-only">Month (2025)</label>
+          <div class="relative">
+            <select id="monthDropdown"
+                    class="block w-40 sm:w-48 md:w-56 rounded-md border-gray-300 shadow-sm px-2 py-1 pr-8 text-sm appearance-none">
+              <option value="">Month…</option>
+              {% for i, name in [(1,'January'),(2,'February'),(3,'March'),(4,'April'),(5,'May'),(6,'June'),(7,'July'),(8,'August'),(9,'September'),(10,'October'),(11,'November'),(12,'December')] %}
+                <option value="{{ i }}">{{ name }}</option>
+              {% endfor %}
+            </select>
+            <!-- Custom chevron -->
+            <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Inline custom range (hidden by default) -->
+        <div id="custom-range" class="flex items-end gap-2 hidden">
+          <div>
+            <label for="start_date" class="sr-only">Start date</label>
+            <input type="date" id="start_date"
+                   class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                   value="{{ start_date_default }}">
+          </div>
+          <div>
+            <label for="end_date" class="sr-only">End date</label>
+            <input type="date" id="end_date"
+                   class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                   value="{{ end_date_default }}">
+          </div>
+        </div>
+
+        <!-- Scrim Type segmented toggle -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">Type</span>
+          <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+            <button type="button" class="mode-btn type-btn inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white data-[active=true]:bg-white data-[active=true]:shadow-sm data-[active=true]:text-gray-900" data-type="all">
+              All
+            </button>
+            <button type="button" class="mode-btn type-btn inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white data-[active=true]:bg-white data-[active=true]:shadow-sm data-[active=true]:text-gray-900" data-type="green" title="Green scrims">
+              <span class="h-2 w-2 rounded-full bg-green-500"></span>
+              Green
+            </button>
+            <button type="button" class="mode-btn type-btn inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white data-[active=true]:bg-white data-[active=true]:shadow-sm data-[active=true]:text-gray-900" data-type="red" title="Red scrims">
+              <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+              Red
+            </button>
+          </div>
+        </div>
+
+        <!-- Right side actions -->
+        <div class="ml-auto flex items-center gap-2">
+          <button type="button" id="clear-filters" class="th-btn th-btn-ghost">Clear</button>
+          <button type="submit" class="btn-apply th-btn th-btn-primary">Apply filters</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- KPI Row (optional, compact) -->
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+    {% set t_games = (win_stats|sum(attribute='games'))|default(0) %}
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted">
+      <div class="text-xs text-gray-500">Total Scrims</div>
+      <div class="mt-1 text-xl font-semibold text-gray-900">{{ t_games }}</div>
+    </div>
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted">
+      <div class="text-xs text-gray-500">Overall WR</div>
+      {%- set w = (win_stats|sum(attribute='wins'))|default(0) -%}
+      {%- set overall_wr_curr = (((w / t_games)*100)|round(0)) if t_games>0 else None -%}
+      <div class="mt-1 flex items-center gap-2">
+        <div class="text-xl font-semibold text-gray-900">{%- if overall_wr_curr is not none -%}{{ overall_wr_curr }}%{%- else -%}—{%- endif -%}</div>
+        {%- if overall_wr_curr is not none -%}
+          {%- set delta = (overall_wr_curr - (baseline_overall_wr|default(0))) -%}
+          {%- if delta > 0 -%}
+            <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"><i class="bi bi-arrow-up-right me-1"></i>+{{ delta }}%</span>
+          {%- elif delta < 0 -%}
+            <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20"><i class="bi bi-arrow-down-right me-1"></i>{{ delta }}%</span>
+          {%- else -%}
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10"><i class="bi bi-dash me-1"></i>0%</span>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted">
+      <div class="text-xs text-gray-500">DEF WR</div>
+      {%- set dw = (win_stats|sum(attribute='def_winrate'))|default(0) -%}
+      {%- set def_wr_curr = ((dw / (win_stats|length))|round(0)) if win_stats|length>0 else None -%}
+      <div class="mt-1 flex items-center gap-2">
+        <div class="text-xl font-semibold text-gray-900">{%- if def_wr_curr is not none -%}{{ def_wr_curr }}%{%- else -%}—{%- endif -%}</div>
+        {%- if def_wr_curr is not none -%}
+          {%- set delta = (def_wr_curr - (baseline_def_wr|default(0))) -%}
+          {%- if delta > 0 -%}
+            <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"><i class="bi bi-arrow-up-right me-1"></i>+{{ delta }}%</span>
+          {%- elif delta < 0 -%}
+            <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20"><i class="bi bi-arrow-down-right me-1"></i>{{ delta }}%</span>
+          {%- else -%}
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10"><i class="bi bi-dash me-1"></i>0%</span>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted">
+      <div class="text-xs text-gray-500">ATK WR</div>
+      {%- set aw = (win_stats|sum(attribute='atk_winrate'))|default(0) -%}
+      {%- set atk_wr_curr = ((aw / (win_stats|length))|round(0)) if win_stats|length>0 else None -%}
+      <div class="mt-1 flex items-center gap-2">
+        <div class="text-xl font-semibold text-gray-900">{%- if atk_wr_curr is not none -%}{{ atk_wr_curr }}%{%- else -%}—{%- endif -%}</div>
+        {%- if atk_wr_curr is not none -%}
+          {%- set delta = (atk_wr_curr - (baseline_atk_wr|default(0))) -%}
+          {%- if delta > 0 -%}
+            <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"><i class="bi bi-arrow-up-right me-1"></i>+{{ delta }}%</span>
+          {%- elif delta < 0 -%}
+            <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20"><i class="bi bi-arrow-down-right me-1"></i>{{ delta }}%</span>
+          {%- else -%}
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10"><i class="bi bi-dash me-1"></i>0%</span>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted">
+      <div class="text-xs text-gray-500">Pistol WR</div>
+      {%- set pw = ((win_stats|sum(attribute='def_pistol')) + (win_stats|sum(attribute='atk_pistol')))|default(0) -%}
+      {%- set pistol_wr_curr = ((pw / (2*(win_stats|length)))|round(0)) if win_stats|length>0 else None -%}
+      <div class="mt-1 flex items-center gap-2">
+        <div class="text-xl font-semibold text-gray-900">{%- if pistol_wr_curr is not none -%}{{ pistol_wr_curr }}%{%- else -%}—{%- endif -%}</div>
+        {%- if pistol_wr_curr is not none -%}
+          {%- set delta = (pistol_wr_curr - (baseline_pistol_wr|default(0))) -%}
+          {%- if delta > 0 -%}
+            <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"><i class="bi bi-arrow-up-right me-1"></i>+{{ delta }}%</span>
+          {%- elif delta < 0 -%}
+            <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20"><i class="bi bi-arrow-down-right me-1"></i>{{ delta }}%</span>
+          {%- else -%}
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10"><i class="bi bi-dash me-1"></i>0%</span>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden">
+
+    <!-- Responsive table -->
+    <div class="overflow-x-auto">
+      <table id="winStatsTable" class="min-w-full border-separate border-spacing-0" data-sortable="true">
+        <thead>
+          <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Map</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer"><span class="inline-flex items-center gap-1">Played</span></th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer"><span class="inline-flex items-center gap-1 text-green-700">Wins</span></th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer"><span class="inline-flex items-center gap-1 text-amber-700">Draws</span></th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer"><span class="inline-flex items-center gap-1 text-rose-700">Losses</span></th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer"><span class="inline-flex items-center gap-1">Win-rate</span></th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">DEF WR</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">ATK WR</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">DEF Pistol</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">ATK Pistol</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-gray-100 text-sm">
+          {# Overall WR for threshold coloring #}
+          {% set _games_total = (win_stats|sum(attribute='games'))|default(0) %}
+          {% set _wins_total  = (win_stats|sum(attribute='wins'))|default(0) %}
+          {% set overall_wr = (((_wins_total / _games_total) * 100)|round(0)) if _games_total>0 else 0 %}
+          {% for stat in win_stats|sort(attribute='games', reverse=True) %}
+          {% set wr = (stat.win_rate | default(0) | int) %}
+          {% set mid_range = (wr >= 50 and wr < overall_wr) %}
+          {% if wr < 50 %}
+            {% set border = 'border-rose-500' %}
+          {% elif wr < overall_wr %}
+            {% set border = 'border-amber-600' %}
+          {% else %}
+            {% set border = 'border-green-500' %}
+          {% endif %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900 border-l-4 {{ border }}">{{ stat.map }}</td>
+            <td class="px-4 py-3 text-gray-700" sorttable_customkey="{{ (stat.games | default(0)) | float }}">{{ stat.games }}</td>
+            <td class="px-4 py-3 text-gray-700" sorttable_customkey="{{ (stat.wins | default(0)) | float }}">{{ stat.wins }}</td>
+            <td class="px-4 py-3 text-gray-700" sorttable_customkey="{{ (stat.draws | default(0)) | float }}">{{ stat.draws }}</td>
+            <td class="px-4 py-3 text-gray-700" sorttable_customkey="{{ (stat.losses | default(0)) | float }}">{{ stat.losses }}</td>
+            <td class="px-4 py-3" sorttable_customkey="{{ (stat.win_rate | default(0)) | float }}">
+              {% set wrv = (stat.win_rate | default(0) | int) %}
+              {% if wrv < 50 %}
+                <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ wrv }}%</span>
+              {% elif wrv < overall_wr %}
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ wrv }}%</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ wrv }}%</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3" sorttable_customkey="{{ (stat.def_winrate | default(0)) | float }}">
+              {% set dwr = (stat.def_winrate | default(0) | int) %}
+              {% if dwr < 50 %}
+                <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ dwr }}%</span>
+              {% elif dwr < overall_wr %}
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ dwr }}%</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ dwr }}%</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3" sorttable_customkey="{{ (stat.atk_winrate | default(0)) | float }}">
+              {% set awr = (stat.atk_winrate | default(0) | int) %}
+              {% if awr < 50 %}
+                <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ awr }}%</span>
+              {% elif awr < overall_wr %}
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ awr }}%</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ awr }}%</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3" sorttable_customkey="{{ (stat.def_pistol | default(0)) | float }}">
+              {% set dpr = (stat.def_pistol | default(0) | int) %}
+              {% if dpr < 50 %}
+                <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ dpr }}%</span>
+              {% elif dpr < overall_wr %}
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ dpr }}%</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ dpr }}%</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3" sorttable_customkey="{{ (stat.atk_pistol | default(0)) | float }}">
+              {% set apr = (stat.atk_pistol | default(0) | int) %}
+              {% if apr < 50 %}
+                <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ apr }}%</span>
+              {% elif apr < overall_wr %}
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ apr }}%</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ apr }}%</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Map Outcomes Bar Chart -->
+  <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden mt-6">
+    <div class="px-4 pt-4">
+      <h2 class="text-lg font-semibold text-gray-900">Map Outcomes</h2>
+      <p class="text-sm text-gray-500">Wins / Draws / Losses by map</p>
+    </div>
+    <div class="p-4">
+      <div id="mapChartContainer" style="height: 420px;">
+        <canvas id="mapOutcomesChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Chart.js for the bar plot -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function() {
+      const stats = {{ win_stats | tojson | safe }};
+      if (!stats || !stats.length) return;
+
+      // Prepare data arrays
+      const labels = stats.map(s => s['map']);
+      const wins   = stats.map(s => s['wins']   || 0);
+      const draws  = stats.map(s => s['draws']  || 0);
+      const losses = stats.map(s => s['losses'] || 0);
+
+      // Dynamic container height for horizontal bars
+      const container = document.getElementById('mapChartContainer');
+      if (container) {
+        const rowHeight = 28; // px per bar
+        container.style.height = Math.max(220, labels.length * rowHeight) + 'px';
+      }
+
+      // Use stored preference first to avoid flash before base script applies class
+      const storedDark = localStorage.getItem('darkModeEnabled') === 'true';
+      const isDark = storedDark || document.body.classList.contains('dark-mode');
+      const axisColor  = isDark ? '#d1d5db' : '#374151';
+      const gridColor  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+      const legendColor = axisColor;
+
+      const ctx = document.getElementById('mapOutcomesChart')?.getContext('2d');
+      if (!ctx) return;
+
+      // Plugin to draw WR% at the end of each stacked bar
+      const winrateLabelPlugin = {
+        id: 'winrateLabels',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+          const { ctx, chartArea: { left, right }, scales: { x, y } } = chart;
+          ctx.save();
+          ctx.font = '12px Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = (pluginOptions && pluginOptions.color) || '#374151';
+          for (let i = 0; i < labels.length; i++) {
+            const w = wins[i] || 0, d = draws[i] || 0, l = losses[i] || 0;
+            const total = w + d + l;
+            if (!total) continue;
+            const wr = Math.round((w / total) * 100);
+            const text = wr + '%';
+            const cx = x.getPixelForValue(total);
+            const cy = y.getPixelForValue(i);
+            let xPos = cx + 6;
+            const textWidth = ctx.measureText(text).width;
+            if (xPos + textWidth > right - 4) xPos = right - textWidth - 4;
+            if (xPos < left + 4) xPos = left + 4;
+            ctx.fillText(text, xPos, cy);
+          }
+          ctx.restore();
+        }
+      };
+      const mapOutcomesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Wins',   data: wins,   backgroundColor: 'rgba(16, 185, 129, 0.85)', borderWidth: 0, borderRadius: 6, stack: 'total' },
+            { label: 'Draws',  data: draws,  backgroundColor: 'rgba(245, 158, 11, 0.85)', borderWidth: 0, borderRadius: 6, stack: 'total' },
+            { label: 'Losses', data: losses, backgroundColor: 'rgba(239, 68, 68, 0.85)', borderWidth: 0, borderRadius: 6, stack: 'total' },
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          animation: { duration: 450, easing: 'easeOutCubic' },
+          plugins: {
+            legend: { labels: { color: legendColor }, position: 'top' },
+            tooltip: {
+              callbacks: {
+                footer: (items) => {
+                  const i = items[0].dataIndex;
+                  const total = (wins[i]||0) + (draws[i]||0) + (losses[i]||0);
+                  return 'Total: ' + total;
+                }
+              }
+            },
+            winrateLabels: { color: legendColor }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: axisColor, autoSkip: true, maxRotation: 0 },
+              grid: { color: gridColor }
+            },
+            y: {
+              stacked: true,
+              ticks: { color: axisColor, precision: 0 },
+              grid: { color: gridColor }
+            }
+          }
+        },
+        plugins: [winrateLabelPlugin]
+      });
+
+      // Update chart theme on dark mode toggle
+      const applyChartTheme = () => {
+        const dark = document.body.classList.contains('dark-mode');
+        const a = dark ? '#d1d5db' : '#374151';
+        const g = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+        mapOutcomesChart.options.scales.x.ticks.color = a;
+        mapOutcomesChart.options.scales.y.ticks.color = a;
+        mapOutcomesChart.options.scales.x.grid.color = g;
+        mapOutcomesChart.options.scales.y.grid.color = g;
+        mapOutcomesChart.options.plugins.legend.labels.color = a;
+        if (!mapOutcomesChart.options.plugins.winrateLabels) mapOutcomesChart.options.plugins.winrateLabels = {};
+        mapOutcomesChart.options.plugins.winrateLabels.color = a;
+        mapOutcomesChart.update('none');
+      };
+      const desktopToggle = document.getElementById('darkModeToggle');
+      const mobileToggle = document.getElementById('darkModeToggleMobile');
+      if (desktopToggle) desktopToggle.addEventListener('change', applyChartTheme);
+      if (mobileToggle) mobileToggle.addEventListener('change', applyChartTheme);
+
+      // Observe body class changes to sync immediately when base script toggles dark mode
+      const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.attributeName === 'class') {
+            applyChartTheme();
+            break;
+          }
+        }
+      });
+      observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    })();
+  </script>
+
+  
+
+  <!-- Opponents Head-to-Head -->
+  <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden mt-8">
+    <div class="px-4 pt-4 flex items-center justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Opponents</h2>
+        <p class="text-sm text-gray-500">Summary by opponent (regarding the current selection).</p>
+      </div>
+      <div class="w-full sm:w-auto">
+        <label for="opp-search" class="sr-only">Search opponent</label>
+        <input id="opp-search" type="text" placeholder="Search opponent"
+               class="block w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm" />
+      </div>
+    </div>
+    <div class="opp-rows divide-y divide-gray-100">
+      {% for opp in head_to_head %}
+      <div class="opponent-card" data-opponent="{{ opp.opponent|lower }}">
+        <div class="flex items-center justify-between px-4 py-3">
+          <div>
+            <h3 class="text-base font-semibold text-gray-900">{{ opp.opponent }}</h3>
+            <div class="text-sm text-gray-600">
+              Played: {{ opp.games }} · Wins: {{ opp.wins }} · WR: {{ opp.wr }}% · Last played: {{ opp.last_played }}
+            </div>
+          </div>
+          <button type="button" class="toggle-opp-btn th-btn th-btn-ghost" data-opp="{{ opp.opponent|replace(' ', '-')|lower }}">
+            Show details
+          </button>
+        </div>
+        <div id="opps-{{ opp.opponent|replace(' ', '-')|lower }}" class="hidden px-4 pb-4 space-y-3">
+          <!-- per-map summary -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full" data-sortable="true">
+              <thead>
+                <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Map</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Played</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Wins</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Win Rate</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-sm">
+                {% for m in opp.maps %}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 font-medium text-gray-900">{{ m.map }}</td>
+                  <td class="px-4 py-3 text-gray-700">{{ m.games }}</td>
+                  <td class="px-4 py-3 text-gray-700">{{ m.wins }}</td>
+                  <td class="px-4 py-3" sorttable_customkey="{{ (m.wr | default(0)) | float }}">{{ winrate_badge(m.wr) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <!-- compositions seen -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full" data-sortable="true">
+              <thead>
+                <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Date</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Map</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Enemy Composition</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-sm">
+                {% for e in opp.events %}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-gray-700" sorttable_customkey="{{ e.date_sort }}">{{ e.date }}</td>
+                  <td class="px-4 py-3 text-gray-700">{{ e.map }}</td>
+                  <td class="px-4 py-3 font-medium text-gray-900">{{ e.comp }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Opponent Agent Winrates: Single container with collapsible sections -->
+  <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden mt-8">
+    <div class="px-4 pt-4">
+      <h2 class="text-lg font-semibold text-gray-900">Opponent Agent-specific Winrates by Map</h2>
+      <p class="text-sm text-gray-500">Winrates by map and agent used by the opponent (regarding to all scrims played in 2025), potentially revealing against which specific agents we suffer the most on each map</p>
+    </div>
+    <div class="opp-rows divide-y divide-gray-100">
+      {% for map, group in agent_winrates|groupby('MAP') %}
+      <div>
+        <div class="flex items-center justify-between px-4 py-3">
+          <h3 class="text-base font-semibold text-gray-900">{{ map }}</h3>
+          <button type="button" class="toggle-btn th-btn th-btn-ghost"
+                  data-map="{{ map|replace(' ', '-')|lower }}">
+            Show agents
+          </button>
+        </div>
+        <div id="agents-{{ map|replace(' ', '-')|lower }}" class="hidden px-4 pb-4">
+          <div class="overflow-x-auto">
+            <table class="min-w-full" data-sortable="true">
+              <thead>
+                <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Agent</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Played</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Wins</th>
+                  <th class="sticky-th px-4 py-3 border-b border-gray-200 cursor-pointer">Win Rate</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-sm">
+                {% for row in group %}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 font-medium text-gray-900">{{ row['ENEMY TEAM COMP'] }}</td>
+                  <td class="px-4 py-3 text-gray-700">{{ row.total_games }}</td>
+                  <td class="px-4 py-3 text-gray-700">{{ row.wins }}</td>
+                  <td class="px-4 py-3" sorttable_customkey="{{ (row.win_rate | default(0)) | float }}">
+                    {% set r = (row.win_rate | default(0) | round(2)) %}
+                    {{ winrate_badge(r) }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Minimal JS: filter mode toggle, month->dates, sortable tables -->
+<script>
+  // Helpers
+  function setMode(active) {
+    document.getElementById('mode').value = active;
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.dataset.active = (b.id === (active === 'preset' ? 'preset-month-btn' : 'custom-range-btn'));
+    });
+    document.getElementById('month-selection').classList.toggle('hidden', active !== 'preset');
+    document.getElementById('custom-range').classList.toggle('hidden', active !== 'custom');
+    // Clear title hint when going custom
+    if (active === 'custom') { /* title handled server-side on submit */ }
+  }
+
+  // Initial mode UI from hidden input
+  const modeInput = document.getElementById('mode');
+  if (modeInput) setMode(modeInput.value || 'preset');
+
+  // Mode buttons
+  const presetBtn = document.getElementById('preset-month-btn');
+  if (presetBtn) {
+    presetBtn.addEventListener('click', () => {
+      setMode('preset');
+      const dd = document.getElementById('monthDropdown');
+      if (dd && dd.value) updatePresetDates();
+    });
+  }
+  const customBtn = document.getElementById('custom-range-btn');
+  if (customBtn) customBtn.addEventListener('click', () => setMode('custom'));
+
+  // Month -> hidden fields
+  const monthDd = document.getElementById('monthDropdown');
+  if (monthDd) monthDd.addEventListener('change', updatePresetDates);
+  function updatePresetDates() {
+    const monthEl = document.getElementById('monthDropdown');
+    const monthValue = monthEl ? monthEl.value : '';
+    const year = 2025;
+    if (!monthValue) return;
+    const m = parseInt(monthValue, 10);
+    const start = new Date(year, m - 1, 1);
+    const end   = new Date(year, m, 0);
+    document.getElementById('form_start_date').value = start.toISOString().slice(0,10);
+    document.getElementById('form_end_date').value   = end.toISOString().slice(0,10);
+    document.getElementById('month').value = monthValue;
+  }
+
+  // Scrim type segmented toggle -> hidden input
+  const typeBtns = Array.from(document.querySelectorAll('.type-btn'));
+  function setScrimType(val) {
+    const hid = document.getElementById('scrim_type');
+    if (hid) hid.value = val || 'all';
+    typeBtns.forEach(b => { b.dataset.active = (b.dataset.type === (val || 'all')); });
+  }
+  typeBtns.forEach(b => b.addEventListener('click', () => setScrimType(b.dataset.type)));
+  // initialize active state from server value
+  setScrimType('{{ (scrim_type or "all")|lower }}');
+
+  // Custom range -> hidden inputs
+  const sd = document.getElementById('start_date');
+  const ed = document.getElementById('end_date');
+  if (sd && ed) {
+    sd.addEventListener('change', e => { document.getElementById('form_start_date').value = e.target.value; });
+    ed.addEventListener('change', e => { document.getElementById('form_end_date').value   = e.target.value; });
+  }
+
+  // Clear filters (client-side reset to defaults)
+  const clearBtn = document.getElementById('clear-filters');
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    // Reset mode to preset + empty month
+    setMode('preset');
+    const mdd = document.getElementById('monthDropdown');
+    if (mdd) mdd.value = '';
+    // Reset dates to server defaults already in hidden fields
+    const fsd = document.getElementById('form_start_date'); if (fsd) fsd.value = "{{ start_date_default }}";
+    const fed = document.getElementById('form_end_date');   if (fed) fed.value = "{{ end_date_default }}";
+    const sdi = document.getElementById('start_date');      if (sdi) sdi.value = "{{ start_date_default }}";
+    const edi = document.getElementById('end_date');        if (edi) edi.value = "{{ end_date_default }}";
+    const mEl = document.getElementById('month');           if (mEl) mEl.value = '';
+    setScrimType('all');
+  });
+
+  // (Table search removed as requested)
+
+  // Toggle agent sections
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = 'agents-' + btn.dataset.map;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      el.classList.toggle('hidden', !isHidden);
+      btn.textContent = isHidden ? 'Hide agents' : 'Show agents';
+    });
+  });
+
+  // Toggle opponent sections
+  document.querySelectorAll('.toggle-opp-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = 'opps-' + btn.dataset.opp;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      el.classList.toggle('hidden', !isHidden);
+      btn.textContent = isHidden ? 'Hide details' : 'Show details';
+    });
+  });
+
+  // Opponent search filter
+  (function () {
+    const input = document.getElementById('opp-search');
+    if (!input) return;
+    const cards = Array.from(document.querySelectorAll('.opponent-card'));
+    function filterOpponents() {
+      const q = (input.value || '').trim().toLowerCase();
+      cards.forEach(card => {
+        const name = (card.dataset.opponent || '').toLowerCase();
+        const match = q === '' || name.includes(q);
+        card.classList.toggle('hidden', !match);
+      });
+    }
+    input.addEventListener('input', filterOpponents);
+  })();
+
+  // Sortable tables (vanilla)
+  function getCellSortValue(td) {
+    const key = td.getAttribute('sorttable_customkey');
+    if (key !== null && key !== '') {
+      const num = parseFloat(key);
+      if (!Number.isNaN(num)) return num;
+      return key.toString().toLowerCase();
+    }
+    const txt = td.innerText.trim();
+    // Try numeric (strip % and commas)
+    const numTxt = txt.replace(/[% ,]/g, '');
+    const num = parseFloat(numTxt);
+    if (!Number.isNaN(num) && numTxt !== '') return num;
+    return txt.toLowerCase();
+  }
+
+  function makeTableSortable(table) {
+    const thead = table.tHead;
+    const tbody = table.tBodies[0];
+    if (!thead || !tbody) return;
+    const headers = Array.from(thead.rows[0].cells);
+    headers.forEach((th, idx) => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => {
+        const currentDir = th.dataset.sortDir === 'asc' ? 'asc' : th.dataset.sortDir === 'desc' ? 'desc' : null;
+        const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+        // Clear indicators on other headers
+        headers.forEach(h => { delete h.dataset.sortDir; h.classList.remove('th-sort-asc','th-sort-desc'); });
+        th.dataset.sortDir = newDir;
+        th.classList.toggle('th-sort-asc', newDir === 'asc');
+        th.classList.toggle('th-sort-desc', newDir === 'desc');
+
+        const rows = Array.from(tbody.rows);
+        rows.sort((a, b) => {
+          const av = getCellSortValue(a.cells[idx] || a.cells[a.cells.length-1]);
+          const bv = getCellSortValue(b.cells[idx] || b.cells[b.cells.length-1]);
+          const aNum = typeof av === 'number';
+          const bNum = typeof bv === 'number';
+          let cmp = 0;
+          if (aNum && bNum) cmp = av - bv;
+          else cmp = String(av).localeCompare(String(bv));
+          return newDir === 'asc' ? cmp : -cmp;
+        });
+        // Reattach in new order
+        const frag = document.createDocumentFragment();
+        rows.forEach(r => frag.appendChild(r));
+        tbody.appendChild(frag);
+      });
+    });
+  }
+
+  document.querySelectorAll('table[data-sortable="true"]').forEach(makeTableSortable);
+</script>
+{% endblock %}

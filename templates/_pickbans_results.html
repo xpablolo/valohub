@@ -1,0 +1,49 @@
+{# templates/_pickbans_results.html #}
+{% if table %}
+<div class="results surface-card bg-white rounded-xl ring-muted p-3">
+  <div class="mb-2">
+    <h5 class="m-0 text-gray-900">Results for {{ selected_team }}</h5>
+    <p class="m-0 text-sm text-gray-500">Events: {{ selected_events | join(", ") }}</p>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full border-separate border-spacing-0" data-sortable="true">
+      <thead>
+        <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <th class="sticky-th px-3 py-2 border-b border-gray-200">Map</th>
+          <th class="sticky-th px-3 py-2 border-b border-gray-200">1st Ban</th>
+          <th class="sticky-th px-3 py-2 border-b border-gray-200">2nd Ban</th>
+          <th class="sticky-th px-3 py-2 border-b border-gray-200">1st Pick</th>
+          <th class="sticky-th px-3 py-2 border-b border-gray-200">2nd Pick (bo5)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 text-sm">
+        {% for map, picks in table.items() %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-3 py-2 font-medium text-gray-900">{{ map }}</td>
+          <td class="px-3 py-2 text-gray-700">{{ picks[0] }}</td>
+          <td class="px-3 py-2 text-gray-700">{{ picks[1] }}</td>
+          <td class="px-3 py-2 text-gray-700">{{ picks[2] }}</td>
+          <td class="px-3 py-2 text-gray-700">{{ picks[3] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if overview %}
+  <div class="mt-4">
+    <h6 class="m-0 text-gray-900">Overview (most recent → older)</h6>
+    <ul class="mt-2 space-y-2">
+      {% for match in overview %}
+      <li class="surface-card bg-white rounded-lg ring-muted p-3">
+        <div class="text-sm text-gray-900 font-medium">Match {{ loop.index }}</div>
+        <ul class="list-disc ml-5 text-sm text-gray-700">
+          {% for line in match %}<li>{{ line }}</li>{% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endif %}

@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+{% block title %}Pick & Bans{% endblock %}
+{% block content %}
+
+<style>
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .dark-mode .pickbans-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .pickbans-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .pickbans-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .pickbans-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .pickbans-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .pickbans-page .border-gray-200 { border-color: #374151 !important; }
+  .dark-mode .pickbans-page .bg-gray-50 { background-color: #111827 !important; }
+
+  /* Tables inside pick&bans (results + analysis) */
+  .pickbans-page table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .pickbans-page table thead th {
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 600;   /* font-semibold */
+    text-transform: uppercase;
+    letter-spacing: .05em; /* tracking-wider */
+    color: #6b7280; /* gray-500 */
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    border-bottom: 1px solid #e5e7eb; /* gray-200 */
+    background: #ffffff;
+  }
+  .pickbans-page table tbody td {
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    color: #374151; /* gray-700 */
+    border-bottom: 1px solid #f3f4f6; /* gray-100 */
+  }
+  .pickbans-page table tbody tr:hover { background-color: #f9fafb; } /* gray-50 */
+
+  /* Dark mode tables */
+  .dark-mode .pickbans-page table thead th {
+    color: #9ca3af; /* gray-400/500 */
+    border-bottom-color: #374151; /* gray-700 */
+    background: #111827; /* page bg */
+  }
+  .dark-mode .pickbans-page table tbody td {
+    color: #e5e7eb; /* gray-200 */
+    border-bottom-color: #374151;
+  }
+  .dark-mode .pickbans-page table tbody tr:hover { background-color: #1f2937; }
+
+  /* Sort arrows */
+  .pickbans-page th.th-sort-asc::after  { content: " ▲"; }
+  .pickbans-page th.th-sort-desc::after { content: " ▼"; }
+
+  /* Prompt modal polish */
+  .prompt-modal-container { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; }
+  .prompt-modal-container.show { display: flex; }
+  .prompt-modal { position: relative; width: min(820px, 92vw); max-height: 85vh; overflow: auto; }
+  .prompt-modal .btn-close { position: absolute; top: .5rem; right: .5rem; filter: invert(0); }
+  .dark-mode .prompt-modal .btn-close { filter: invert(1); }
+  .prompt-modal pre { background: #f9fafb; color: #111827; border: 1px solid #e5e7eb; border-radius: .5rem; padding: .75rem; }
+  .dark-mode .prompt-modal pre { background: #0f172a; color: #e5e7eb; border-color: #374151; }
+
+  /* Event chips (visible in light and dark modes) */
+  .pickbans-page .event-chip {
+    border: 1px solid #e5e7eb;           /* gray-200 */
+    background-color: #f9fafb;           /* gray-50 */
+    color: #374151;                       /* gray-700 */
+    transition: background-color .15s, color .15s, border-color .15s;
+  }
+  .pickbans-page .event-chip:hover { background-color: #f3f4f6; } /* gray-100 */
+  .pickbans-page input[type="checkbox"].peer:checked + .event-chip,
+  .pickbans-page input[type="radio"].peer:checked + .event-chip {
+    background-color: #2563eb;           /* blue-600 */
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+  .dark-mode .pickbans-page .event-chip {
+    background-color: #1f2937;           /* gray-800 */
+    color: #e5e7eb;                       /* gray-200 */
+    border-color: #4b5563;                /* gray-600 */
+  }
+  .dark-mode .pickbans-page .event-chip:hover { background-color: #374151; } /* gray-700 */
+  .dark-mode .pickbans-page input[type="checkbox"].peer:checked + .event-chip,
+  .dark-mode .pickbans-page input[type="radio"].peer:checked + .event-chip {
+    background-color: #2563eb;           /* blue-600 for contrast */
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+
+  /* Inputs/selects in dark mode (team search, recency weight) */
+  .dark-mode .pickbans-page input,
+  .dark-mode .pickbans-page select,
+  .dark-mode .pickbans-page textarea {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+  }
+  .dark-mode .pickbans-page input:focus,
+  .dark-mode .pickbans-page select:focus,
+  .dark-mode .pickbans-page textarea:focus {
+    outline: none !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 1px #60a5fa inset !important;
+  }
+
+  /* Dark mode: subtle ring around Search button to emphasize clickability */
+  .dark-mode .pickbans-page .btn-search {
+    border-radius: 9999px;
+    outline: 2px solid rgba(255,255,255,0.18);
+    outline-offset: 2px;
+    transition: outline-color .2s ease, box-shadow .2s ease;
+  }
+  .dark-mode .pickbans-page .btn-search:hover {
+    outline-color: rgba(255,255,255,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  }
+</style>
+
+<div class="pickbans-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Pick &amp; Bans</h1>
+      <p class="text-sm text-gray-500">Lookup and compare map preferences.</p>
+    </div>
+    <button id="addForm" class="th-btn th-btn-primary">+ Add another lookup</button>
+  </div>
+
+  <div id="formsContainer" class="flex flex-wrap gap-4">
+  <!-- initial container: no remove button here -->
+  <div class="form-container surface-card bg-white rounded-xl p-4 ring-muted" style="flex: 1 0 0; min-width: 260px; position: relative;">
+    <form class="pick-bans-form" action="{{ url_for('pick_bans') }}" method="POST">
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Team</label>
+        <input list="teams" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" name="team">
+        <datalist id="teams">
+          <option value="BBL">BBL Esports</option>
+            <option value="VIT">Vitality</option>
+            <option value="FUT">FUT Esports</option>
+            <option value="TH">Team Heretics</option>
+            <option value="GX">GiantX</option>
+            <option value="FNC">Fnatic</option>
+            <option value="M8">Gentle Mates</option>
+            <option value="NAVI">Natus Vincere</option>
+            <option value="MKOI">Movistar KOI</option>
+            <option value="KC">Karmine Corp</option>
+            <option value="TL">Team Liquid</option>
+            <option value="SEN">Sentinels</option>
+            <option value="MIBR">MIBR</option>
+            <option value="BLG">Bilibili Gaming</option>
+            <option value="WOL">Wolves Esports</option>
+            <option value="GEN">GenG</option>
+            <option value="PRX">Paper Rex</option>
+            <option value="G2">G2 Esports</option>
+            <option value="XLG">Xi Lai Gaming</option>
+            <option value="NRG">NRG Esports</option>
+            <option value="100T">100T</option>
+            <option value="EDG">EDward Gaming</option>
+            <option value="TEC">Titan Esports</option>
+            <option value="RRQ">Rex Regum Qeon</option>
+            <option value="DRX">DRX</option>
+            <option value="DRG">Dragon Ranger Gaming</option>
+            <option value="T1">T1</option>
+        </datalist>
+      </div>
+      <div class="mb-3">
+  <label class="block text-sm font-medium text-gray-700 mb-1">Events to consider</label>
+  <div class="flex flex-wrap gap-2 mb-2">
+    {% for code,label in [
+      ('2025-emea-kickoff','EMEA Kickoff'),
+      ('2025-masters-bangkok','Masters Bangkok'),
+      ('2025-stage-1-all','Stage 1'),
+      ('hero-esports-asian-champions-league-2025','Hero Asia'),
+      ('china-evolution-series-act-2-x-asian-champions-league','China Evo Series'),
+      ('esports-world-cup-2025','EWC'),
+      ('-toronto','Masters Toronto'),
+      ('2025-stage-2-all','Stage 2'),
+      ('valorant-champions-2025','Champs'),
+    ] %}
+      <input type="checkbox" class="peer hidden" name="events" id="evt-{{ loop.index }}" value="{{ code }}" autocomplete="off" {% if code in selected_events %}checked{% endif %}>
+      <label for="evt-{{ loop.index }}" class="event-chip select-none cursor-pointer rounded-full px-3 py-1 text-sm">
+        {{ label }}
+      </label>
+    {% endfor %}
+  </div>
+  <div class="mb-3">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Recency Weight (for AI Analysis)</label>
+    <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Recency Weight">
+      <input type="radio" class="peer hidden" name="recency_weight" id="recency-0-low" value="low" {% if recency_weight=='low' %}checked{% endif %}>
+      <label for="recency-0-low" class="event-chip select-none cursor-pointer rounded-full px-3 py-1 text-sm">Low</label>
+
+      <input type="radio" class="peer hidden" name="recency_weight" id="recency-0-default" value="default" {% if recency_weight=='default' or not recency_weight %}checked{% endif %}>
+      <label for="recency-0-default" class="event-chip select-none cursor-pointer rounded-full px-3 py-1 text-sm">Default</label>
+
+      <input type="radio" class="peer hidden" name="recency_weight" id="recency-0-high" value="high" {% if recency_weight=='high' %}checked{% endif %}>
+      <label for="recency-0-high" class="event-chip select-none cursor-pointer rounded-full px-3 py-1 text-sm">High</label>
+    </div>
+    <div class="text-xs text-gray-500 mt-1">Low = treat all matches equally; Default = slight focus on recent; High = focus mainly on most recent</div>
+  </div>
+</div>
+      <button type="submit" class="th-btn th-btn-primary">Search</button>
+      <button type="button" class="ai-btn th-btn th-btn-outline ms-2">AI Analysis</button>
+      <a href="#" class="show-prompt ms-2 align-middle text-xs text-gray-600 hover:text-gray-900">Show Prompt &amp; Model</a>
+    </form>
+
+    <!-- loader: hidden by default -->
+<div class="loading-spinner d-none text-center my-2">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+    <div class="analysis mt-3"><!-- AJAX injects AI ranking --></div>
+    <div class="results mt-3"><!-- AJAX injects here --></div>
+  <!-- new: prompt & model overlay -->
+    <div class="prompt-modal-container d-none">
+  <div class="prompt-modal surface-card bg-white rounded-xl ring-muted p-4">
+    <button type="button" class="btn-close close-prompt" aria-label="Close"></button>
+
+    <h6 class="mb-2 text-gray-900">Model Details</h6>
+    <ul class="small mb-4 text-gray-700">
+      <li>Model: <code>gpt-o4-mini</code></li>
+      <li>Temperature: <code>0.1</code></li>
+      <li>Top P: <code>0.9</code></li>
+      <li>n: <code>1</code></li>
+    </ul>
+
+    <h6 class="mb-1 text-gray-900">Example AI Prompt</h6>
+    <pre class="small mb-0" style="white-space: pre-wrap; word-wrap: break-word;">
+You are a Valorant analyst. Today you are evaluating the team “TH”.
+
+I want you to rank their mappool, indicating on which maps they are stronger and weaker.
+Below are their pick & ban sequences for each match, listed from most recent to oldest:
+Match 1: WOL ban Haven; TH ban Split; WOL pick Pearl; TH pick Lotus; WOL ban Sunset; TH ban Icebox; Ascent remains
+Match 2: PRX ban Haven; TH ban Split; PRX pick Pearl; TH pick Icebox; PRX ban Ascent; TH ban Sunset; Lotus remains
+
+When computing map strength:
+  - If TH picks a map, they are strong on it (add positive weight).
+  - If TH bans a map, they fear their own weakness (add negative weight).
+  - If the opponent picks a map, TH is likely weaker there (add negative weight).
+  - If the opponent bans a map, they fear TH's strength there (add positive weight).
+   - Remember that the picks and bans done by TH contain always way more information than the picks or bans done by the other team,
+     in particular give higher importance to first pick/bans, and analyze the latter decisions depending on the picks/bans done by the other team
+  - Weight Match 1 > Match 2 > ... so that recent form carries significantly more influence.
+  - Use the full pick/ban sequence and the order they occurred—early bans/picks matter most.
+  - **Important**: the official map pool can change over time.
+Only evaluate a map's strength for matches where that map was legally in the pool;
+the score of a map should only be computed regarding the matches where the map was in the pool, if not in the pool, then the score doesn't change at all.
+
+Return *only* a JSON array of [mapName,score] pairs (score between 0 and 1),
+sorted from strongest to weakest. No extra text or formatting.
+Example:
+[["Haven", 0.85], ["Split", 0.60], ["Ascent", 0.45]]
+</pre>
+  </div>
+  </div>
+</div>
+
+<style>
+  #formsContainer {
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .dark-mode #formsContainer .form-container {
+    background: #1e1e1e;
+    border-color: #333;
+    color: #ddd;
+  }
+
+  .dark-mode .form-label,
+  .dark-mode .form-text,
+  .dark-mode .prompt-modal {
+    color: #ddd;
+  }
+
+  .dark-mode .prompt-modal {
+    background: #2e2e2e;
+    border-color: #444;
+  }
+
+  .dark-mode .btn-outline-primary {
+    border-color: #555;
+    color: #aaa;
+  }
+
+  .dark-mode .btn-outline-primary:hover,
+  .dark-mode .btn-outline-primary:checked + label {
+    background-color: #444;
+    color: #fff;
+  }
+
+  .dark-mode .form-select,
+  .dark-mode .form-control {
+    background: #3a3a3a;
+    border-color: #555;
+    color: #ddd;
+  }
+
+  .dark-mode .results,
+  .dark-mode .analysis {
+    color: #ddd;
+  }
+</style>
+
+
+<script>
+  // JS to dynamically handle dark mode changes (if dark mode class toggles dynamically):
+  const observer = new MutationObserver(() => {
+    const darkMode = document.body.classList.contains('dark-mode');
+
+    document.querySelectorAll('.form-container').forEach(container => {
+      if (darkMode) {
+        container.classList.add('dark-mode');
+      } else {
+        container.classList.remove('dark-mode');
+      }
+    });
+  });
+
+  observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  // Ensure newly added forms respect current mode
+  document.getElementById('addForm').addEventListener('click', () => {
+    setTimeout(() => {
+      const darkMode = document.body.classList.contains('dark-mode');
+      document.querySelectorAll('.form-container').forEach(container => {
+        if (darkMode) container.classList.add('dark-mode');
+      });
+    }, 0);
+  });
+</script>
+
+
+<script>
+(function(){
+  const addBtn   = document.getElementById('addForm');
+  const wrapper  = document.getElementById('formsContainer');
+  const template = wrapper.querySelector('.form-container');
+  let cloneCount = 0;
+
+  // 1) Search: form-submit → only ajax=1 → render into .results
+  function attachSearch(container){
+    const form    = container.querySelector('form');
+    const spinner = container.querySelector('.loading-spinner');
+    const results = container.querySelector('.results');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      spinner.classList.remove('d-none');
+      results.innerHTML = '';
+
+      const data = new FormData(form);
+      data.append('ajax', '1');       // <-- only ajax
+      // NO data.append('analysis')
+
+      fetch(form.action, { method:'POST', body:data, credentials: 'same-origin'})
+        .then(r => r.json())
+        .then(obj => {
+          spinner.classList.add('d-none');
+          results.innerHTML = obj.html;
+          // Initialize sorting on any sortable tables in the results
+          results.querySelectorAll('table[data-sortable="true"]').forEach(makeTableSortable);
+        })
+        .catch(() => {
+          spinner.classList.add('d-none');
+          results.innerHTML = '<div class="text-danger">Error loading results</div>';
+        });
+    });
+  }
+
+  // 2) AI: click ai-btn → ajax=1 + analysis=1 → render into .analysis
+  function attachAI(container) {
+  const btn        = container.querySelector('.ai-btn');
+  const form       = container.querySelector('form');
+  const spinner    = container.querySelector('.loading-spinner');
+  const analysisEl = container.querySelector('.analysis');
+
+  btn.addEventListener('click', function() {
+    spinner.classList.remove('d-none');
+    analysisEl.innerHTML = '';
+
+    const data = new FormData(form);
+    data.append('ajax',     '1');
+    data.append('analysis', '1');
+
+    fetch(form.action, {
+      method:      'POST',
+      body:        data,
+      credentials: 'same-origin'
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer    = '';
+
+      function pump() {
+        return reader.read().then(result => {
+          if (!result) throw new Error('No data');
+          if (result.done) return spinner.classList.add('d-none');
+
+          buffer += decoder.decode(result.value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop();
+
+          parts.forEach(part => {
+            const idx = part.indexOf('data:');
+            if (idx === -1) return;
+            let msg;
+            try {
+              msg = JSON.parse(part.slice(idx + 5));
+            } catch (e) {
+              console.error('Bad JSON', part, e);
+              return;
+            }
+            if (msg.html) {
+              // render the Jinja‐generated HTML once
+              analysisEl.innerHTML = msg.html;
+              spinner.classList.add('d-none');
+            }
+          });
+
+          return pump();
+        });
+      }
+
+      return pump();
+    })
+    .catch(err => {
+      console.error('Streaming error:', err);
+      spinner.classList.add('d-none');
+      analysisEl.innerHTML = '<div class="text-danger">Analysis failed</div>';
+    });
+  });
+}
+
+
+
+  // 3) Remove button
+  function attachRemove(container){
+    const btn = container.querySelector('.remove-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      if (wrapper.querySelectorAll('.form-container').length > 1) {
+        container.remove();
+      }
+    });
+  }
+
+  // 4) Show/hide the prompt overlay
+  function attachPrompt(container){
+    const link     = container.querySelector('.show-prompt');
+    const modal    = container.querySelector('.prompt-modal-container');
+    const closeBtn = container.querySelector('.close-prompt');
+
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      modal.classList.remove('d-none');
+      modal.classList.add('show');
+    });
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('show');
+      modal.classList.add('d-none');
+    });
+  }
+
+  // Boot-strap the original
+  attachSearch(template);
+  attachAI(template);
+  attachRemove(template);
+  attachPrompt(template);
+
+  // And every clone
+  addBtn.addEventListener('click', () => {
+    cloneCount++;
+    const clone = template.cloneNode(true);
+
+    // clear inputs, results, analysis
+    clone.querySelector('input[list]').value = '';
+    clone.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+    clone.querySelector('.results').innerHTML  = '';
+    clone.querySelector('.analysis').innerHTML = '';
+    
+
+    // re-ID the event buttons exactly as before
+    clone.querySelectorAll('input[type=checkbox][id^="evt-"]').forEach(cb => {
+      const [_, num] = cb.id.split('-');
+      const newId    = `evt-${cloneCount}-${num}`;
+      const oldId    = cb.id;
+      cb.id = newId;
+      const lbl = clone.querySelector(`label[for="${oldId}"]`);
+      if (lbl) lbl.htmlFor = newId;
+    });
+
+    // reset and re-ID the recency radios to avoid duplicate IDs across clones
+    const radios = clone.querySelectorAll('input[type=radio][name="recency_weight"]');
+    radios.forEach(r => {
+      const oldId = r.id;
+      const val = r.value; // low | default | high
+      const newId = `recency-${cloneCount}-${val}`;
+      r.id = newId;
+      const lbl = clone.querySelector(`label[for="${oldId}"]`);
+      if (lbl) lbl.htmlFor = newId;
+      r.checked = (val === 'default');
+    });
+
+    // add remove btn
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-close remove-btn position-absolute top-0 end-0 m-2';
+    removeBtn.setAttribute('aria-label','Remove lookup');
+    clone.appendChild(removeBtn);
+
+    wrapper.appendChild(clone);
+    attachSearch(clone);
+    attachAI(clone);
+    attachRemove(clone);
+    attachPrompt(clone);
+      });
+  })();
+</script>
+
+<!-- Sortable tables helpers (same approach as scrims) -->
+<script>
+  function getCellSortValue(td) {
+    const key = td.getAttribute('sorttable_customkey');
+    if (key !== null && key !== '') {
+      const num = parseFloat(key);
+      if (!Number.isNaN(num)) return num;
+      return key.toString().toLowerCase();
+    }
+    const txt = td.innerText.trim();
+    const numTxt = txt.replace(/[% ,]/g, '');
+    const num = parseFloat(numTxt);
+    if (!Number.isNaN(num) && numTxt !== '') return num;
+    return txt.toLowerCase();
+  }
+  function makeTableSortable(table) {
+    const thead = table.tHead;
+    const tbody = table.tBodies[0];
+    if (!thead || !tbody) return;
+    const headers = Array.from(thead.rows[0].cells);
+    headers.forEach((th, idx) => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => {
+        const currentDir = th.dataset.sortDir === 'asc' ? 'asc' : th.dataset.sortDir === 'desc' ? 'desc' : null;
+        const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+        headers.forEach(h => { delete h.dataset.sortDir; h.classList.remove('th-sort-asc','th-sort-desc'); });
+        th.dataset.sortDir = newDir;
+        th.classList.toggle('th-sort-asc', newDir === 'asc');
+        th.classList.toggle('th-sort-desc', newDir === 'desc');
+        const rows = Array.from(tbody.rows);
+        rows.sort((a, b) => {
+          const av = getCellSortValue(a.cells[idx] || a.cells[a.cells.length-1]);
+          const bv = getCellSortValue(b.cells[idx] || b.cells[b.cells.length-1]);
+          const aNum = typeof av === 'number';
+          const bNum = typeof bv === 'number';
+          let cmp = 0;
+          if (aNum && bNum) cmp = av - bv; else cmp = String(av).localeCompare(String(bv));
+          return newDir === 'asc' ? cmp : -cmp;
+        });
+        const frag = document.createDocumentFragment();
+        rows.forEach(r => frag.appendChild(r));
+        tbody.appendChild(frag);
+      });
+    });
+  }
+  // If server rendered results exist, init sorting on load
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.pickbans-page table[data-sortable="true"]').forEach(makeTableSortable);
+  });
+</script>
+
+
+
+</div>
+{% endblock %}

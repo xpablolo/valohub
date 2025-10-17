@@ -1,0 +1,931 @@
+{% extends "base.html" %}
+
+{% block title %}Valorant Stats Demo{% endblock %}
+
+{% block content %}
+<style>
+  /* Scope all styles to stats page */
+  .stats-page .filters-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .stats-page .stats-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent;
+  }
+  .stats-page .stats-table thead th {
+    position: sticky; top: 0; z-index: 1;
+    background: #f1f5f9; /* slate-100 */
+    color: #0f172a;      /* slate-900 */
+    font-weight: 700; letter-spacing:.02em; font-size: .85rem;
+    padding: 9px 10px; cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .stats-page .stats-table tbody td {
+    padding: 8px 10px; font-size: .92rem;
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+  }
+  .stats-page .stats-table tbody tr:nth-child(odd) td { background: rgba(0,0,0,.015); }
+  .stats-page .stats-table tbody tr:hover td { background: rgba(15,23,42,.06); }
+  .stats-page .muted { color: var(--text-secondary); font-size: 12px; }
+  .stats-page .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .stats-page .table-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* Buttons use global th-btn styles from base */
+
+  /* Bootstrap table overrides in dark mode */
+  .dark-mode .stats-page .table { color: #e5e7eb; }
+  .dark-mode .stats-page .table > :not(caption) > * > * {
+    background-color: transparent; border-color: #374151;
+  }
+
+  /* Dark mode table header + rows */
+  .dark-mode .stats-page .stats-table thead th {
+    background: #111827; /* gray-900 */
+    color: #d1d5db;      /* gray-300 */
+    border-color: #374151;
+  }
+  .dark-mode .stats-page .stats-table tbody tr:nth-child(odd) td { background: rgba(255,255,255,.03); }
+  .dark-mode .stats-page .stats-table tbody tr:hover td { background: #1f2937; }
+
+  /* Filters card + inputs in dark mode */
+  .dark-mode .stats-page .filters-card { background: #111827; border-color: #374151; }
+  .dark-mode .stats-page .form-control,
+  .dark-mode .stats-page .form-select {
+    background-color: #111827; color: #e5e7eb; border-color: #374151;
+  }
+  .dark-mode .stats-page .form-control:focus,
+  .dark-mode .stats-page .form-select:focus { box-shadow: 0 0 0 1px #60a5fa inset; border-color: #60a5fa; }
+  .dark-mode .stats-page .input-group-text {
+    background-color: #1f2937; color: #cbd5e1; border-color: #374151;
+  }
+  .dark-mode .stats-page label.form-label { color: #e5e7eb; }
+  .dark-mode .stats-page ::placeholder { color: #9ca3af !important; }
+
+  /* Applied/Pending chips */
+  .stats-page .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .stats-page .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 8px; border-radius: 999px; font-size: .75rem; font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: rgba(99,102,241,.08); color: var(--text-primary);
+  }
+  .stats-page .chip .x { cursor: pointer; opacity: .7; }
+  .stats-page .chip img { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
+  .dark-mode .stats-page .chip {
+    background: rgba(99,102,241,.16); color: #e5e7eb; border-color: #374151;
+  }
+
+  /* Tailwind text utilities used in header (force dark colors) */
+  .dark-mode .stats-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .stats-page .text-gray-500 { color: #9ca3af !important; }
+
+  /* Agent preview under input */
+  .stats-page #agentPreview img { width: 22px; height: 22px; border-radius: 4px; object-fit: cover; }
+
+  /* Agent icon inside table */
+  .stats-page .agent-icon {
+    width: 18px; height: 18px; border-radius: 4px; object-fit: cover;
+  }
+  /* KPI Modal styles (compact) */
+  .stats-page .modal-header { padding: 6px 12px; }
+  .stats-page .modal-body   { padding: 10px 12px; }
+  .stats-page .modal-footer { padding: 6px 12px; }
+  .stats-page .modal-title  { font-size: .95rem; }
+
+  .stats-page .kpi-item { padding: 4px 0; border-top: 1px solid var(--border-color); }
+  .stats-page .kpi-item:first-child { border-top: 0; }
+  .stats-page .kpi-key { font-weight: 600; color: var(--text-primary); font-size: .82rem; line-height: 1.2; margin: 0 0 2px; }
+  .stats-page .kpi-def { color: var(--text-secondary); font-size: .78rem; line-height: 1.25; margin: 0; }
+
+  .dark-mode .stats-page .modal-content { background-color: #111827; color: #e5e7eb; border-color: #374151; }
+  .dark-mode .stats-page .modal-header, .dark-mode .stats-page .modal-footer { border-color: #374151; }
+
+  /* Warning note in dark mode */
+  .dark-mode .stats-page .alert-warning {
+    background-color: #3b3a1a; /* muted amber */
+    border-color: #787516;
+    color: #fef3c7; /* amber-100 */
+  }
+
+  /* (Removed) modern toggle styles */
+</style>
+
+<div class="stats-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-gray-900">Valorant Statistics</h1>
+    <p class="text-sm text-gray-500">Filter by team, agent, event and search across 2025 stats.</p>
+  </div>
+  <div class="table-tools">
+    <span id="rowCount" class="text-sm text-gray-500 muted"></span>
+    <button id="resetBtn" type="button" class="th-btn th-btn-outline"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+  </div>
+</div>
+
+
+<div class="filters-card mb-3">
+  <div class="row g-2">
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Team</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-people"></i></span>
+        <input id="teamSearch" type="search" class="form-control" placeholder="Search team" list="teamsList" />
+      </div>
+      <datalist id="teamsList"></datalist>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Player</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-person"></i></span>
+        <input id="nameSearch" type="search" class="form-control" placeholder="Search player" list="namesList" />
+      </div>
+      <datalist id="namesList"></datalist>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Agent</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-shield-shaded"></i></span>
+        <input id="agentSearch" type="search" class="form-control" placeholder="Search agent" list="agentsList" />
+      </div>
+      <datalist id="agentsList"></datalist>
+      <div id="agentPreview" class="pt-1"></div>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Event</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-flag"></i></span>
+        <input id="eventSearch" type="search" class="form-control" placeholder="Search event" list="eventsList" />
+      </div>
+      <datalist id="eventsList"></datalist>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Search</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input id="q" type="search" placeholder="Search text..." class="form-control" />
+      </div>
+    </div>
+    <!-- Min Rounds -->
+    <div class="col-6 col-md-2">
+      <label class="form-label mb-1">Min Rounds</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-123"></i></span>
+        <input id="minRounds" type="number" min="0" step="1" placeholder="0" class="form-control" />
+      </div>
+    </div>
+    <div class="col-12 col-md-7 d-flex align-items-end">
+      <div class="w-100 d-flex align-items-center justify-content-between gap-2">
+        <div>
+          <label class="form-label mb-1 d-block">Region</label>
+          <div class="d-flex flex-wrap align-items-center gap-3 small text-gray-500">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="regionEMEA" checked>
+              <label class="form-check-label" for="regionEMEA">EMEA</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="regionAmericas" checked>
+              <label class="form-check-label" for="regionAmericas">Americas</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="regionAPAC" checked>
+              <label class="form-check-label" for="regionAPAC">APAC</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 ms-auto">
+          <button type="button" id="kpiBtn" class="th-btn th-btn-outline" data-bs-toggle="modal" data-bs-target="#kpiModal">
+            <i class="bi bi-info-circle me-1"></i> KPI Glossary
+          </button>
+          <button id="applyBtn" type="button" class="th-btn th-btn-primary"><i class="bi bi-funnel me-1"></i>Apply Filters</button>
+        </div>
+      </div>
+    </div>
+    <!-- Pending (selected but not yet applied) filter chips row inside the filters card -->
+    <div class="col-12">
+      <div id="pendingChips" class="chips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Applied filter chips row -->
+<div id="appliedChips" class="chips mb-2"></div>
+
+<div class="table-responsive">
+  <table id="grid" class="stats-table table table-hover align-middle">
+    <thead>
+      <tr id="theadRow"></tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="d-flex align-items-center justify-content-between py-2">
+  <div class="d-flex align-items-center gap-2">
+    <label for="pageSize" class="muted">Rows per page</label>
+    <select id="pageSize" class="form-select form-select-sm" style="width:auto">
+      <option>25</option>
+      <option selected>50</option>
+      <option>100</option>
+      <option>200</option>
+    </select>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <button id="prevPage" class="th-btn th-btn-outline">Prev</button>
+    <span id="pageInfo" class="muted">Page 1 of 1</span>
+    <button id="nextPage" class="th-btn th-btn-outline">Next</button>
+  </div>
+</div>
+
+<script>
+  const STATE = {
+    rows: [],
+    headers: [],
+    // Applied filters (only change after clicking Apply)
+    filters: { nameList: [], teamList: [], agentList: [], eventList: [], q: '', minRounds: '' },
+    sort: { key: '', dir: 'asc' },
+    numericCols: new Set(),
+    pagination: { page: 1, pageSize: 50 },
+    regions: { EMEA: true, Americas: true, APAC: true }
+  };
+  // Buffered UI state (edits live here until Apply)
+  const UI = {
+    nameText: '', teamText: '', agentText: '', eventText: '', q: '',
+    nameList: [], teamList: [], agentList: [], eventList: [],
+    minRounds: ''
+  };
+
+  const elTeamText = document.getElementById('teamSearch');
+  const elAgentText = document.getElementById('agentSearch');
+  const elEventText = document.getElementById('eventSearch');
+  const elNameText = document.getElementById('nameSearch');
+  const elQ = document.getElementById('q');
+  const elHead = document.getElementById('theadRow');
+  const elBody = document.getElementById('tbody');
+  const elRowCount = document.getElementById('rowCount');
+  const elReset = document.getElementById('resetBtn');
+  const elPageInfo = document.getElementById('pageInfo');
+  const elPrev = document.getElementById('prevPage');
+  const elNext = document.getElementById('nextPage');
+  const elPageSize = document.getElementById('pageSize');
+  const elMinRounds = document.getElementById('minRounds');
+  const elApply = document.getElementById('applyBtn');
+  const elChips = document.getElementById('appliedChips');
+  const elPendingChips = document.getElementById('pendingChips');
+  const elAgentPreview = document.getElementById('agentPreview');
+  // Region checkbox elements
+  const elRegEMEA = document.getElementById('regionEMEA');
+  const elRegAmericas = document.getElementById('regionAmericas');
+  const elRegAPAC = document.getElementById('regionAPAC');
+
+  function unique(list) { return Array.from(new Set(list)).sort(); }
+
+  // Map team tags to regions (approximate) for filtering
+  const TEAM_REGION_MAP = {
+    // Americas
+    '100T':'Americas','C9':'Americas','SEN':'Americas','EG':'Americas','NRG':'Americas',
+    'LOUD':'Americas','MIBR':'Americas','KRU':'Americas','LEV':'Americas','FUR':'Americas','G2':'Americas',
+    // EMEA
+    'TL':'EMEA','VIT':'EMEA','TH':'EMEA','FNC':'EMEA','BBL':'EMEA','FUT':'EMEA','NAVI':'EMEA','KC':'EMEA',
+    'M8':'EMEA','APK':'EMEA','MKOI':'EMEA','GX':'EMEA',
+    // APAC (includes CN/JP/KR/SEA)
+    'DRX':'APAC','DFM':'APAC','EDG':'APAC','BLG':'APAC','ZETA':'APAC','T1':'APAC','GEN':'APAC','RRQ':'APAC',
+    'PRX':'APAC','TLN':'APAC','GE':'APAC','TS':'APAC','WOL':'APAC','XLG':'APAC','BME':'APAC','TEC':'APAC','NS':'APAC','2G':'APAC'
+  };
+  function regionOfTeam(team) {
+    const t = String(team || '').trim().toUpperCase();
+    return TEAM_REGION_MAP[t] || null;
+  }
+
+  function buildFilters(rows) {
+    const teams = unique(rows.map(r => r.Team).filter(Boolean));
+    const names = unique(rows.map(r => r.Name).filter(Boolean));
+    const agents = unique(rows.map(r => r.Agent).filter(Boolean));
+    const events = unique(rows.map(r => r.Event).filter(Boolean));
+    const dlTeams = document.getElementById('teamsList');
+    const dlNames = document.getElementById('namesList');
+    const dlAgents = document.getElementById('agentsList');
+    const dlEvents = document.getElementById('eventsList');
+    if (dlTeams) dlTeams.innerHTML = teams.map(v => `<option value="${v}"></option>`).join('');
+    if (dlNames) dlNames.innerHTML = names.map(v => `<option value="${v}"></option>`).join('');
+    if (dlAgents) dlAgents.innerHTML = agents.map(v => `<option value="${v}"></option>`).join('');
+    if (dlEvents) dlEvents.innerHTML = events.map(v => `<option value="${v}"></option>`).join('');
+  }
+
+  // Agent image mapping from text → filename in /static/images
+  const AGENT_IMG_MAP = {
+    'astra': 'astra.png', 'breach': 'breach.png', 'chamber': 'chamber.png', 'cypher': 'cypher.png',
+    'deadlock': 'deadlock.png', 'fade': 'fade.png', 'gekko': 'geeko.png', 'geeko': 'geeko.png',
+    'iso': 'iso.png', 'jett': 'jett.png', 'kayo': 'kayo.png', 'kay/o': 'kayo.png', 'killjoy': 'kj.png',
+    'neon': 'neon.png', 'omen': 'omen.png', 'raze': 'raze.png', 'sage': 'sage.png', 'skye': 'skye.png',
+    'sova': 'sova.png', 'tejo': 'tejo.png', 'viper': 'viper.png', 'vyse': 'vyse.png', 'yoru': 'yoru.png', "brimstone":"brimstone.png"
+  };
+  function agentImgSrc(name) {
+    if (!name) return '';
+    const key = String(name).trim().toLowerCase();
+    const file = AGENT_IMG_MAP[key];
+    return file ? `/static/images/${file}` : '';
+  }
+  function renderAgentPreview() {
+    const src = agentImgSrc(UI.agentText);
+    elAgentPreview.innerHTML = src ? `<img src="${src}" alt="${UI.agentText}">` : '';
+  }
+
+  // Date filtering removed per request
+
+  function passFilters(r) {
+    const { nameList, teamList, agentList, eventList } = STATE.filters;
+    const team = String(r.Team ?? '').toLowerCase();
+    const name = String(r.Name ?? '').toLowerCase();
+    const agent = String(r.Agent ?? '').toLowerCase();
+    const event = String(r.Event ?? '').toLowerCase();
+    if (teamList.length && !teamList.some(t => team.includes(String(t).toLowerCase()))) return false;
+    if (nameList.length && !nameList.some(n => name.includes(String(n).toLowerCase()))) return false;
+    if (agentList.length && !agentList.some(a => agent.includes(String(a).toLowerCase()))) return false;
+    // If multiple events are selected, event filtering is handled by the combiner.
+    // Special-case: when selected event is exactly "All", only match Event === "All"
+    if (eventList.length === 1) {
+      const sel = String(eventList[0] || '').trim().toLowerCase();
+      if (sel === 'all') {
+        if (event !== 'all') return false; // exclude events like "EWC EMEA Qualifiers (All)"
+      } else {
+        if (!event.includes(sel)) return false;
+      }
+    }
+    const q = STATE.filters.q.trim().toLowerCase();
+    if (q) {
+      const hay = STATE.headers.map(h => (r[h] + '')).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }
+
+  function passFiltersNoEvent(r) {
+    const { nameList, teamList, agentList } = STATE.filters;
+    const team = String(r.Team ?? '').toLowerCase();
+    const name = String(r.Name ?? '').toLowerCase();
+    const agent = String(r.Agent ?? '').toLowerCase();
+    if (teamList.length && !teamList.some(t => team.includes(String(t).toLowerCase()))) return false;
+    if (nameList.length && !nameList.some(n => name.includes(String(n).toLowerCase()))) return false;
+    if (agentList.length && !agentList.some(a => agent.includes(String(a).toLowerCase()))) return false;
+    const q = STATE.filters.q.trim().toLowerCase();
+    if (q) {
+      const hay = STATE.headers.map(h => (r[h] + '')).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }
+
+  function isMultiEventSelected() {
+    return (STATE.filters.eventList || []).length > 1;
+  }
+
+  function toNum(v, d=0) {
+    const n = typeof v === 'number' ? v : parseFloat(v);
+    return Number.isFinite(n) ? n : d;
+  }
+
+  function combineSelectedEvents(rows) {
+    const selected = (STATE.filters.eventList || []).map(s => String(s).toLowerCase());
+    if (selected.length <= 1) return null;
+    // Consider only rows that belong to any selected event (case-insensitive), and ignore pre-aggregated 'All'.
+    const pool = rows.filter(r => {
+      const ev = String(r.Event||'').toLowerCase();
+      // Do not include pre-aggregated global 'All' rows in the pool
+      if (ev === 'all') return false;
+      // When 'all' is part of the selected tokens, only match exact 'all' (already excluded above),
+      // so '... (All)' doesn't get matched by substring.
+      return selected.some(s => s === 'all' ? ev === 'all' : ev.includes(s));
+    });
+    if (!pool.length) return [];
+    // Optional: also respect non-event filters before grouping
+    const pre = pool.filter(passFiltersNoEvent);
+
+    const groups = new Map(); // key -> accumulator
+    function keyOf(r) { return `${r.Team}||${r.Name}||${r.Agent}`; }
+
+    for (const r of pre) {
+      const k = keyOf(r);
+      let acc = groups.get(k);
+      if (!acc) {
+        acc = {
+          Team: r.Team, Name: r.Name, Agent: r.Agent, Event: 'Selected',
+          Maps: 0, Rounds: 0, Kills: 0, Deaths: 0, Assists: 0,
+          'Non-damaging A': 0, 'Damaging A': 0,
+          'First Kills': 0, 'First Deaths': 0, 'True FK': 0, 'True FD': 0,
+          'RvsR Kills': 0, 'RvsR Deaths': 0,
+          'OP Kills': 0, MK: 0, Aces: 0,
+          _acs_w: 0, _adr_w: 0, _opusage_w: 0
+        };
+        groups.set(k, acc);
+      }
+      const R = toNum(r.Rounds, 0);
+      acc.Maps += toNum(r.Maps, 0);
+      acc.Rounds += R;
+      acc.Kills += toNum(r.Kills, 0);
+      acc.Deaths += toNum(r.Deaths, 0);
+      acc.Assists += toNum(r.Assists, 0);
+      acc['Non-damaging A'] += toNum(r['Non-damaging A'], 0);
+      acc['Damaging A'] += toNum(r['Damaging A'], 0);
+      acc['First Kills'] += toNum(r['First Kills'], 0);
+      acc['First Deaths'] += toNum(r['First Deaths'], 0);
+      acc['True FK'] += toNum(r['True FK'], 0);
+      acc['True FD'] += toNum(r['True FD'], 0);
+      acc['RvsR Kills'] += toNum(r['RvsR Kills'], 0);
+      acc['RvsR Deaths'] += toNum(r['RvsR Deaths'], 0);
+      acc['OP Kills'] += toNum(r['OP Kills'], 0);
+      acc.MK += toNum(r.MK, 0);
+      acc.Aces += toNum(r.Aces, 0);
+      // weighted components
+      acc._acs_w += toNum(r.ACS, 0) * R;
+      acc._adr_w += toNum(r.ADR, 0) * R;
+      acc._opusage_w += toNum(r['OP Usage%'], 0) * R;
+    }
+
+    // finalize derived fields
+    const out = [];
+    for (const acc of groups.values()) {
+      const R = acc.Rounds || 0;
+      const kills = acc.Kills || 0;
+      const deaths = acc.Deaths || 0;
+      const assists = acc.Assists || 0;
+      const nd_a = acc['Non-damaging A'] || 0;
+      const d_a = acc['Damaging A'] || 0;
+      const fk = acc['First Kills'] || 0;
+      const fd = acc['First Deaths'] || 0;
+      const tfk = acc['True FK'] || 0;
+      const tfd = acc['True FD'] || 0;
+      const rk = acc['RvsR Kills'] || 0;
+      const rd = acc['RvsR Deaths'] || 0;
+      const opk = acc['OP Kills'] || 0;
+      const mk = acc.MK || 0;
+      const aces = acc.Aces || 0;
+
+      const ACS = R ? acc._acs_w / R : 0;
+      const ADR = R ? acc._adr_w / R : 0;
+      const KD = deaths ? kills / deaths : kills;
+      const KPR = R ? kills / R : 0;
+      const DPR = R ? deaths / R : 0;
+      const APR = R ? assists / R : 0;
+      const NDAPR = R ? nd_a / R : 0;
+      const DAPR = R ? d_a / R : 0;
+      const FKPR = R ? fk / R : 0;
+      const FDPR = R ? fd / R : 0;
+      const FKWR = (FKPR + FDPR) ? (FKPR / (FKPR + FDPR)) * 100 : '';
+      const FAGG = FKPR + FDPR;
+      const TFKPR = R ? tfk / R : 0;
+      const TFDPR = R ? tfd / R : 0;
+      const RVSR = (rk + rd) ? (rk / (rk + rd)) * 100 : '';
+      const OPKPR = R ? opk / R : 0;
+      const OPUsage = R ? acc._opusage_w / R : 0;
+      const MKPR = R ? mk / R : 0;
+      const ACEPR = R ? aces / R : 0;
+
+      out.push({
+        Team: acc.Team, Name: acc.Name, Agent: acc.Agent, Event: acc.Event,
+        Maps: acc.Maps, Rounds: acc.Rounds,
+        ACS, Kills: kills, Deaths: deaths, Assists: assists,
+        'Non-damaging A': nd_a, 'Damaging A': d_a,
+        KD, ADR, KPR, DPR, APR, NDAPR, DAPR,
+        'First Kills': fk, 'First Deaths': fd, FKPR, FDPR, 'FKWR%': FKWR, 'First Agg. Rate': FAGG,
+        'True FK': tfk, 'True FD': tfd, TFKPR, TFDPR,
+        'RvsR Kills': rk, 'RvsR Deaths': rd, 'RvsR WR%': RVSR,
+        'OP Kills': opk, OPKPR, 'OP Usage%': OPUsage, MK: mk, MKPR, Aces: aces, AcePR: ACEPR
+      });
+    }
+    return out;
+  }
+
+  function detectNumericColumns(rows, headers) {
+    const numeric = new Set();
+    for (const h of headers) {
+      let count = 0, seen = 0;
+      for (const r of rows) {
+        const v = r[h];
+        if (v === null || v === undefined || v === '') continue;
+        seen++;
+        const n = typeof v === 'number' ? v : parseFloat(v);
+        if (!Number.isNaN(n) && Number.isFinite(n)) count++;
+        if (seen >= 50) break; // sample first N
+      }
+      if (seen > 0 && count / seen > 0.8) numeric.add(h);
+    }
+    STATE.numericCols = numeric;
+  }
+
+  const nf = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+  function fmt(v) {
+    const n = typeof v === 'number' ? v : parseFloat(v);
+    if (!Number.isNaN(n) && Number.isFinite(n)) return nf.format(n);
+    return v ?? '';
+  }
+
+  function sortRows(rows) {
+    const { key, dir } = STATE.sort;
+    if (!key) return rows;
+    const mul = dir === 'desc' ? -1 : 1;
+    return rows.slice().sort((a, b) => {
+      const va = a[key];
+      const vb = b[key];
+      const na = typeof va === 'number' ? va : parseFloat(va);
+      const nb = typeof vb === 'number' ? vb : parseFloat(vb);
+      const aNum = !Number.isNaN(na);
+      const bNum = !Number.isNaN(nb);
+      if (aNum && bNum) return (na - nb) * mul;
+      const sa = (va ?? '').toString().toLowerCase();
+      const sb = (vb ?? '').toString().toLowerCase();
+      if (sa < sb) return -1 * mul;
+      if (sa > sb) return 1 * mul;
+      return 0;
+    });
+  }
+
+  function cellHtml(h, v) {
+    if (h === 'Agent') {
+      const src = agentImgSrc(v);
+      if (src) {
+        const name = v ?? '';
+        return `<img src="${src}" alt="${name}" title="${name}" class="agent-icon">`;
+      }
+    }
+    return STATE.numericCols.has(h) ? fmt(v) : (v ?? '');
+  }
+
+  function renderChips() {
+    const chips = [];
+    const f = STATE.filters;
+    for (const t of f.teamList) chips.push(`<span class="chip">Team: ${t} <span class="x" data-clearkey="teamList" data-value="${String(t).replaceAll('"','&quot;')}">✕</span></span>`);
+    for (const n of f.nameList) chips.push(`<span class="chip">Player: ${n} <span class="x" data-clearkey="nameList" data-value="${String(n).replaceAll('"','&quot;')}">✕</span></span>`);
+    for (const a of f.agentList) {
+      const src = agentImgSrc(a);
+      const img = src ? `<img src="${src}" alt="">` : '';
+      chips.push(`<span class="chip">${img} ${a} <span class="x" data-clearkey="agentList" data-value="${String(a).replaceAll('"','&quot;')}">✕</span></span>`);
+    }
+    for (const e of f.eventList) chips.push(`<span class="chip">${e} <span class="x" data-clearkey="eventList" data-value="${String(e).replaceAll('"','&quot;')}">✕</span></span>`);
+    if (f.minRounds !== '' && f.minRounds !== null && f.minRounds !== undefined && Number(f.minRounds) > 0) {
+      chips.push(`<span class=\"chip\">Min Rounds: ${f.minRounds} <span class=\"x\" data-clearmin=\"1\">✕</span></span>`);
+    }
+    // Region chips: show only when a subset is selected
+    const selectedRegions = Object.entries(STATE.regions || {}).filter(([k,v]) => !!v).map(([k]) => k);
+    if (selectedRegions.length > 0 && selectedRegions.length < 3) {
+      for (const reg of selectedRegions) {
+        chips.push(`<span class="chip">${reg} Players <span class="x" data-clearregion="${reg}">✕</span></span>`);
+      }
+    }
+    if (f.q) chips.push(`<span class="chip">Search: ${f.q} <span class="x" data-clear="q">✕</span></span>`);
+    elChips.innerHTML = chips.join('');
+    // attach clear handlers
+    elChips.querySelectorAll('.x').forEach(x => x.addEventListener('click', () => {
+      const key = x.getAttribute('data-clearkey');
+      const k = x.getAttribute('data-clear');
+      const reg = x.getAttribute('data-clearregion');
+      const clrMin = x.getAttribute('data-clearmin');
+      if (key) {
+        const val = x.getAttribute('data-value');
+        const arr = STATE.filters[key] || [];
+        STATE.filters[key] = arr.filter(v => String(v) !== String(val));
+        // mirror into UI lists
+        UI[key] = (UI[key] || []).filter(v => String(v) !== String(val));
+      } else if (k) {
+        STATE.filters[k] = '';
+        UI[k] = '';
+        if (k === 'q') elQ.value = '';
+      } else if (reg) {
+        // Clear a specific region selection
+        if (STATE.regions && (reg in STATE.regions)) {
+          STATE.regions[reg] = false;
+        }
+        // sync checkbox UI
+        const chkId = reg === 'Americas' ? 'regionAmericas' : (reg === 'APAC' ? 'regionAPAC' : 'regionEMEA');
+        const chk = document.getElementById(chkId);
+        if (chk) chk.checked = false;
+      } else if (clrMin) {
+        STATE.filters.minRounds = '';
+        UI.minRounds = '';
+        if (elMinRounds) elMinRounds.value = '';
+      }
+      STATE.pagination.page = 1;
+      render();
+    }));
+  }
+
+  function renderPendingChips() {
+    const chips = [];
+    for (const t of (UI.teamList || [])) chips.push(`<span class="chip">Team: ${t} <span class="x" data-clearkey="teamList" data-value="${String(t).replaceAll('"','&quot;')}">✕</span></span>`);
+    for (const n of (UI.nameList || [])) chips.push(`<span class="chip">Player: ${n} <span class="x" data-clearkey="nameList" data-value="${String(n).replaceAll('"','&quot;')}">✕</span></span>`);
+    for (const a of (UI.agentList || [])) {
+      const src = agentImgSrc(a);
+      const img = src ? `<img src="${src}" alt="">` : '';
+      chips.push(`<span class="chip">${img}${a} <span class="x" data-clearkey="agentList" data-value="${String(a).replaceAll('"','&quot;')}">✕</span></span>`);
+    }
+    for (const e of (UI.eventList || [])) chips.push(`<span class="chip">${e} <span class="x" data-clearkey="eventList" data-value="${String(e).replaceAll('"','&quot;')}">✕</span></span>`);
+    elPendingChips.innerHTML = chips.length ? chips.join('') : '';
+    elPendingChips.querySelectorAll('.x').forEach(x => x.addEventListener('click', () => {
+      const key = x.getAttribute('data-clearkey');
+      if (!key) return;
+      const val = x.getAttribute('data-value');
+      UI[key] = (UI[key] || []).filter(v => String(v) !== String(val));
+      renderPendingChips();
+    }));
+  }
+
+  function render() {
+    elHead.innerHTML = STATE.headers.map(h => {
+      const isKey = STATE.sort.key === h;
+      const icon = isKey ? (STATE.sort.dir === 'asc' ? '<i class=\\"bi bi-chevron-up ms-1\\"></i>' : '<i class=\\"bi bi-chevron-down ms-1\\"></i>') : '';
+      return `<th data-key=\"${h}\">${h}${icon}</th>`;
+    }).join('');
+
+    const multi = isMultiEventSelected();
+    let rows;
+    if (multi) {
+      // Build combined rows across the selected events, then apply non-event filters (already applied in combiner) and proceed.
+      rows = combineSelectedEvents(STATE.rows) || [];
+    } else {
+      rows = STATE.rows.filter(passFilters);
+    }
+    // Apply region filter when a subset is selected
+    const selectedRegions = Object.entries(STATE.regions).filter(([k,v]) => !!v).map(([k]) => k);
+    if (selectedRegions.length < 3) {
+      rows = rows.filter(r => {
+        const reg = regionOfTeam(r.Team);
+        return reg ? !!STATE.regions[reg] : false;
+      });
+    }
+    // Apply minimum rounds filter if set
+    const mr = parseInt(STATE.filters.minRounds, 10);
+    if (!Number.isNaN(mr) && mr > 0) {
+      rows = rows.filter(r => (parseFloat(r.Rounds) || 0) >= mr);
+    }
+    rows = sortRows(rows);
+
+    const total = rows.length;
+    const pageSize = STATE.pagination.pageSize;
+    const maxPage = Math.max(1, Math.ceil(total / pageSize));
+    if (STATE.pagination.page > maxPage) STATE.pagination.page = maxPage;
+    const page = STATE.pagination.page;
+    const start = (page - 1) * pageSize;
+    const end = Math.min(total, start + pageSize);
+    const pageRows = rows.slice(start, end);
+
+    elBody.innerHTML = pageRows.map(r => {
+      const tds = STATE.headers.map(h => {
+        const raw = r[h];
+        const cls = STATE.numericCols.has(h) ? ' class="num"' : '';
+        return `<td${cls}>${cellHtml(h, raw)}</td>`;
+      }).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+
+    elRowCount.textContent = total ? `${start + 1}–${end} of ${total}` : '0 of 0';
+    elPageInfo.textContent = `Page ${page} of ${maxPage}`;
+    elPrev.disabled = page <= 1;
+    elNext.disabled = page >= maxPage;
+    renderChips();
+
+    for (const th of elHead.querySelectorAll('th')) {
+      th.addEventListener('click', () => {
+        const key = th.getAttribute('data-key');
+        if (STATE.sort.key === key) {
+          STATE.sort.dir = STATE.sort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          STATE.sort.key = key;
+          STATE.sort.dir = 'asc';
+        }
+        render();
+      });
+    }
+  }
+
+  async function boot() {
+    const resp = await fetch('/static/dataset_players.json');
+    const data = await resp.json();
+    const rows = data.rows || [];
+    STATE.rows = rows;
+    STATE.headers = rows.length ? Object.keys(rows[0]) : ["Team","Name","Agent","Event","Date"]; // fallbacks
+    buildFilters(rows);
+    detectNumericColumns(rows, STATE.headers);
+    // Initialize inputs from UI buffer (empty)
+    elTeamText.value = UI.teamText;
+    elNameText.value = UI.nameText;
+    elAgentText.value = UI.agentText;
+    elEventText.value = UI.eventText;
+    elQ.value = UI.q;
+    elMinRounds.value = UI.minRounds;
+    // Sync region checkboxes
+    if (elRegEMEA) elRegEMEA.checked = !!STATE.regions.EMEA;
+    if (elRegAmericas) elRegAmericas.checked = !!STATE.regions.Americas;
+    if (elRegAPAC) elRegAPAC.checked = !!STATE.regions.APAC;
+    renderAgentPreview();
+    renderPendingChips();
+    renderKpiList();
+    render();
+  }
+
+  // Listeners
+  const setPage1 = () => { STATE.pagination.page = 1; };
+  function debounce(fn, delay=200) {
+    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+  }
+  // Helpers to add tokens to UI lists (dedup, case-insensitive)
+  function addToken(listKey, value) {
+    const v = String(value || '').trim();
+    if (!v) return;
+    const arr = UI[listKey] || [];
+    const exists = arr.some(x => String(x).toLowerCase() === v.toLowerCase());
+    if (!exists) arr.push(value);
+    UI[listKey] = arr;
+  }
+  function addTokensFromInput(listKey, inputEl) {
+    const raw = String(inputEl.value || '').trim();
+    if (!raw) return;
+    // Allow comma/semicolon separated values
+    raw.split(/[;,]/).map(s => s.trim()).filter(Boolean).forEach(v => addToken(listKey, v));
+    inputEl.value = '';
+    if (listKey === 'agentList') UI.agentText = '';
+  }
+  function handleEnterAdd(inputEl, listKey, alsoPreview=false) {
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTokensFromInput(listKey, inputEl);
+        if (alsoPreview) renderAgentPreview();
+        renderPendingChips();
+      }
+    });
+  }
+  // Add via datalist selection/change as well
+  elTeamText.addEventListener('change', () => { addTokensFromInput('teamList', elTeamText); renderPendingChips(); });
+  elNameText.addEventListener('change', () => { addTokensFromInput('nameList', elNameText); renderPendingChips(); });
+  elAgentText.addEventListener('change', () => { addTokensFromInput('agentList', elAgentText); renderAgentPreview(); renderPendingChips(); });
+  elEventText.addEventListener('change', () => { addTokensFromInput('eventList', elEventText); renderPendingChips(); });
+  // Update UI buffer only; no render until Apply
+  elNameText.addEventListener('input', debounce(() => { UI.nameText = elNameText.value; }, 150));
+  elTeamText.addEventListener('input', debounce(() => { UI.teamText = elTeamText.value; }, 150));
+  elAgentText.addEventListener('input', debounce(() => { UI.agentText = elAgentText.value; renderAgentPreview(); }, 150));
+  elEventText.addEventListener('input', debounce(() => { UI.eventText = elEventText.value; }, 150));
+  // Add via Enter
+  handleEnterAdd(elTeamText, 'teamList');
+  handleEnterAdd(elNameText, 'nameList');
+  handleEnterAdd(elAgentText, 'agentList', true);
+  handleEnterAdd(elEventText, 'eventList');
+  elQ.addEventListener('input', debounce(() => { UI.q = elQ.value; }, 200));
+  elMinRounds.addEventListener('input', debounce(() => { UI.minRounds = elMinRounds.value; }, 150));
+  // Apply button copies UI → STATE.filters and renders
+  elApply.addEventListener('click', () => {
+    // Include any current text in inputs as tokens before applying
+    addTokensFromInput('teamList', elTeamText);
+    addTokensFromInput('nameList', elNameText);
+    addTokensFromInput('agentList', elAgentText);
+    addTokensFromInput('eventList', elEventText);
+    UI.teamText = UI.nameText = UI.agentText = UI.eventText = '';
+    renderAgentPreview();
+    renderPendingChips();
+    // merge pending UI lists into applied filters (dedupe, case-insensitive)
+    const mergeUnique = (base, add) => {
+      const out = [...(base || [])];
+      for (const v of (add || [])) {
+        const exists = out.some(x => String(x).toLowerCase() === String(v).toLowerCase());
+        if (!exists) out.push(v);
+      }
+      return out;
+    };
+    STATE.filters.nameList  = mergeUnique(STATE.filters.nameList,  UI.nameList);
+    STATE.filters.teamList  = mergeUnique(STATE.filters.teamList,  UI.teamList);
+    STATE.filters.agentList = mergeUnique(STATE.filters.agentList, UI.agentList);
+    STATE.filters.eventList = mergeUnique(STATE.filters.eventList, UI.eventList);
+    STATE.filters.q = UI.q || '';
+    // min rounds (number or empty)
+    const parsed = parseInt(UI.minRounds, 10);
+    STATE.filters.minRounds = (!Number.isNaN(parsed) && parsed >= 0) ? parsed : '';
+    // apply region selections
+    if (elRegEMEA && elRegAmericas && elRegAPAC) {
+      STATE.regions = {
+        EMEA: !!elRegEMEA.checked,
+        Americas: !!elRegAmericas.checked,
+        APAC: !!elRegAPAC.checked
+      };
+    }
+    // clear pending lists so they move below only
+    UI.nameList = []; UI.teamList = []; UI.agentList = []; UI.eventList = [];
+    renderPendingChips();
+    setPage1();
+    render();
+  });
+  elReset.addEventListener('click', () => {
+    elNameText.value = '';
+    elTeamText.value = '';
+    elAgentText.value = '';
+    elEventText.value = '';
+    elQ.value = '';
+    UI.nameText = UI.teamText = UI.agentText = UI.eventText = UI.q = '';
+    UI.minRounds = '';
+    elMinRounds.value = '';
+    UI.nameList = []; UI.teamList = []; UI.agentList = []; UI.eventList = [];
+    STATE.filters = { nameList: [], teamList: [], agentList: [], eventList: [], q: '', minRounds: '' };
+    STATE.sort = { key: '', dir: 'asc' };
+    STATE.pagination.page = 1;
+    // Reset regions to all selected
+    STATE.regions = { EMEA: true, Americas: true, APAC: true };
+    if (elRegEMEA) elRegEMEA.checked = true;
+    if (elRegAmericas) elRegAmericas.checked = true;
+    if (elRegAPAC) elRegAPAC.checked = true;
+    renderAgentPreview();
+    renderPendingChips();
+    render();
+  });
+
+  elPrev.addEventListener('click', () => { if (STATE.pagination.page > 1) { STATE.pagination.page--; render(); } });
+  elNext.addEventListener('click', () => { STATE.pagination.page++; render(); });
+  elPageSize.addEventListener('change', () => {
+    const v = parseInt(elPageSize.value, 10) || 50;
+    STATE.pagination.pageSize = v; STATE.pagination.page = 1; render();
+  });
+
+  // KPI definitions (displayed in modal)
+  const KPI_DEFS = {
+    'ACS': 'Average Combat Score per round.',
+    'ADR': 'Average Damage per Round.',
+    'KD': 'Kills per Death.',
+    'Kills': 'Total kills.',
+    'Deaths': 'Total deaths.',
+    'Assists': 'Total assists.',
+    'KPR': 'Kills per Round.',
+    'DPR': 'Deaths per Round.',
+    'APR': 'Assists per Round.',
+    'NDAPR': 'Non-damaging Assists per Round.',
+    'DAPR': 'Damaging Assists per Round.',
+    'Non-damaging A': 'Count of non-damaging assists.',
+    'Damaging A': 'Count of damaging assists.',
+    'First Kills': 'Total opening (first) kills.',
+    'First Deaths': 'Total opening (first) deaths.',
+    'FKPR': 'First Kills per Round.',
+    'FDPR': 'First Deaths per Round.',
+    'FKWR%': 'First Kill Win Rate: (100 * FKPR) / (FKPR + FDPR)',
+    'First Agg. Rate': 'First-duel participation per round: FKPR + FDPR.',
+    'True FK': 'True opening kills (untraded first kills).',
+    'True FD': 'True opening deaths (untraded first deaths).',
+    'TFKPR': 'True First Kills per Round.',
+    'TFDPR': 'True First Deaths per Round.',
+    'RvsR Kills': 'Kills in Rifle vs Rifle duels.',
+    'RvsR Deaths': 'Deaths in Rifle vs Rifle duels.',
+    'RvsR WR%': 'Win rate in RvsR duels.',
+    'OP Kills': 'Kills with the Operator.',
+    'OPKPR': 'Operator kills per round.',
+    'OP Usage%': 'Share of rounds using the Operator.',
+    'MK': 'Multikill rounds (2+ kills in a round).',
+    'MKPR': 'Multikills per round.',
+    'Aces': 'Total 5-kill rounds.',
+    'AcePR': 'Aces per Round.'
+    // Dimensions
+  };
+
+  function renderKpiList() {
+    const list = document.getElementById('kpiList');
+    if (!list) return;
+    const headers = STATE.headers || [];
+    const items = headers
+      .filter(h => KPI_DEFS[h])
+      .map(h => `<div class=\"kpi-item\"><div class=\"kpi-key\">${h}</div><div class=\"kpi-def\">${KPI_DEFS[h]}</div></div>`);
+    list.innerHTML = items.join('') || '<div class=\"muted\">No KPI definitions available.</div>';
+  }
+
+  // Update list each time modal opens (bind after DOM is ready)
+  document.addEventListener('DOMContentLoaded', () => {
+    const kpiModalEl = document.getElementById('kpiModal');
+    if (kpiModalEl) {
+      kpiModalEl.addEventListener('show.bs.modal', renderKpiList);
+    }
+  });
+
+  boot();
+</script>
+</div>
+
+<!-- KPI Glossary Modal -->
+<div class="modal fade stats-page" id="kpiModal" tabindex="-1" aria-labelledby="kpiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="kpiModalLabel"><i class="bi bi-info-circle me-2"></i>KPI Glossary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="kpiList"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

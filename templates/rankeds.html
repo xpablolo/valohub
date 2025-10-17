@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Rankeds{% endblock %}
+
+{% block content %}
+<style>
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .dark-mode .rankeds-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .rankeds-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .rankeds-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .rankeds-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .rankeds-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .rankeds-page .border-gray-200 { border-color: #374151 !important; }
+  /* Dark mode table and controls for Rankeds */
+  .dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * { background-color: #2c2c2c !important; }
+  .dark-mode .table-striped > tbody > tr:nth-of-type(even) > * { background-color: #2c2c2c !important; }
+  .dark-mode .table thead th { background-color: #3c3c3c !important; color: #ffffff !important; }
+  .dark-mode .table td, .dark-mode .table th { color: #ffffff !important; border-color: #555555 !important; }
+  .dark-mode .table { background-color: #2c2c2c !important; }
+  .dark-mode .form-control { background-color: #1e1e1e !important; color: #ffffff !important; border-color: #444444 !important; }
+  .dark-mode .form-label { color: #cccccc !important; }
+  .dark-mode .btn-outline-primary { color: #ffffff !important; border-color: #555555 !important; }
+  .dark-mode .btn-outline-primary:hover { background-color: #555555 !important; }
+</style>
+  <div class="rankeds-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  {# Loading overlay #}
+  <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Rankeds</h1>
+      <p class="text-sm text-gray-500">From {{ start_date|time_filter }} to {{ end_date|time_filter }}</p>
+    </div>
+  </div>
+
+  {% if role == 'admin' %}
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted mb-4">
+      <form id="filterForm" class="space-y-3" method="get" action="{{ url_for('rankeds') }}">
+        <input type="hidden" name="which" value="rankeds">
+        <input type="hidden" name="start_date_2" value="{{ start_date_2 }}">
+        <input type="hidden" name="end_date_2" value="{{ end_date_2 }}">
+
+        <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50 w-full">
+          <button type="button" class="inline-flex items-center justify-center flex-1 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white" id="preset-2w">Last 2 Weeks</button>
+          <button type="button" class="inline-flex items-center justify-center flex-1 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white" id="preset-30d">Last 30 Days</button>
+          <button type="button" class="inline-flex items-center justify-center flex-1 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white" id="preset-custom">Custom</button>
+        </div>
+
+        <div id="custom-range" class="row align-items-end mb-3" style="display: none;">
+          <div class="col-md-6">
+            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+            <input type="date" name="start_date" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" id="start_date" value="{{ start_date }}" min="2025-01-01">
+          </div>
+          <div class="col-md-6">
+            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+            <input type="date" name="end_date" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" id="end_date" value="{{ end_date }}" min="2025-01-01">
+          </div>
+        </div>
+
+        <button type="submit" class="th-btn th-btn-primary" id="apply-btn" style="display: none;">Apply Filter</button>
+      </form>
+    </div>
+
+    <div class="surface-card bg-white rounded-xl p-4 ring-muted mb-4">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Total Rankeds</th>
+            <th>Total Deathmatchs</th>
+            <th>Total Team Deathmatchs</th>
+            <th class="align-middle">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <div>Avg. K/D</div>
+                  <small class="text-muted">(last 2 weeks)</small>
+                </div>
+                <button id="update-kda" class="th-btn th-btn-outline text-xs" title="Recompute K/D for everyone">
+                  <span id="update-kda-text">Update KD</span>
+                  <span id="update-kda-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for player in ['Boo','MiniBoo','RieNs','wo0t','benjy'] %}
+          <tr>
+            <td>{{ player }}</td>
+            <td>{{ number_competitive[player] }}</td>
+            <td>{{ number_deathmatchs[player] }}</td>
+            <td>{{ number_hurms[player] }}</td>
+            <td>{{ kd[player] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-center text-danger">You must be an admin to view the ranked matches table.</p>
+  {% endif %}
+
+  
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('loading-overlay');
+      function showLoading() { overlay.style.display = 'flex'; }
+
+      // Filter form 1
+      const startInput = document.getElementById('start_date');
+      const endInput = document.getElementById('end_date');
+      const customRange = document.getElementById('custom-range');
+      const form = document.getElementById('filterForm');
+      const applyBtn = document.getElementById('apply-btn');
+
+      function fmt(d){ return d.toISOString().slice(0,10); }
+
+      document.getElementById('preset-2w').addEventListener('click', ()=>{
+        const now = new Date(); startInput.value = fmt(new Date(now - 14*24*60*60*1000)); endInput.value = fmt(now);
+        customRange.style.display = 'none'; showLoading(); form.submit();
+      });
+      document.getElementById('preset-30d').addEventListener('click', ()=>{
+        const now = new Date(); startInput.value = fmt(new Date(now - 30*24*60*60*1000)); endInput.value = fmt(now);
+        customRange.style.display = 'none'; showLoading(); form.submit();
+      });
+      document.getElementById('preset-custom').addEventListener('click', ()=>{
+        customRange.style.display = 'flex'; applyBtn.style.display = 'inline-block';
+      });
+      form.addEventListener('submit', showLoading);
+
+      // Filter form 2
+      const start2 = document.getElementById('start_date2');
+      const end2 = document.getElementById('end_date2');
+      const custom2 = document.getElementById('custom-range2');
+      const form2 = document.getElementById('filterForm2');
+      const applyBtn2 = document.getElementById('apply-btn2');
+
+      document.getElementById('preset-2w-2').addEventListener('click', ()=>{
+        const now = new Date(); start2.value = fmt(new Date(now - 14*24*60*60*1000)); end2.value = fmt(now);
+        custom2.style.display = 'none'; showLoading(); form2.submit();
+      });
+      document.getElementById('preset-30d-2').addEventListener('click', ()=>{
+        const now = new Date(); start2.value = fmt(new Date(now - 30*24*60*60*1000)); end2.value = fmt(now);
+        custom2.style.display = 'none'; showLoading(); form2.submit();
+      });
+      document.getElementById('preset-custom-2').addEventListener('click', ()=>{
+        custom2.style.display = 'flex'; applyBtn2.style.display = 'inline-block';
+      });
+      form2.addEventListener('submit', showLoading);
+    });
+
+    // Update KDA button
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('update-kda');
+      const text = document.getElementById('update-kda-text');
+      const spinner = document.getElementById('update-kda-spinner');
+      btn?.addEventListener('click', () => {
+        btn.disabled = true; text.textContent = 'Updating…'; spinner.classList.remove('d-none');
+        fetch("{{ url_for('update_kda') }}", { method: 'POST', headers: {'Content-Type':'application/json'} })
+          .then(res => res.json()).then(data => {
+            if (data.success) window.location.reload();
+            else { alert('Error updating KDA: ' + data.message); btn.disabled = false; text.textContent = 'Update KD'; spinner.classList.add('d-none'); }
+          }).catch(err => { alert('Network error: ' + err); btn.disabled = false; text.textContent = 'Update KD'; spinner.classList.add('d-none'); });
+      });
+    });
+  </script>
+
+  <style>
+    /* ===========================
+       DARK MODE ENHANCEMENTS
+       =========================== */
+    .dark-mode {
+      --bg-light:       #2a2a2a;
+      --bg-lighter:     #333333;
+      --bg-dark:        #1e1e1e;
+      --border-color:   #444444;
+      --text-primary:   #e0e0e0;
+      --text-secondary: #aaaaaa;
+      --accent:         #3f51b5;
+    }
+
+    /* Page containers and forms */
+    .dark-mode .bg-light {
+      background-color: var(--bg-light) !important;
+    }
+    .dark-mode .form-control,
+    .dark-mode .form-label,
+    .dark-mode .btn-group .btn {
+      background-color: var(--bg-light) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border-color) !important;
+    }
+    .dark-mode .form-label {
+      color: var(--text-secondary) !important;
+    }
+
+    /* Tables */
+    .dark-mode .table {
+      color: var(--text-primary);
+      background-color: var(--bg-dark);
+      border-color: var(--border-color);
+    }
+    .dark-mode .table thead th {
+      background-color: var(--bg-lighter) !important;
+      color: var(--text-primary) !important;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .dark-mode .table-striped>tbody>tr:nth-of-type(odd)>* {
+      background-color: var(--bg-light) !important;
+    }
+    .dark-mode .table-striped>tbody>tr:nth-of-type(even)>* {
+      background-color: var(--bg-dark) !important;
+    }
+    .dark-mode .table td,
+    .dark-mode .table th {
+      border-color: var(--border-color) !important;
+    }
+
+    /* Buttons */
+    .dark-mode .btn-outline-primary {
+      color: var(--text-primary) !important;
+      border-color: var(--border-color) !important;
+    }
+    .dark-mode .btn-outline-primary:hover,
+    .dark-mode .btn-primary {
+      background-color: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+    }
+
+    /* Loading overlay & spinner */
+    #loading-overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .dark-mode .spinner-border {
+      color: #fff;
+    }
+
+    /* Date picker arrow */
+    .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(1.2);
+    }
+
+    /* Ensure links in nav collapse pick up light text */
+    .dark-mode .navbar-nav .nav-link {
+      color: var(--text-primary) !important;
+    }
+    .dark-mode .navbar-nav .nav-link.active {
+      background-color: var(--bg-lighter) !important;
+    }
+    /* make the “From … to …” line readable */
+.dark-mode .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* force table cells to use our dark-mode vars */
+.dark-mode .table,
+.dark-mode .table th,
+.dark-mode .table td {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-primary) !important;
+}
+
+/* striped rows */
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--bg-light) !important;
+}
+.dark-mode .table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: var(--bg-dark) !important;
+}
+  </style>
+  </div>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Strategic Reports{% endblock %}
+
+{% block content %}
+<style>
+  /* Shared card aesthetic to match scrims */
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .strategic-page .sticky-th { position: sticky; top: 0; background: #fff; z-index: 10; }
+
+  /* Dark mode scoping to this page */
+  .dark-mode .strategic-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .strategic-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .strategic-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .strategic-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .strategic-page .text-gray-500 { color: #9ca3af !important; }
+  .dark-mode .strategic-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .strategic-page .border-gray-200 { border-color: #374151 !important; }
+  .dark-mode .strategic-page .border-gray-300 { border-color: #4b5563 !important; }
+  .dark-mode .strategic-page .bg-gray-50 { background-color: #111827 !important; }
+
+  /* Inputs/selects dark mode (search bar) */
+  .dark-mode .strategic-page input,
+  .dark-mode .strategic-page select,
+  .dark-mode .strategic-page textarea {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+  }
+  .dark-mode .strategic-page input:focus,
+  .dark-mode .strategic-page select:focus,
+  .dark-mode .strategic-page textarea:focus {
+    outline: none !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 1px #60a5fa inset !important;
+  }
+
+  /* PDF frame — compact preview */
+  .strategic-page .pdf-frame { width: 100%; min-height: 56vh; height: 56vh; border: none; margin-top: 10px; }
+  @supports (-webkit-touch-callout: none) {
+    .strategic-page .pdf-frame { min-height: 62vh; height: 62vh; }
+  }
+</style>
+
+<div class="strategic-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Strategic Reports</h1>
+      <p class="text-sm text-gray-500">PDF reports containing strategy and macro by team and map.</p>
+    </div>
+    <div>
+      <span class="inline-flex items-center rounded-lg bg-gray-900 px-3 py-1.5 text-base font-semibold text-white shadow-sm">Reports</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <label for="report-search" class="sr-only">Search reports</label>
+    <input id="report-search" type="text" placeholder="Search reports (team or map)"
+           class="block w-full sm:w-80 md:w-96 rounded-md border border-gray-300 px-3 py-2 text-sm" />
+  </div>
+
+  <!-- Sections by year -->
+  {% for year, teams in {'2025': teams_25}.items() %}
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ year }}</h2>
+    <div class="space-y-2">
+      {% for team, maps in teams.items() %}
+      <div class="surface-card bg-white rounded-xl p-3 ring-muted" data-team="{{ team|lower }}">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-base font-semibold text-gray-900">{{ team }}</div>
+            <div class="text-xs text-gray-500">Created: {{ maps[0].date }}</div>
+          </div>
+          <button type="button" class="toggle-maps th-btn th-btn-primary">Show Maps</button>
+        </div>
+
+        <div class="maps-container hidden mt-2 space-y-2">
+          {% for map in maps %}
+          <div class="bg-white rounded-lg p-3 border border-gray-200" data-map-card data-map="{{ map.map|lower }}">
+            <div class="flex items-center justify-between gap-3">
+              <div class="font-medium text-gray-900">Map: {{ map.map }}</div>
+              <div class="flex items-center gap-2">
+                <button type="button" class="open-in-tab th-btn th-btn-outline text-xs"
+                        data-url="{{ map.file_url }}#page=1&zoom=page-width">
+                  Open in new tab
+                </button>
+                <button type="button" class="toggle-report th-btn th-btn-primary text-xs">Show Report</button>
+              </div>
+            </div>
+
+            <iframe class="pdf-frame hidden" title="Report PDF for {{ team }} — {{ map.map }}" loading="lazy" data-src="{{ map.file_url }}#page=1&zoom=page-width"></iframe>
+            <noscript>
+              <p class="text-sm text-gray-600">PDF preview requires JavaScript. <a class="text-gray-900 underline" href="{{ map.file_url }}">Download/View PDF</a></p>
+            </noscript>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if session.role == 'admin' %}
+  <div class="surface-card bg-white rounded-xl p-4 ring-muted mt-8">
+    <h3 class="text-lg font-semibold text-gray-900 mb-3">Upload New Report</h3>
+    <form action="{{ url_for('upload_report') }}" method="post" enctype="multipart/form-data" class="space-y-3">
+      <div>
+        <label for="team_name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+        <input type="text" id="team_name" name="team_name" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label for="map_name" class="block text-sm font-medium text-gray-700 mb-1">Map Name</label>
+        <input type="text" id="map_name" name="map_name" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label for="report_date" class="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
+        <input type="date" id="report_date" name="report_date" required value="{{ request.form.get('report_date', '') }}" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+        <p class="text-xs text-gray-500 mt-1">This date is shown under the team and used for ordering.</p>
+      </div>
+      <div>
+        <label for="report_file" class="block text-sm font-medium text-gray-700 mb-1">Upload PDF</label>
+        <input type="file" id="report_file" name="report_file" accept=".pdf" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+        <p class="text-xs text-gray-500 mt-1">Only PDF files are allowed.</p>
+      </div>
+      <button type="submit" class="th-btn th-btn-primary">Upload Report</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="surface-card bg-white rounded-xl p-4 ring-muted mt-6">
+    <div class="rounded-md bg-amber-50 p-3 text-amber-800 text-sm">Only admins can upload new reports.</div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Autofill today's date if empty, in YYYY-MM-DD
+  (function () {
+    const input = document.getElementById('report_date');
+    if (input && !input.value) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      input.value = `${yyyy}-${mm}-${dd}`;
+    }
+  })();
+
+  // Toggle maps container
+  document.addEventListener('click', function (e) {
+    const showMapsBtn = e.target.closest('.toggle-maps');
+    if (showMapsBtn) {
+      const container = showMapsBtn.closest('.surface-card').querySelector('.maps-container');
+      const hidden = container.classList.contains('hidden');
+      container.classList.toggle('hidden', !hidden);
+      showMapsBtn.textContent = hidden ? 'Hide Maps' : 'Show Maps';
+      return;
+    }
+
+    const toggleBtn = e.target.closest('.toggle-report');
+    if (toggleBtn) {
+      const card = toggleBtn.closest('[data-map-card]');
+      if (!card) return;
+      const iframe = card.querySelector('iframe.pdf-frame');
+      if (!iframe) return;
+      const isHidden = iframe.classList.contains('hidden');
+      if (isHidden) {
+        if (!iframe.getAttribute('src')) {
+          const raw = iframe.getAttribute('data-src') || '';
+          let url = raw;
+          if (raw && !raw.includes('#')) url = raw + '#page=1&zoom=page-width';
+          else if (raw && raw.includes('#') && !raw.includes('zoom=')) url = raw + '&zoom=page-width';
+          iframe.setAttribute('src', url);
+        }
+      }
+      iframe.classList.toggle('hidden', !isHidden);
+      toggleBtn.textContent = isHidden ? 'Hide Report' : 'Show Report';
+      return;
+    }
+
+    const open = e.target.closest('.open-in-tab');
+    if (open) {
+      const url = open.dataset.url;
+      if (url) window.open(url, '_blank', 'noopener');
+    }
+  });
+
+  // Client-side search (team or map)
+  (function () {
+    const input = document.getElementById('report-search');
+    if (!input) return;
+    const teamCards = Array.from(document.querySelectorAll('.strategic-page .surface-card[data-team]'));
+
+    function resetCard(card) {
+      const mapsContainer = card.querySelector('.maps-container');
+      if (mapsContainer) mapsContainer.classList.add('hidden');
+      const toggleBtn = card.querySelector('.toggle-maps');
+      if (toggleBtn) toggleBtn.textContent = 'Show Maps';
+      card.querySelectorAll('[data-map-card]').forEach(m => m.classList.remove('hidden'));
+    }
+
+    function filter() {
+      const q = (input.value || '').trim().toLowerCase();
+      if (!q) {
+        teamCards.forEach(card => { card.classList.remove('hidden'); resetCard(card); });
+        return;
+      }
+      teamCards.forEach(card => {
+        const team = (card.dataset.team || '');
+        const mapsContainer = card.querySelector('.maps-container');
+        const toggleBtn = card.querySelector('.toggle-maps');
+        const mapCards = Array.from(card.querySelectorAll('[data-map-card]'));
+        const teamMatch = team.includes(q);
+        let anyMapMatch = false;
+        mapCards.forEach(m => {
+          const mapName = (m.dataset.map || '').toLowerCase();
+          const match = mapName.includes(q) || teamMatch;
+          m.classList.toggle('hidden', !match);
+          if (match) anyMapMatch = true;
+        });
+        if (teamMatch || anyMapMatch) {
+          card.classList.remove('hidden');
+          if (mapsContainer) mapsContainer.classList.remove('hidden');
+          if (toggleBtn) toggleBtn.textContent = 'Hide Maps';
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    input.addEventListener('input', filter);
+  })();
+</script>
+
+{% endblock %}

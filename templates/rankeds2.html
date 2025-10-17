@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}Rankeds{% endblock %}
+
+{% block content %}
+<style>
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .sticky-th    { position: sticky; top: 0; background: #fff; z-index: 10; }
+  .dark-mode .rankeds-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .rankeds-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .rankeds-page .sticky-th    { background: #111827 !important; color: #9ca3af !important; border-color: #374151 !important; }
+  .dark-mode .rankeds-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .rankeds-page .text-gray-700 { color: #cbd5e1 !important; }
+  .dark-mode .rankeds-page .bg-white { background-color: #111827 !important; }
+  .dark-mode .rankeds-page .border-gray-200 { border-color: #374151 !important; }
+  .dark-mode .rankeds-page .bg-gray-50 { background-color: #111827 !important; }
+
+  /* Inputs/selects in dark mode (time selectors) */
+  .dark-mode .rankeds-page input,
+  .dark-mode .rankeds-page select,
+  .dark-mode .rankeds-page textarea {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+  }
+  .dark-mode .rankeds-page input:focus,
+  .dark-mode .rankeds-page select:focus,
+  .dark-mode .rankeds-page textarea:focus {
+    outline: none !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 1px #60a5fa inset !important;
+  }
+  /* Remove Bootstrap dark table overrides in favor of site style */
+  .dark-mode .form-control { background-color: #111827 !important; color: #e5e7eb !important; border-color: #374151 !important; }
+  .dark-mode .form-label { color: #cbd5e1 !important; }
+
+  /* Strongly scope dark tables to this page for consistency */
+  .dark-mode .rankeds-page .table {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+  }
+  .dark-mode .rankeds-page .table thead th,
+  .dark-mode .rankeds-page .table thead td {
+    background-color: var(--bg-lighter) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+  }
+  .dark-mode .rankeds-page .table td,
+  .dark-mode .rankeds-page .table th {
+    border-color: var(--border-color) !important;
+  }
+  .dark-mode .rankeds-page .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--bg-light) !important;
+  }
+  .dark-mode .rankeds-page .table-striped > tbody > tr:nth-of-type(even) > * {
+    background-color: var(--bg-dark) !important;
+  }
+  .dark-mode .rankeds-page .table-hover tbody tr:hover > * {
+    background-color: #2f2f2f !important;
+    color: var(--text-primary) !important;
+  }
+</style>
+<div class="rankeds-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  {# Loading overlay #}
+  <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Rankeds</h1>
+      <p class="text-sm text-gray-500">From {{ start_date|time_filter }} to {{ end_date|time_filter }}</p>
+    </div>
+  </div>
+
+  {% if role == 'admin' %}
+    <div class="surface-card bg-white rounded-xl px-3 py-2 mb-4 ring-muted">
+      <form id="filter-form-1" method="GET" action="{{ url_for('rankeds') }}" class="space-y-0">
+        <!-- Keep the other range intact on submit -->
+        <input type="hidden" name="which" value="rankeds">
+        <input type="hidden" name="start_date_2" value="{{ start_date_2 }}">
+        <input type="hidden" name="end_date_2"   value="{{ end_date_2 }}">
+
+        <!-- Hidden fields this form controls -->
+        <input type="hidden" name="start_date" id="form1_start_date" value="{{ start_date }}">
+        <input type="hidden" name="end_date"   id="form1_end_date"   value="{{ end_date }}">
+        <input type="hidden" name="mode"       id="form1_mode"       value="preset">
+        <input type="hidden" name="month"      id="form1_month"      value="">
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Segmented mode toggle -->
+          <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+            <button type="button" id="form1_preset_btn"
+                    class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white"
+                    data-active="true">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"/></svg>
+              Month
+            </button>
+            <button type="button" id="form1_custom_btn"
+                    class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white"
+                    data-active="false">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 4h8m-8 4h6M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>
+              Custom
+            </button>
+          </div>
+
+          <!-- Month dropdown (preset) -->
+          <div id="form1_month_selection" class="flex items-center gap-2">
+            <label for="form1_monthDropdown" class="sr-only">Month (2025)</label>
+            <div class="relative">
+              <select id="form1_monthDropdown"
+                      class="block w-40 sm:w-48 md:w-56 rounded-md border-gray-300 shadow-sm px-2 py-1 pr-8 text-sm appearance-none">
+                <option value="">Month…</option>
+                {% for i, name in [(1,'January'),(2,'February'),(3,'March'),(4,'April'),(5,'May'),(6,'June'),(7,'July'),(8,'August'),(9,'September'),(10,'October'),(11,'November'),(12,'December')] %}
+                  <option value="{{ i }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+              <!-- Custom chevron -->
+              <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Custom range (hidden by default) -->
+          <div id="form1_custom_range" class="flex items-end gap-2 hidden">
+            <div>
+              <label for="form1_sd" class="sr-only">Start date</label>
+              <input type="date" id="form1_sd"
+                     class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                     value="{{ start_date }}" min="2025-01-01">
+            </div>
+            <div>
+              <label for="form1_ed" class="sr-only">End date</label>
+              <input type="date" id="form1_ed"
+                     class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                     value="{{ end_date }}" min="2025-01-01">
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="ml-auto flex items-center gap-2">
+            <button type="button" id="form1_clear" class="th-btn th-btn-ghost">Clear</button>
+            <button type="submit" class="btn-apply th-btn th-btn-primary">Apply filters</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden mb-4">
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-separate border-spacing-0">
+          <thead>
+            <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th class="sticky-th px-4 py-3 border-b border-gray-200">Player</th>
+              <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Rankeds</th>
+              <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Deathmatchs</th>
+              <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Team Deathmatchs</th>
+              <th class="sticky-th px-4 py-3 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                  <div>
+                    <div>Avg. K/D</div>
+                    <div class="text-[11px] text-gray-500">(last 2 weeks)</div>
+                  </div>
+                  <button id="update-kda" class="th-btn th-btn-outline text-xs" title="Recompute K/D for everyone">
+                    <span id="update-kda-text">Update KD</span>
+                    <span id="update-kda-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 text-sm">
+            {% for player in ['Boo','MiniBoo','RieNs','wo0t','benjy'] %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-medium text-gray-900">{{ player }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ number_competitive[player] }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ number_deathmatchs[player] }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ number_hurms[player] }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ kd[player] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-center text-danger">You must be an admin to view the ranked matches table.</p>
+  {% endif %}
+
+  <hr class="my-4">
+
+  <div class="mb-3">
+    <h2 class="text-lg font-semibold text-gray-900">VCT EMEA List</h2>
+    <p class="text-xs text-gray-500"><small>* data obtained from Riot's API - accuracy not guaranteed *</small></p>
+    <p class="text-sm text-gray-500">From {{ start_date_2|time_filter }} to {{ end_date_2|time_filter }}</p>
+  </div>
+
+  <div class="surface-card bg-white rounded-xl px-3 py-2 mb-4 ring-muted">
+    <form id="filter-form-2" method="GET" action="{{ url_for('rankeds') }}" class="space-y-0">
+      <!-- Keep the other range intact on submit -->
+      <input type="hidden" name="which" value="full_list">
+      <input type="hidden" name="start_date" value="{{ start_date }}">
+      <input type="hidden" name="end_date"   value="{{ end_date }}">
+
+      <!-- Hidden fields this form controls -->
+      <input type="hidden" name="start_date_2" id="form2_start_date" value="{{ start_date_2 }}">
+      <input type="hidden" name="end_date_2"   id="form2_end_date"   value="{{ end_date_2 }}">
+      <input type="hidden" name="mode"         id="form2_mode"       value="preset">
+      <input type="hidden" name="month"        id="form2_month"      value="">
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Segmented mode toggle -->
+        <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          <button type="button" id="form2_preset_btn"
+                  class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white"
+                  data-active="true">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"/></svg>
+            Month
+          </button>
+          <button type="button" id="form2_custom_btn"
+                  class="mode-btn inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-white"
+                  data-active="false">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 4h8m-8 4h6M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>
+            Custom
+          </button>
+        </div>
+
+        <!-- Month dropdown (preset) -->
+        <div id="form2_month_selection" class="flex items-center gap-2">
+          <label for="form2_monthDropdown" class="sr-only">Month (2025)</label>
+          <div class="relative">
+            <select id="form2_monthDropdown"
+                    class="block w-40 sm:w-48 md:w-56 rounded-md border-gray-300 shadow-sm px-2 py-1 pr-8 text-sm appearance-none">
+              <option value="">Month…</option>
+              {% for i, name in [(1,'January'),(2,'February'),(3,'March'),(4,'April'),(5,'May'),(6,'June'),(7,'July'),(8,'August'),(9,'September'),(10,'October'),(11,'November'),(12,'December')] %}
+                <option value="{{ i }}">{{ name }}</option>
+              {% endfor %}
+            </select>
+            <!-- Custom chevron -->
+            <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Custom range (hidden by default) -->
+        <div id="form2_custom_range" class="flex items-end gap-2 hidden">
+          <div>
+            <label for="form2_sd" class="sr-only">Start date</label>
+            <input type="date" id="form2_sd"
+                   class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                   value="{{ start_date_2 }}" min="2025-01-01">
+          </div>
+          <div>
+            <label for="form2_ed" class="sr-only">End date</label>
+            <input type="date" id="form2_ed"
+                   class="block w-40 rounded-md border-gray-300 shadow-sm px-2 py-1 text-sm"
+                   value="{{ end_date_2 }}" min="2025-01-01">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="ml-auto flex items-center gap-2">
+          <button type="button" id="form2_clear" class="th-btn th-btn-ghost">Clear</button>
+          <button type="submit" class="btn-apply th-btn th-btn-primary">Apply filters</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="surface-card bg-white rounded-xl ring-muted overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-separate border-spacing-0">
+        <thead>
+          <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <th class="sticky-th px-4 py-3 border-b border-gray-200">Player</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Rankeds</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Deathmatchs</th>
+            <th class="sticky-th px-4 py-3 border-b border-gray-200">Total Team Deathmatchs</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-sm">
+          {% for player in players %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ player }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ rankds_2[player] }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ dms_2[player] }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ hurms_2[player] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('loading-overlay');
+      const showLoading = () => { if (overlay) overlay.style.display = 'flex'; };
+
+      function setupFilter(prefix) {
+        const presetBtn = document.getElementById(`${prefix}_preset_btn`);
+        const customBtn = document.getElementById(`${prefix}_custom_btn`);
+        const monthSel  = document.getElementById(`${prefix}_month_selection`);
+        const monthDd   = document.getElementById(`${prefix}_monthDropdown`);
+        const rangeBox  = document.getElementById(`${prefix}_custom_range`);
+        const sdInput   = document.getElementById(`${prefix}_sd`);
+        const edInput   = document.getElementById(`${prefix}_ed`);
+        const clearBtn  = document.getElementById(`${prefix}_clear`);
+        const hiddenSD  = document.getElementById(prefix === 'form1' ? 'form1_start_date' : 'form2_start_date');
+        const hiddenED  = document.getElementById(prefix === 'form1' ? 'form1_end_date'   : 'form2_end_date');
+        const modeInput = document.getElementById(prefix === 'form1' ? 'form1_mode'       : 'form2_mode');
+        const monthHid  = document.getElementById(prefix === 'form1' ? 'form1_month'      : 'form2_month');
+
+        function setMode(mode) {
+          if (modeInput) modeInput.value = mode;
+          if (presetBtn && customBtn) {
+            presetBtn.dataset.active = (mode === 'preset');
+            customBtn.dataset.active = (mode === 'custom');
+          }
+          if (monthSel) monthSel.classList.toggle('hidden', mode !== 'preset');
+          if (rangeBox) rangeBox.classList.toggle('hidden', mode !== 'custom');
+        }
+        setMode('preset');
+
+        if (presetBtn) presetBtn.addEventListener('click', () => setMode('preset'));
+        if (customBtn) customBtn.addEventListener('click', () => setMode('custom'));
+
+        function updatePresetDates() {
+          if (!monthDd || !hiddenSD || !hiddenED) return;
+          const mv = parseInt(monthDd.value || '0', 10);
+          if (!mv) return;
+          const y = 2025;
+          const start = new Date(Date.UTC(y, mv - 1, 1));
+          const end   = new Date(Date.UTC(y, mv, 0));
+          hiddenSD.value = start.toISOString().slice(0,10);
+          hiddenED.value = end.toISOString().slice(0,10);
+          if (monthHid) monthHid.value = String(mv);
+        }
+        if (monthDd) monthDd.addEventListener('change', updatePresetDates);
+
+        if (sdInput) sdInput.addEventListener('change', e => { if (hiddenSD) hiddenSD.value = e.target.value; });
+        if (edInput) edInput.addEventListener('change', e => { if (hiddenED) hiddenED.value = e.target.value; });
+
+        if (clearBtn) clearBtn.addEventListener('click', () => {
+          setMode('preset');
+          if (monthDd) monthDd.value = '';
+          if (monthHid) monthHid.value = '';
+          if (hiddenSD) hiddenSD.value = prefix === 'form1' ? '{{ start_date }}' : '{{ start_date_2 }}';
+          if (hiddenED) hiddenED.value = prefix === 'form1' ? '{{ end_date }}'   : '{{ end_date_2 }}';
+          if (sdInput) sdInput.value   = prefix === 'form1' ? '{{ start_date }}' : '{{ start_date_2 }}';
+          if (edInput) edInput.value   = prefix === 'form1' ? '{{ end_date }}'   : '{{ end_date_2 }}';
+        });
+
+        const formEl = document.getElementById(prefix === 'form1' ? 'filter-form-1' : 'filter-form-2');
+        if (formEl) formEl.addEventListener('submit', showLoading);
+      }
+
+      setupFilter('form1');
+      setupFilter('form2');
+    });
+
+    // Update KDA button
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('update-kda');
+      const text = document.getElementById('update-kda-text');
+      const spinner = document.getElementById('update-kda-spinner');
+      btn?.addEventListener('click', () => {
+        btn.disabled = true; if (text) text.textContent = 'Updating…'; if (spinner) spinner.classList.remove('d-none');
+        fetch("{{ url_for('update_kda') }}", { method: 'POST', headers: {'Content-Type':'application/json'} })
+          .then(res => res.json()).then(data => {
+            if (data.success) window.location.reload();
+            else { alert('Error updating KDA: ' + data.message); btn.disabled = false; if (text) text.textContent = 'Update KD'; if (spinner) spinner.classList.add('d-none'); }
+          }).catch(err => { alert('Network error: ' + err); btn.disabled = false; if (text) text.textContent = 'Update KD'; if (spinner) spinner.classList.add('d-none'); });
+      });
+    });
+  </script>
+
+  <style>
+    /* ===========================
+       DARK MODE ENHANCEMENTS
+       =========================== */
+    .dark-mode {
+      --bg-light:       #2a2a2a;
+      --bg-lighter:     #333333;
+      --bg-dark:        #1e1e1e;
+      --border-color:   #444444;
+      --text-primary:   #e0e0e0;
+      --text-secondary: #aaaaaa;
+      --accent:         #3f51b5;
+    }
+
+    /* Page containers and forms */
+    .dark-mode .bg-light {
+      background-color: var(--bg-light) !important;
+    }
+    .dark-mode .form-control,
+    .dark-mode .form-label,
+    .dark-mode .btn-group .btn {
+      background-color: var(--bg-light) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border-color) !important;
+    }
+    .dark-mode .form-label {
+      color: var(--text-secondary) !important;
+    }
+
+    /* Tables */
+    .dark-mode .table {
+      color: var(--text-primary);
+      background-color: var(--bg-dark);
+      border-color: var(--border-color);
+    }
+    .dark-mode .table thead th {
+      background-color: var(--bg-lighter) !important;
+      color: var(--text-primary) !important;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .dark-mode .table-striped>tbody>tr:nth-of-type(odd)>* {
+      background-color: var(--bg-light) !important;
+    }
+    .dark-mode .table-striped>tbody>tr:nth-of-type(even)>* {
+      background-color: var(--bg-dark) !important;
+    }
+    .dark-mode .table td,
+    .dark-mode .table th {
+      border-color: var(--border-color) !important;
+    }
+
+    /* Buttons */
+    .dark-mode .btn-outline-primary {
+      color: var(--text-primary) !important;
+      border-color: var(--border-color) !important;
+    }
+    .dark-mode .btn-outline-primary:hover,
+    .dark-mode .btn-primary {
+      background-color: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+    }
+
+    /* Loading overlay & spinner */
+    #loading-overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .dark-mode .spinner-border {
+      color: #fff;
+    }
+
+    /* Date picker arrow */
+    .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(1.2);
+    }
+
+    /* Ensure links in nav collapse pick up light text */
+    .dark-mode .navbar-nav .nav-link {
+      color: var(--text-primary) !important;
+    }
+    .dark-mode .navbar-nav .nav-link.active {
+      background-color: var(--bg-lighter) !important;
+    }
+    /* make the “From … to …” line readable */
+.dark-mode .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* force table cells to use our dark-mode vars */
+.dark-mode .table,
+.dark-mode .table th,
+.dark-mode .table td {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-primary) !important;
+}
+
+/* striped rows */
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--bg-light) !important;
+}
+.dark-mode .table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: var(--bg-dark) !important;
+}
+    /* --- Compact filter controls (match scrims) --- */
+    .rankeds-page .mode-btn[data-active="true"] {
+      background: #ffffff;
+      color: #111827;
+      box-shadow: 0 1px 2px rgba(16,24,40,.06);
+    }
+    .dark-mode .rankeds-page .mode-btn:hover { background-color: #1f2937 !important; }
+    .dark-mode .rankeds-page .mode-btn[data-active="true"] {
+      background-color: #1f2937 !important;
+      color: #e5e7eb !important;
+      box-shadow: 0 1px 2px rgba(2,6,23,.5);
+    }
+    .dark-mode .rankeds-page .border-gray-100 { border-color: #374151 !important; }
+    .dark-mode .rankeds-page .border-gray-300 { border-color: #4b5563 !important; }
+    .dark-mode .rankeds-page .bg-gray-50 { background-color: #111827 !important; }
+    .dark-mode .rankeds-page option { background-color: #111827; color: #e5e7eb; }
+    .dark-mode .rankeds-page input::placeholder { color: #9ca3af !important; }
+    .dark-mode .rankeds-page select:focus,
+    .dark-mode .rankeds-page input:focus { box-shadow: 0 0 0 1px #60a5fa inset !important; }
+
+    .rankeds-page .btn-apply { transition: transform .02s ease; }
+    .rankeds-page .btn-apply:active { transform: translateY(1px); }
+    .dark-mode .rankeds-page .btn-apply { background-color: #60a5fa !important; color: #0b1220 !important; }
+    .dark-mode .rankeds-page .btn-apply:hover { background-color: #3b82f6 !important; }
+  </style>
+</div>
+{% endblock %}

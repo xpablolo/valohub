@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Heretics{% endblock %}</title>
+  <link
+    rel="icon"
+    href="static/logo_2.webp"
+    type="image/webp"
+    sizes="100x100"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css"
+  />
+
+  <!-- Tailwind utilities for the navbar (preflight disabled to avoid Bootstrap conflicts) -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = { corePlugins: { preflight: false } };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Dark/Light Mode & Toggle CSS -->
+  <style>
+    /* ========== Design Tokens ========== */
+    :root {
+      --bg-page: #f8f9fa;
+      --bg-surface: #ffffff;
+      --text-primary: #111827;   /* gray-900 */
+      --text-secondary: #6b7280; /* gray-500/600 */
+      --border-color: #e5e7eb;   /* gray-200 */
+      --accent: #2563eb;         /* blue-600 */
+
+      --btn-radius: 0.5rem;      /* rounded */
+      --btn-primary-bg: #111827; /* near-black */
+      --btn-primary-hover: #0f172a;
+      --btn-secondary-bg: #f9fafb;
+      --btn-secondary-hover: #f3f4f6;
+      --btn-outline-border: #d1d5db;
+      --btn-danger-bg: #dc2626;  /* red-600 */
+      --btn-danger-hover: #b91c1c;
+    }
+    .dark-mode {
+      --bg-page: #121212;
+      --bg-surface: #111827;     /* gray-900 */
+      --text-primary: #e5e7eb;   /* gray-200 */
+      --text-secondary: #9ca3af; /* gray-400 */
+      --border-color: #374151;   /* gray-700 */
+      --btn-primary-bg: #444444;
+      --btn-primary-hover: #333333;
+      --btn-secondary-bg: #1f2937;
+      --btn-secondary-hover: #374151;
+      --btn-outline-border: #4b5563;
+      /* accent remains the same for clarity */
+    }
+
+    /* ========== BASE STYLES (LIGHT MODE) ========== */
+    body { background-color: var(--bg-page); color: #212529; }
+    .navbar { transition: background-color 0.3s ease; }
+
+    /* ========== DARK MODE STYLES ========== */
+    .dark-mode { background-color: var(--bg-page) !important; color: #ffffff !important; }
+    .dark-mode .navbar { background-color: #212529 !important; }
+    .dark-mode .nav-link { color: #ffffff !important; }
+    .dark-mode .nav-link.active {
+      background-color: #333333 !important;
+      border-radius: 5px;
+    }
+    .dark-mode .list-group-item {
+      background-color: #1e1e1e;
+      color: #ffffff;
+      border-color: #333333;
+    }
+    .dark-mode .list-group-item:hover {
+      background-color: #2c2c2c;
+    }
+    .dark-mode .btn-primary {
+      background-color: #3f51b5;
+      border-color: #3f51b5;
+    }
+    .dark-mode .btn-primary:hover {
+      background-color: #303f9f;
+      border-color: #303f9f;
+    }
+    .dark-mode .iframe-container iframe {
+      filter: invert(0.9) hue-rotate(180deg);
+    }
+    .dark-mode .iframe-container { background-color: #2a2a2a; }
+
+    /* ========== Cards (Global) ========== */
+    .surface-card { background: var(--bg-surface); box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+    .ring-muted   { box-shadow: 0 0 0 1px var(--border-color) inset; }
+
+    /* ========== Buttons (Global) ========== */
+    .th-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: var(--btn-radius);
+      font-weight: 600; font-size: .875rem; /* text-sm */
+      padding: .375rem .875rem; /* py-1.5 px-3.5 */
+      line-height: 1.25rem; gap: .5rem;
+      border: 1px solid transparent;
+      transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+      text-decoration: none;
+    }
+    .th-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .th-btn[disabled], .th-btn.disabled { opacity: .6; pointer-events: none; }
+
+    .th-btn-primary { background: var(--btn-primary-bg); color: #fff; }
+    .th-btn-primary:hover { background: var(--btn-primary-hover); }
+
+    .th-btn-secondary { background: var(--btn-secondary-bg); color: var(--text-primary); border-color: var(--border-color); }
+    .th-btn-secondary:hover { background: var(--btn-secondary-hover); }
+
+    .th-btn-outline { background: transparent; color: var(--text-primary); border-color: var(--btn-outline-border); }
+    .th-btn-outline:hover { background: var(--btn-secondary-bg); }
+
+    .th-btn-ghost { background: transparent; color: var(--text-secondary); border-color: transparent; }
+    .th-btn-ghost:hover { background: var(--btn-secondary-bg); color: var(--text-primary); }
+
+    .th-btn-danger { background: var(--btn-danger-bg); color: #fff; }
+    .th-btn-danger:hover { background: var(--btn-danger-hover); }
+
+    /* ========== TOGGLE SWITCH ========== */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: background-color 0.4s;
+      border-radius: 30px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: transform 0.4s;
+      border-radius: 50%;
+      z-index: 2; /* keep handle above icons */
+    }
+
+    /* Icons inside track */
+    .slider .icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      transition: opacity 0.4s, color 0.4s;
+      z-index: 1; /* sit below the handle */
+      pointer-events: none;
+    }
+    .slider .sun-icon {
+      left: 8px;
+      color: #FDB813;
+      opacity: 1;
+    }
+    .slider .moon-icon {
+      right: 8px;
+      color: #666666;
+      opacity: 0.5;
+    }
+
+    /* Checked state */
+    input:checked + .slider {
+      background-color: #444444;
+    }
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+    input:checked + .slider .sun-icon {
+      opacity: 0.3;
+      color: #777777;
+    }
+    input:checked + .slider .moon-icon {
+      opacity: 1;
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tailwind Navbar (shared across all pages) -->
+  <nav class="bg-gray-900 text-white sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-14 items-center justify-between">
+        <a href="/" class="flex items-center gap-2">
+          <img src="/static/valohub_logo-white.png" alt="Logo" class="h-10 w-auto" />
+        </a>
+        <div class="hidden md:flex items-center space-x-1">
+          <a href="/scrims" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'scrims' %}bg-gray-800{% endif %}">Scrims</a>
+          <a href="/strategic_reports" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'strategic' %}bg-gray-800{% endif %}">Strat. Reports</a>
+          <a href="/analytical_reports" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'analytical' %}bg-gray-800{% endif %}">Analyt. Reports</a>
+          <a href="/stats" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'stats' %}bg-gray-800{% endif %}">Stats</a>
+          <a href="/map-rankings" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'map_rankings' %}bg-gray-800{% endif %}">Map Rankings</a>
+          <a href="/pick&bans" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'pick&bans' %}bg-gray-800{% endif %}">Pick &amp; Bans</a>
+          <a href="/rankeds" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'rankeds' %}bg-gray-800{% endif %}">Rankeds</a>
+          <a href="/search" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'search' %}bg-gray-800{% endif %}">Agents</a>
+        </div>
+        <div class="hidden md:flex items-center gap-3">
+          <label class="switch me-1">
+            <input type="checkbox" id="darkModeToggle" />
+            <span class="slider">
+              <i class="bi bi-sun-fill icon sun-icon"></i>
+              <i class="bi bi-moon-fill icon moon-icon"></i>
+            </span>
+          </label>
+          {% if session.get('username') %}
+            <span class="text-sm text-gray-200">Hello, {{ session.get('username') }}</span>
+            <a href="{{ url_for('logout') }}" class="th-btn th-btn-danger">Logout</a>
+          {% endif %}
+        </div>
+        <button id="nav-toggle" class="md:hidden p-2 rounded hover:bg-gray-800" aria-label="Toggle navigation">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="md:hidden hidden py-2 border-t border-gray-800">
+        <a href="/scrims" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'scrims' %}bg-gray-800{% endif %}">Scrims</a>
+        <a href="/strategic_reports" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'strategic' %}bg-gray-800{% endif %}">Strategic Reports</a>
+        <a href="/analytical_reports" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'analytical' %}bg-gray-800{% endif %}">Analytical Reports</a>
+        <a href="/stats" class="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded {% if active_page == 'stats' %}bg-gray-800{% endif %}">Stats</a>
+        <a href="/map-rankings" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'map_rankings' %}bg-gray-800{% endif %}">Map Rankings</a>
+        <a href="/pick&bans" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'pick&bans' %}bg-gray-800{% endif %}">Pick &amp; Bans</a>
+        <a href="/rankeds" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'rankeds' %}bg-gray-800{% endif %}">Rankeds</a>
+        <a href="/search" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'search' %}bg-gray-800{% endif %}">Agents</a>
+        <div class="mt-2 px-3">
+          <label class="switch">
+            <input type="checkbox" id="darkModeToggleMobile" />
+            <span class="slider">
+              <i class="bi bi-sun-fill icon sun-icon"></i>
+              <i class="bi bi-moon-fill icon moon-icon"></i>
+            </span>
+          </label>
+          {% if session.get('username') %}
+            <div class="text-sm text-gray-300 my-2">Hello, {{ session.get('username') }}</div>
+            <a href="{{ url_for('logout') }}" class="block text-center th-btn th-btn-danger">Logout</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+  <!-- Dark Mode + Mobile Menu Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mobile menu toggle
+      const navToggle = document.getElementById('nav-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (navToggle && mobileMenu) {
+        navToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+      }
+
+      // Dark mode toggle (desktop + mobile)
+      const darkToggle = document.getElementById('darkModeToggle');
+      const darkToggleMobile = document.getElementById('darkModeToggleMobile');
+      const isDark = localStorage.getItem('darkModeEnabled') === 'true';
+      document.body.classList.toggle('dark-mode', isDark);
+      if (darkToggle) darkToggle.checked = isDark;
+      if (darkToggleMobile) darkToggleMobile.checked = isDark;
+
+      function setDarkMode(enabled) {
+        document.body.classList.toggle('dark-mode', enabled);
+        localStorage.setItem('darkModeEnabled', enabled);
+        if (darkToggle) darkToggle.checked = enabled;
+        if (darkToggleMobile) darkToggleMobile.checked = enabled;
+      }
+      if (darkToggle) darkToggle.addEventListener('change', e => setDarkMode(e.target.checked));
+      if (darkToggleMobile) darkToggleMobile.addEventListener('change', e => setDarkMode(e.target.checked));
+    });
+  </script>
+</body>
+</html>

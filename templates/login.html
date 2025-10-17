@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+  /* Match app surface styles */
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+
+  /* Dark mode for login elements */
+  .dark-mode .login-page .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .login-page .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+  .dark-mode .login-page .text-gray-900 { color: #e5e7eb !important; }
+  .dark-mode .login-page .text-gray-500 { color: #9ca3af !important; }
+  .dark-mode .login-page label.form-label { color: #e5e7eb !important; }
+  .dark-mode .login-page input.form-control {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+  }
+  .dark-mode .login-page input.form-control:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 1px #60a5fa inset !important;
+  }
+</style>
+<div class="login-page mx-auto" style="max-width: 420px;">
+  <h1 class="text-center mb-1 text-2xl font-semibold text-gray-900">Login</h1>
+  <p class="text-center text-gray-500 mb-3">Please enter your credentials to continue.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="alert alert-danger">
+        {% for category, message in messages %}
+          <div>{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('login') }}" class="surface-card bg-white rounded-xl p-3 ring-muted">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input
+        type="text"
+        class="form-control"
+        id="username"
+        name="username"
+        required
+        autocomplete="username"
+        autofocus
+        placeholder="Enter your username"
+      >
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        name="password"
+        required
+        autocomplete="current-password"
+        placeholder="Enter your password"
+      >
+    </div>
+    <button type="submit" class="th-btn th-btn-primary w-100">Login</button>
+  </form>
+</div>
+{% endblock %}

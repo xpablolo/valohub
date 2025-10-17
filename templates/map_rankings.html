@@ -1,0 +1,460 @@
+{% extends 'base.html' %}
+{% block title %}Map Rankings{% endblock %}
+
+{% block content %}
+<style>
+  .map-rankings-page {
+    padding: 0;
+  }
+
+  .dark-mode .map-rankings-page .text-gray-900 {
+    color: #ffffff !important;
+  }
+
+  .dark-mode .map-rankings-page .text-gray-500 {
+    color: #ffffff !important;
+  }
+
+  .map-rankings-page .pool-chip {
+    background: rgba(37, 99, 235, .08);
+    color: #1e3a8a;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: .25rem .75rem;
+    font-size: .85rem;
+  }
+
+  .map-rankings-page .player-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  @media (min-width: 1200px) {
+    .map-rankings-page .player-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .map-rankings-page .player-grid-card {
+    background: var(--bg-surface, #ffffff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+  }
+
+  .map-rankings-page .player-grid-card textarea {
+    resize: vertical;
+    min-height: 9rem;
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-primary, #111827);
+    border-color: var(--border-color, #e5e7eb);
+  }
+
+  .map-rankings-page .player-grid-card textarea::placeholder {
+    color: var(--text-secondary, #6b7280);
+  }
+
+  .map-rankings-page .invalid-feedback {
+    color: #dc2626;
+  }
+
+  .map-rankings-page .panel {
+    background: var(--bg-surface, #ffffff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+  }
+
+  .map-rankings-page .avg-row {
+    background: rgba(15, 23, 42, .03);
+    border-radius: .75rem;
+  }
+
+  .map-rankings-page .ranking-details {
+    width: 100%;
+  }
+
+  .map-rankings-page .ranking-summary {
+    cursor: pointer;
+    position: relative;
+    color: var(--text-primary, #111827);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .5rem 0;
+  }
+
+  .map-rankings-page .ranking-summary::-webkit-details-marker,
+  .map-rankings-page .ranking-summary::marker {
+    display: none;
+  }
+
+  .map-rankings-page .ranking-summary-content {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .map-rankings-page .summary-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, .12);
+    color: #1d4ed8;
+    font-size: .9rem;
+    transition: transform .2s ease;
+    flex-shrink: 0;
+  }
+
+  .map-rankings-page .ranking-details[open] .summary-caret {
+    transform: rotate(180deg);
+  }
+
+  .map-rankings-page .ranking-summary-text {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+  }
+
+  .map-rankings-page .ranking-summary-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .map-rankings-page .ranking-summary-actions form {
+    margin: 0;
+  }
+
+  .map-rankings-page .ranking-summary:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+    border-radius: .5rem;
+  }
+
+  .map-rankings-page .ranking-body {
+    margin-top: 1.5rem;
+  }
+
+  .map-rankings-page .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: #1d4ed8;
+    color: #e0f2fe;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .map-rankings-page .player-count-badge {
+    background: rgba(15, 23, 42, .08);
+    color: var(--text-primary, #111827);
+    border-radius: .65rem;
+    font-weight: 600;
+    padding: .25rem .65rem;
+  }
+
+  .map-rankings-page .player-map-chip {
+    background: rgba(37, 99, 235, .1);
+    color: #1e3a8a;
+    border-radius: .65rem;
+    font-weight: 600;
+    padding: .2rem .55rem;
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-size: .85rem;
+    line-height: 1.2;
+  }
+
+  .map-rankings-page .player-orders-shell {
+    position: relative;
+  }
+
+  .map-rankings-page .player-orders-track {
+    display: flex;
+    gap: .75rem;
+    padding-bottom: .25rem;
+    margin-bottom: -.25rem;
+    overflow-x: auto;
+  }
+
+  .map-rankings-page .player-orders-track::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .map-rankings-page .player-orders-track::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, .18);
+    border-radius: 999px;
+  }
+
+  .map-rankings-page .player-orders-track::-webkit-scrollbar-thumb {
+    background: rgba(37, 99, 235, .4);
+    border-radius: 999px;
+  }
+
+  .map-rankings-page .player-order-card {
+    flex: 1 1 calc(20% - .75rem);
+    min-width: 0;
+  }
+
+  .map-rankings-page details summary {
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+  }
+
+  .map-rankings-page details pre {
+    background: rgba(15, 23, 42, .04);
+    color: var(--text-primary, #111827);
+    border-color: var(--border-color, #e5e7eb);
+  }
+
+  .dark-mode .map-rankings-page .pool-chip {
+    background: rgba(96, 165, 250, .12);
+    color: #bfdbfe;
+  }
+
+  .dark-mode .map-rankings-page .text-muted,
+  .dark-mode .map-rankings-page .text-secondary,
+  .dark-mode .map-rankings-page .text-muted small,
+  .dark-mode .map-rankings-page .small.text-muted {
+    color: #ffffff !important;
+  }
+
+  .dark-mode .map-rankings-page .summary-caret {
+    background: rgba(96, 165, 250, .18);
+    color: #bfdbfe;
+  }
+
+  .dark-mode .map-rankings-page .player-grid-card,
+  .dark-mode .map-rankings-page .panel {
+    background: #111827;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+
+  .dark-mode .map-rankings-page .player-grid-card textarea {
+    background: #0f172a;
+    color: #e5e7eb;
+    border-color: #374151;
+  }
+
+  .dark-mode .map-rankings-page .player-grid-card textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .dark-mode .map-rankings-page .invalid-feedback {
+    color: #fca5a5;
+  }
+
+  .dark-mode .map-rankings-page .avg-row {
+    background: rgba(148, 163, 184, .12);
+  }
+
+  .dark-mode .map-rankings-page .avg-row .text-muted {
+    color: #f1f5f9;
+  }
+
+  .dark-mode .map-rankings-page .rank-badge {
+    background: #2563eb;
+    color: #f8fafc;
+  }
+
+  .dark-mode .map-rankings-page .player-count-badge {
+    background: rgba(148, 163, 184, .22);
+    color: #e5e7eb;
+  }
+
+  .dark-mode .map-rankings-page .player-map-chip {
+    background: rgba(96, 165, 250, .16);
+    color: #bfdbfe;
+  }
+
+  .dark-mode .map-rankings-page .player-orders-track::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, .2);
+  }
+
+  .dark-mode .map-rankings-page .player-orders-track::-webkit-scrollbar-thumb {
+    background: rgba(96, 165, 250, .4);
+  }
+
+  .dark-mode .map-rankings-page details pre {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-color: #374151;
+  }
+
+  .dark-mode .map-rankings-page details summary {
+    color: #ffffff;
+  }
+
+  .dark-mode .map-rankings-page .ranking-summary {
+    color: #ffffff;
+  }
+
+  .map-rankings-page .delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary, #6b7280);
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+
+  .map-rankings-page .delete-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, .12);
+    border-color: rgba(239, 68, 68, .3);
+  }
+
+  .map-rankings-page .delete-btn:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, .6);
+    outline-offset: 2px;
+  }
+
+  .dark-mode .map-rankings-page .delete-btn {
+    color: #9ca3af;
+  }
+
+  .dark-mode .map-rankings-page .delete-btn:hover {
+    color: #fca5a5;
+    background: rgba(248, 113, 113, .2);
+    border-color: rgba(248, 113, 113, .4);
+  }
+</style>
+
+<div class="map-rankings-page">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900 mb-1">Map Rankings</h1>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        {% for map_name in map_pool %}
+          <span class="pool-chip">{{ map_name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <form method="post" class="mb-5">
+      <input type="hidden" name="action" value="compute" />
+      <div class="player-grid">
+        {% for player in players %}
+          <div class="surface-card ring-muted player-grid-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h6 mb-0">{{ player.label }}</h2>
+            </div>
+            <textarea
+              class="form-control {% if errors.get(player.id) %}is-invalid{% endif %}"
+              name="{{ player.id }}"
+              rows="5"
+              placeholder="Paste {{ player.label }}'s map ranking here..."
+            >{{ form_values[player.id] }}</textarea>
+            {% if errors.get(player.id) %}
+              <div class="invalid-feedback d-block mt-2">{{ errors.get(player.id) }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="th-btn th-btn-primary">
+          Compute &amp; Save
+        </button>
+      </div>
+    </form>
+
+    {% if rankings %}
+      <div class="d-flex flex-column gap-4">
+        {% for ranking in rankings %}
+          <div class="surface-card ring-muted panel p-4">
+            <details class="ranking-details" {% if ranking.id == open_ranking_id %}open{% endif %}>
+              <summary class="ranking-summary">
+                <div class="ranking-summary-content">
+                  <span class="summary-caret" aria-hidden="true">&#9662;</span>
+                  <div class="ranking-summary-text">
+                    <h2 class="h5 mb-1">{{ ranking.created_at_label  }}</h2>
+                  </div>
+                </div>
+                {% if can_delete %}
+                  <div class="ranking-summary-actions">
+                    <form method="post" onsubmit="return confirm('Delete this map ranking?');" onclick="event.stopPropagation();">
+                      <input type="hidden" name="action" value="delete" />
+                      <input type="hidden" name="ranking_id" value="{{ ranking.id }}" />
+                      <button
+                        type="submit"
+                        class="delete-btn"
+                        title="Delete ranking"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="bi bi-x-lg"></i>
+                        <span class="visually-hidden">Delete ranking</span>
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+              </summary>
+              <div class="ranking-body">
+                <div class="row g-4">
+                  <div class="col-12 col-lg-4">
+                    <div class="surface-card ring-muted panel p-3 h-100">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h3 class="h6 mb-0">Average Order</h3>
+                      </div>
+                      <div class="d-flex flex-column gap-2">
+                        {% for row in ranking.average_rows %}
+                          <div class="d-flex align-items-center justify-content-between avg-row px-3 py-2">
+                            <div class="d-flex align-items-center gap-2">
+                              <span class="badge rank-badge">{{ loop.index }}</span>
+                              <span class="fw-semibold">{{ row.map }}</span>
+                            </div>
+                            <span class="text small">Avg. {{ row.display }}</span>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-8">
+                    <div class="player-orders-shell">
+                      <div class="player-orders-track">
+                        {% for player in ranking.players %}
+                          <div class="surface-card ring-muted panel p-3 player-order-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                              <h3 class="h6 mb-0">{{ player.name }}</h3>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                              {% for map_name in player.order %}
+                                <span class="player-map-chip">{{ loop.index }}. {{ map_name }}</span>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="surface-card ring-muted panel p-5 text-center">
+        <h2 class="h5 mb-2">No rankings yet</h2>
+        <p class="text-muted mb-0">Paste the players' notes above to generate the first combined ranking.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

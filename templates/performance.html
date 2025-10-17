@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Performance{% endblock %}
+
+{% block content %}
+<style>
+    /* Ensure the iframe occupies the full page minus the navbar */
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    iframe {
+        position: absolute;
+        top: var(--navbar-height); /* Adjust based on your navbar height */
+        left: 0;
+        width: 100%;
+        height: calc(100% - var(--navbar-height));
+        border: none;
+    }
+
+    /* Optional: Define a custom navbar height variable */
+    :root {
+        --navbar-height: 60px; /* Adjust this to your navbar's actual height */
+    }
+</style>
+
+<div>
+    <iframe 
+        src="https://docs.google.com/spreadsheets/d/14pDzJ3dq5aQc3O3ENiywjc-m3Ss_K5E6PDF2gpHUVuA/edit?usp=sharing" 
+        frameborder="0">
+    </iframe>
+</div>
+{% endblock %}
