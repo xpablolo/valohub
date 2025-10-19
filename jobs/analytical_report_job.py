@@ -21,14 +21,29 @@ def run_analytical_report_job(
     """Background task that orchestrates the analytical report generation."""
     redis_conn = get_redis_connection()
     store = AnalyticalJobStore(redis_conn)
+
+    class JobCancelled(RuntimeError):
+        """Raised when a cancellation request is detected."""
+
+    def check_cancel() -> None:
+        if store.is_cancel_requested(job_id):
+            raise JobCancelled()
+
     store.update_status(job_id, "started", team_tag=team_tag, match_count=match_count)
     store.append_event(
         job_id,
         "progress",
         {"message": f"Job {job_id} started for team {team_tag}."},
     )
+    try:
+        check_cancel()
+    except JobCancelled:
+        store.append_event(job_id, "cancelled", {"message": "Generation cancelled before start."})
+        store.update_status(job_id, "cancelled", cancelled_at=utc_now_iso())
+        return {"cancelled": True}
 
     def emit_progress(message: str) -> None:
+        check_cancel()
         store.append_event(job_id, "progress", {"message": message})
 
     def prompt_user(spec: dict) -> str:
@@ -40,6 +55,7 @@ def run_analytical_report_job(
         store.append_event(job_id, "prompt", payload)
 
         while True:
+            check_cancel()
             user_message = store.pop_user_input(job_id, timeout=5)
             if not user_message:
                 continue
@@ -58,6 +74,15 @@ def run_analytical_report_job(
             )
             return response
 
+    def sleep_with_cancel(seconds: float) -> None:
+        target = time.time() + min(seconds, 0.6)
+        while True:
+            check_cancel()
+            remaining = target - time.time()
+            if remaining <= 0:
+                break
+            time.sleep(min(0.2, remaining))
+
     try:
         result = generate_analytical_report(
             team_tag,
@@ -65,7 +90,7 @@ def run_analytical_report_job(
             share_email=share_email,
             spreadsheet_title=spreadsheet_title,
             credentials_path=credentials_path,
-            sleep_fn=lambda seconds: time.sleep(min(seconds, 0.6)),
+            sleep_fn=sleep_with_cancel,
             progress_callback=emit_progress,
             prompt_handler=prompt_user,
         )
@@ -77,6 +102,15 @@ def run_analytical_report_job(
         )
         store.update_status(job_id, "finished")
         return result
+    except JobCancelled:
+        cancelled_at = utc_now_iso()
+        store.append_event(
+            job_id,
+            "cancelled",
+            {"message": "Generation cancelled by user.", "cancelled_at": cancelled_at},
+        )
+        store.update_status(job_id, "cancelled", cancelled_at=cancelled_at)
+        return {"cancelled": True}
     except AnalyticalReportError as exc:
         message = str(exc)
         store.append_event(job_id, "error", {"message": message})

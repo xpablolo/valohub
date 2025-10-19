@@ -12,22 +12,27 @@
     isolation: isolate;
   }
   .overview-page::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(circle at top right, rgba(99, 102, 241, 0.14), transparent 55%),
-      radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.12), transparent 60%),
-      linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(248, 249, 253, 0.65));
-    pointer-events: none;
+  position: fixed;            /* covers the whole screen at all scroll positions */
+  inset: 0;
+  z-index: 0;                 /* stays behind your content */
+  pointer-events: none;
+  /* keep your existing background layers, but append a SOLID last layer */
+  background:
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.14), transparent 55%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.12), transparent 60%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(248, 249, 253, 0.65)),
+    #f8fafc;  /* solid base so it never goes “see-through” */
   }
+
   .dark-mode .overview-page::before {
     background:
       radial-gradient(circle at top right, rgba(99, 102, 241, 0.28), transparent 60%),
       radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.22), transparent 65%),
-      linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.92));
+      linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.92)),
+      #0b1220; /* solid dark base */
   }
+
+  /* ensure real content sits above */
   .overview-page > * { position: relative; z-index: 1; }
   .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
   .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }

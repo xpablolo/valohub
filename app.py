@@ -34,6 +34,8 @@ import uuid
 from functions import PROJECT_ROOT
 from redis.exceptions import RedisError
 from rq import Queue
+from rq.job import Job
+from rq.exceptions import NoSuchJobError
 import requests
 from bs4 import BeautifulSoup
 
@@ -1354,6 +1356,45 @@ def analytical_job_input(job_id: str):
         prompt_id=prompt_id,
     )
     return jsonify({"ok": True})
+
+
+@app.route("/analytical_reports/jobs/<job_id>/cancel", methods=["POST"])
+@login_required
+def cancel_analytical_job(job_id: str):
+    if analytical_job_store is None:
+        return (
+            jsonify(
+                {
+                    "error": "Cancellation unavailable while Redis is offline.",
+                    "details": "Restart Redis to manage live jobs.",
+                }
+            ),
+            503,
+        )
+
+    meta = analytical_job_store.get_meta(job_id)
+    if not meta:
+        return jsonify({"error": "Job not found."}), 404
+
+    status = (meta.get("status") or "").lower()
+    if status in {"finished", "failed", "cancelled"}:
+        return jsonify({"message": "Job already completed.", "status": status}), 200
+
+    cancelled_by = session.get("username")
+    analytical_job_store.request_cancel(job_id, cancelled_by=cancelled_by)
+
+    if redis_connection is not None:
+        try:
+            rq_job = Job.fetch(f"analytical-{job_id}", connection=redis_connection)
+            rq_job.cancel()
+        except NoSuchJobError:
+            pass
+
+    if session.get("analytical_active_job") == job_id:
+        session.pop("analytical_active_job", None)
+        session.modified = True
+
+    return jsonify({"message": "Cancellation requested.", "status": "cancelling"}), 202
 
 
 @app.route("/analytical_reports/preview/meta", methods=["GET"])

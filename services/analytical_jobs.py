@@ -190,6 +190,38 @@ class AnalyticalJobStore:
             return {"message": value}
 
     # ------------------------------------------------------------------
+    # Cancellation helpers
+    # ------------------------------------------------------------------
+    def request_cancel(self, job_id: str, *, cancelled_by: Optional[str] = None) -> Dict[str, Any]:
+        timestamp = utc_now_iso()
+        update = {
+            "cancel_requested": True,
+            "cancel_requested_at": timestamp,
+        }
+        if cancelled_by:
+            update["cancelled_by"] = cancelled_by
+
+        keys = self.keys(job_id)
+        self.redis.hset(keys.meta, mapping=self._encode_meta(update))
+
+        progress_payload: Dict[str, Any] = {"message": "Cancellation requested by user.", "cancelled_at": timestamp}
+        if cancelled_by:
+            progress_payload["cancelled_by"] = cancelled_by
+        self.append_event(job_id, "progress", progress_payload)
+
+        self.update_status(job_id, "cancelling", cancelled_at=timestamp, cancelled_by=cancelled_by)
+        return update
+
+    def is_cancel_requested(self, job_id: str) -> bool:
+        keys = self.keys(job_id)
+        value = self.redis.hget(keys.meta, "cancel_requested")
+        if value is None:
+            return False
+        if isinstance(value, bytes):
+            value = value.decode("utf-8")
+        return str(value).lower() in {"1", "true", "yes"}
+
+    # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
     def _encode_meta(self, data: Dict[str, Any]) -> Dict[str, str]:
