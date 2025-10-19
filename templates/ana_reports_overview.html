@@ -428,6 +428,25 @@
     transition: background 0.2s ease, color 0.2s ease;
     cursor: pointer;
   }
+  .report-map-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .report-map-name .report-map-active-indicator {
+    color: #4f46e5;
+    font-size: 0.8rem;
+    transform: translateY(-1px);
+  }
+  .report-map-name.is-active {
+    font-weight: 700;
+  }
+  .dark-mode .report-map-name .report-map-active-indicator {
+    color: #a855f7;
+  }
+  .dark-mode .report-map-name.is-active {
+    color: #ede9fe;
+  }
   .report-table--map-performance tbody tr.is-positive td {
     background: rgba(34, 197, 94, 0.12);
     color: #166534;
@@ -444,12 +463,9 @@
     font-weight: 600;
   }
   .report-table--map-performance tbody tr.is-active td {
-    background: rgba(79, 70, 229, 0.18);
-    color: #1e1b4b;
-    box-shadow: inset 4px 0 0 #6366f1;
-    border-top: 1px solid rgba(99, 102, 241, 0.3);
-    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
-    font-weight: 700;
+    background: rgba(59, 130, 246, 0.12);
+    color: #1f2937;
+    font-weight: 600;
   }
   .report-postplant-table thead th:nth-child(2),
   .report-postplant-table thead th:nth-child(3),
@@ -709,12 +725,9 @@
     font-weight: 600;
   }
   .dark-mode .report-table--map-performance tbody tr.is-active td {
-    background: rgba(99, 102, 241, 0.35);
-    color: #ede9fe;
-    box-shadow: inset 4px 0 0 #a855f7;
-    border-top: 1px solid rgba(129, 140, 248, 0.55);
-    border-bottom: 1px solid rgba(129, 140, 248, 0.55);
-    font-weight: 700;
+    background: rgba(129, 140, 248, 0.24);
+    color: #f1f5f9;
+    font-weight: 600;
   }
   .dark-mode .report-postplant-table thead th:nth-child(2),
   .dark-mode .report-postplant-table thead th:nth-child(3),

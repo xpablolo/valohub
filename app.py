@@ -24,6 +24,7 @@ from functions.help_functions import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from typing import Optional, Tuple
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from werkzeug.utils import secure_filename
 import pyotp
 from google.cloud import storage
@@ -33,6 +34,8 @@ import uuid
 from functions import PROJECT_ROOT
 from redis.exceptions import RedisError
 from rq import Queue
+import requests
+from bs4 import BeautifulSoup
 
 from jobs.analytical_report_job import run_analytical_report_job
 from services.analytical_jobs import AnalyticalJobStore, get_redis_connection, utc_now_iso
@@ -219,6 +222,133 @@ def _clean_url(value: Optional[str]) -> Optional[str]:
     return value or None
 
 
+def _derive_csv_url(csv_url: Optional[str], spreadsheet_url: Optional[str]) -> Optional[str]:
+    """Return a publish CSV URL for a Google Sheet when possible."""
+    if csv_url:
+        return csv_url
+    if not spreadsheet_url:
+        return None
+    try:
+        parsed = urlparse(spreadsheet_url)
+    except Exception:
+        return None
+
+    if "docs.google.com" not in parsed.netloc:
+        return None
+
+    query_params = parse_qs(parsed.query or "")
+    gid = query_params.get("gid", ["0"])[0]
+
+    path = parsed.path or ""
+    if path.endswith("/pubhtml"):
+        base_path = path[: -len("/pubhtml")]
+        return f"{parsed.scheme}://{parsed.netloc}{base_path}/pub?gid={gid}&output=csv"
+
+    if path.endswith("/pub"):
+        flattened = {key: values[-1] for key, values in query_params.items() if values}
+        flattened.setdefault("gid", gid)
+        flattened["output"] = "csv"
+        return f"{parsed.scheme}://{parsed.netloc}{path}?{urlencode(flattened)}"
+
+    return None
+
+
+SHEET_META_CACHE: dict[str, dict] = {}
+SHEET_META_CACHE_TTL = 300  # seconds
+
+
+def _extract_gid(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    parsed = urlparse(value)
+    candidates = [parsed.fragment, parsed.query]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        params = parse_qs(candidate)
+        gid_values = params.get("gid")
+        if gid_values:
+            return gid_values[-1]
+    return None
+
+
+def _normalise_published_html_url(spreadsheet_url: str) -> str:
+    parsed = urlparse(spreadsheet_url)
+    if parsed.scheme not in ("http", "https") or "docs.google.com" not in parsed.netloc:
+        raise ValueError("Only Google Sheets publish URLs are supported.")
+
+    query_params = parse_qs(parsed.query)
+    normalised_query_items: list[tuple[str, str]] = []
+    if "gid" in query_params:
+        normalised_query_items.append(("gid", query_params["gid"][-1]))
+    if "single" in query_params:
+        normalised_query_items.append(("single", query_params["single"][-1]))
+
+    normalised_query = urlencode(normalised_query_items)
+    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", normalised_query, ""))
+
+
+def _parse_published_sheet_metadata(html_text: str) -> tuple[list[dict], Optional[str]]:
+    soup = BeautifulSoup(html_text, "html.parser")
+    menu = soup.find("ul", id="sheet-menu")
+
+    sheets: list[dict] = []
+    if menu:
+        for link in menu.find_all("a"):
+            gid = _extract_gid(link.get("href") or link.get("data-sheets-gid"))
+            if not gid:
+                continue
+            title = link.get_text(separator=" ", strip=True) or f"Sheet {len(sheets) + 1}"
+            sheets.append({"gid": gid, "title": title})
+
+    doc_title = None
+    title_el = soup.find(id="doc-title")
+    if title_el:
+        doc_title = title_el.get_text(separator=" ", strip=True)
+
+    return sheets, doc_title
+
+
+def get_published_sheet_metadata(spreadsheet_url: str) -> dict:
+    if not spreadsheet_url:
+        raise ValueError("Missing spreadsheet URL.")
+
+    normalised_url = _normalise_published_html_url(spreadsheet_url)
+    default_gid = _extract_gid(spreadsheet_url) or "0"
+
+    cached = SHEET_META_CACHE.get(normalised_url)
+    now_monotonic = time.monotonic()
+    if cached and now_monotonic - cached["timestamp"] < SHEET_META_CACHE_TTL:
+        return cached["data"]
+
+    response = requests.get(normalised_url, timeout=10)
+    response.raise_for_status()
+
+    sheets, doc_title = _parse_published_sheet_metadata(response.text)
+    if not sheets:
+        sheets = [{"gid": default_gid, "title": "Overview"}]
+    else:
+        deduped: list[dict] = []
+        seen: set[str] = set()
+        for sheet in sheets:
+            gid = sheet.get("gid")
+            if not gid or gid in seen:
+                continue
+            deduped.append(sheet)
+            seen.add(gid)
+        sheets = deduped
+        if default_gid and all(sheet["gid"] != default_gid for sheet in sheets):
+            sheets.insert(0, {"gid": default_gid, "title": "Overview"})
+
+    metadata = {
+        "title": doc_title,
+        "default_gid": default_gid,
+        "sheets": sheets,
+    }
+    SHEET_META_CACHE[normalised_url] = {"timestamp": now_monotonic, "data": metadata}
+    return metadata
+
+
 def _resolve_spreadsheet_open_url(
     edit_url: Optional[str], view_url: Optional[str], default_url: Optional[str]
 ) -> Optional[str]:
@@ -248,12 +378,22 @@ def save_analytical_library(entries: list[dict]) -> None:
 
 
 def format_created_label(iso_timestamp: str) -> str:
+    if not iso_timestamp:
+        return ""
+    raw = str(iso_timestamp).strip()
+    if not raw:
+        return ""
+    normalised = raw.replace("Z", "+00:00")
     try:
-        dt_obj = datetime.fromisoformat(iso_timestamp)
+        dt_obj = datetime.fromisoformat(normalised)
     except Exception:
-        return iso_timestamp
-    month_abbr = dt_obj.strftime("%b")
-    return f"{month_abbr} {dt_obj.day}, {dt_obj.year}"
+        try:
+            dt_obj = datetime.fromisoformat(normalised.split(".")[0])
+        except Exception:
+            return raw
+    if dt_obj.tzinfo is not None:
+        dt_obj = dt_obj.astimezone()
+    return dt_obj.strftime("%b %d, %Y")
 
 
 def build_team_indexes(teams: list[dict]) -> Tuple[dict, dict]:
@@ -910,8 +1050,10 @@ def build_analytical_generator_context() -> dict:
         spreadsheet_url = _clean_url(entry.get("spreadsheet_url"))
         spreadsheet_edit_url = _clean_url(entry.get("spreadsheet_edit_url"))
         spreadsheet_view_url = _clean_url(entry.get("spreadsheet_view_url"))
-        spreadsheet_csv_url = _clean_url(entry.get("spreadsheet_csv_url"))
+        spreadsheet_csv_url_raw = _clean_url(entry.get("spreadsheet_csv_url"))
+        spreadsheet_csv_url = _derive_csv_url(spreadsheet_csv_url_raw, spreadsheet_url)
         open_url = _resolve_spreadsheet_open_url(spreadsheet_edit_url, spreadsheet_view_url, spreadsheet_url)
+        report_payload = entry.get("report_payload")
 
         saved_reports_display.append(
             {
@@ -926,6 +1068,8 @@ def build_analytical_generator_context() -> dict:
                 "entry_id": entry.get("entry_id") or entry.get("id") or entry.get("spreadsheet_url"),
                 "source": "saved",
                 "open_url": open_url,
+                "report_payload": report_payload,
+                "has_payload": bool(report_payload),
             }
         )
 
@@ -935,7 +1079,8 @@ def build_analytical_generator_context() -> dict:
         spreadsheet_url = _clean_url(entry.get("spreadsheet_url"))
         spreadsheet_edit_url = _clean_url(entry.get("spreadsheet_edit_url"))
         spreadsheet_view_url = _clean_url(entry.get("spreadsheet_view_url"))
-        spreadsheet_csv_url = _clean_url(entry.get("spreadsheet_csv_url"))
+        spreadsheet_csv_url_raw = _clean_url(entry.get("spreadsheet_csv_url"))
+        spreadsheet_csv_url = _derive_csv_url(spreadsheet_csv_url_raw, spreadsheet_url)
         open_url = _resolve_spreadsheet_open_url(spreadsheet_edit_url, spreadsheet_view_url, spreadsheet_url)
         entry.update(
             {
@@ -945,6 +1090,8 @@ def build_analytical_generator_context() -> dict:
                 "spreadsheet_csv_url": spreadsheet_csv_url,
                 "open_url": open_url,
                 "source": entry.get("source", "legacy"),
+                "report_payload": entry.get("report_payload"),
+                "has_payload": bool(entry.get("report_payload")),
             }
         )
         legacy_reports_display.append(entry)
@@ -1209,6 +1356,29 @@ def analytical_job_input(job_id: str):
     return jsonify({"ok": True})
 
 
+@app.route("/analytical_reports/preview/meta", methods=["GET"])
+@login_required
+def analytical_report_preview_meta():
+    spreadsheet_url = (request.args.get("spreadsheet_url") or "").strip()
+    if not spreadsheet_url:
+        return jsonify({"error": "Missing spreadsheet URL."}), 400
+
+    try:
+        metadata = get_published_sheet_metadata(spreadsheet_url)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except requests.RequestException as exc:
+        app.logger.warning("Failed to fetch published sheet metadata: %s", exc)
+        return jsonify(
+            {"error": "Unable to contact Google Sheets to load the report preview right now."}
+        ), 502
+    except Exception:
+        app.logger.exception("Unexpected error while fetching published sheet metadata")
+        return jsonify({"error": "Unexpected error while preparing the report preview."}), 500
+
+    return jsonify(metadata)
+
+
 @app.route("/analytical_reports/library", methods=["POST"])
 @login_required
 def save_analytical_report_entry():
@@ -1231,10 +1401,19 @@ def save_analytical_report_entry():
     spreadsheet_view_url = (
         data.get("report_spreadsheet_view_url") or data.get("spreadsheet_view_url") or ""
     ).strip()
-    spreadsheet_csv_url = (
-        data.get("report_spreadsheet_csv_url") or data.get("spreadsheet_csv_url") or ""
-    ).strip()
+    spreadsheet_csv_url = _derive_csv_url(
+        (data.get("report_spreadsheet_csv_url") or data.get("spreadsheet_csv_url") or "").strip(),
+        spreadsheet_url,
+    )
     spreadsheet_id = (data.get("report_spreadsheet_id") or data.get("spreadsheet_id") or "").strip()
+    raw_payload = data.get("report_payload")
+    if isinstance(raw_payload, str):
+        try:
+            report_payload = json.loads(raw_payload)
+        except Exception:
+            report_payload = None
+    else:
+        report_payload = raw_payload if isinstance(raw_payload, dict) else None
 
     entry_id = uuid.uuid4().hex
     entry = {
@@ -1253,6 +1432,11 @@ def save_analytical_report_entry():
         entry["spreadsheet_csv_url"] = spreadsheet_csv_url
     if spreadsheet_id:
         entry["spreadsheet_id"] = spreadsheet_id
+    if report_payload is not None:
+        entry["report_payload"] = report_payload
+        entry["has_payload"] = True
+    else:
+        entry["has_payload"] = False
     saved_entries.insert(0, entry)
     save_analytical_library(saved_entries)
     return jsonify({"message": "Report saved to the quick access list.", "status": "saved", "entry": entry})
@@ -1713,7 +1897,7 @@ def two_factor_auth():
     return render_template('2fa.html')
 
 if __name__ == "__main__":
-    app.run(debug=True, port=int(os.environ.get("PORT", 5086)))
+    app.run(debug=True, port=int(os.environ.get("PORT", 5088)))
 
 
 def role_required(roles):

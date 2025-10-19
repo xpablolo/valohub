@@ -1,3 +1,7 @@
 api_keys
 Procfile
 .gitignore
+.venv
+__pycache__/
+instance
+accounts.py
