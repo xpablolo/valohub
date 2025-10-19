@@ -29,167 +29,192 @@
     <span class="inline-flex items-center rounded-lg bg-gray-900 px-3 py-1.5 text-base font-semibold text-white shadow-sm">Analytics</span>
   </div>
 
+  <div class="relative mb-10 overflow-hidden rounded-2xl surface-card ring-muted">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-sky-500/10 to-emerald-500/15"></div>
+    <div class="relative grid gap-8 px-6 py-8 lg:grid-cols-2 lg:px-10">
+      <div class="space-y-4">
+        <span class="inline-flex items-center rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">Generator</span>
+        <h2 class="text-2xl font-semibold text-gray-900">Create a fresh analytical report</h2>
+        <p class="text-sm leading-relaxed text-gray-600">
+          Start with the essentials here. Once you launch the run, the terminal will guide you through any extra inputs
+          while showing live progress as each phase of the report completes.
+        </p>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex items-start gap-2">
+            <span class="mt-1 inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-indigo-500"></span>
+            <span>Generates overall summary, map-specific tabs, agent comps, planting stats, and positioning heatmaps.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-emerald-500"></span>
+            <span>Uploads images through the configured Google service account and delivers the sheet link instantly.</span>
+          </li>
+        </ul>
+        {% if report %}
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+          Latest run: <strong>{{ report.team_name }}</strong> ({{ report.match_count }} matches).
+          <a class="ml-1 font-medium underline" href="{{ report.spreadsheet_url }}" target="_blank" rel="noopener">Open report</a>
+        </div>
+        {% endif %}
+        {% if error %}
+        <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
+          {{ error }}
+        </div>
+        {% endif %}
+        <div class="rounded-xl border border-gray-900/20 bg-gray-900 text-gray-100 shadow-lg">
+          <div class="flex items-center justify-between border-b border-white/10 px-3 py-2 text-xs uppercase tracking-wide">
+            <span class="font-semibold">Terminal • Analytical Generator</span>
+            <span class="text-gray-400">{{ progress_messages|length }} lines</span>
+          </div>
+          <div class="terminal-log max-h-48 overflow-y-auto px-3 py-3 text-sm leading-relaxed font-mono">
+            {% if progress_messages %}
+              {% for message in progress_messages %}
+              <div class="whitespace-pre-wrap">
+                <span class="text-emerald-400">[{{ "%02d" % loop.index }}]</span>
+                <span class="ml-2">{{ message }}</span>
+              </div>
+              {% endfor %}
+            {% else %}
+            <div class="text-gray-500">Awaiting generation. Press “Initiate generation” to begin.</div>
+            {% endif %}
+          </div>
+          <form method="post" class="flex items-center gap-2 border-t border-white/10 bg-gray-800/70 px-3 py-2 text-sm">
+            <input type="hidden" name="action" value="terminal_input" />
+            <input type="hidden" name="team" value="{{ selected_team_input }}" />
+            <input type="hidden" name="match_count" value="{{ match_count_value }}" />
+            <input type="hidden" name="share_email" value="{{ share_email_value }}" />
+            <input
+              type="text"
+              name="terminal_message"
+              class="flex-1 rounded-md border border-gray-700 bg-gray-900 px-2 py-1 font-mono text-gray-100 placeholder-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              placeholder="Type additional instructions or notes and press Enter…"
+              autocomplete="off"
+            />
+            <button type="submit" class="inline-flex items-center rounded-md border border-emerald-400 px-3 py-1 font-semibold text-emerald-400 hover:bg-emerald-500/10">
+              Send
+            </button>
+          </form>
+        </div>
+        {% if report and report.spreadsheet_url %}
+        <div class="rounded-lg border border-gray-200 bg-white/80 px-4 py-4 text-sm shadow-sm">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p class="font-medium text-gray-900">Add this report to the quick access list?</p>
+              <p class="text-xs text-gray-500">It will appear with the saved sheets below so you can open it again faster.</p>
+            </div>
+            <form method="post" class="flex items-center gap-2">
+              <input type="hidden" name="action" value="save" />
+              <input type="hidden" name="report_team_name" value="{{ report.team_name }}" />
+              <input type="hidden" name="report_team_tag" value="{{ report.team_tag }}" />
+              <input type="hidden" name="report_spreadsheet_url" value="{{ report.spreadsheet_url }}" />
+              <input type="hidden" name="report_match_count" value="{{ report.match_count }}" />
+              <input type="hidden" name="report_created_at" value="{{ report_created_at_iso or '' }}" />
+              <button type="submit" class="th-btn th-btn-secondary whitespace-nowrap">Save to list</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div>
+        <form method="post" class="rounded-xl border border-gray-100 bg-white/70 p-6 shadow-sm backdrop-blur">
+          <div class="space-y-5">
+            <label class="block">
+              <span class="text-xs font-semibold uppercase text-gray-500">Team</span>
+              <input
+                type="text"
+                name="team"
+                list="team-options"
+                placeholder="Start typing a team tag or name"
+                value="{{ selected_team_input }}"
+                required
+                class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              />
+              <datalist id="team-options">
+                {% for team in teams %}
+                <option value="{{ team.tag }}" label="{{ team.name }} ({{ team.tag }})"></option>
+                <option value="{{ team.name }} ({{ team.tag }})"></option>
+                {% endfor %}
+              </datalist>
+              <p class="mt-1 text-xs text-gray-400">Autocomplete suggestions show as you type; press Enter to accept.</p>
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold uppercase text-gray-500">Matches / Events to include</span>
+              <div class="mt-1 flex items-center gap-2">
+                <input
+                  type="number"
+                  name="match_count"
+                  min="1"
+                  placeholder="All recent"
+                  value="{{ match_count_value }}"
+                  class="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                />
+                <span class="text-xs text-gray-400">optional</span>
+              </div>
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold uppercase text-gray-500">Share report with</span>
+              <input
+                type="email"
+                name="share_email"
+                placeholder="you@example.com"
+                value="{{ share_email_value }}"
+                class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              />
+              <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to the default configured address.</p>
+            </label>
+            <button
+              type="submit"
+              class="th-btn th-btn-primary inline-flex w-full items-center justify-center gap-2 py-2.5 text-sm font-semibold"
+              id="initiate-generation-button"
+            >
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              <span>Initiate generation</span>
+            </button>
+            <p class="text-xs text-gray-500">
+              Processing can take up to a minute while match details, stats, and visual plots are created.
+              Keep the tab open; the terminal above updates as each phase completes.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="space-y-2">
-  <ul class="list-group space-y-2">
-    <!-- T1 -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>MIBR</strong><br />
-          <small>Created: Sep 23, 2025</small>
+    <ul class="list-group space-y-2">
+      {% for entry in all_reports %}
+      {% set row_id = 'report-' ~ loop.index0 %}
+      <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <strong>{{ entry.team_name }}</strong><br />
+            <small>Created: {{ entry.created_label }}</small>
+            {% if entry.match_count %}
+            <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
+              {{ entry.match_count }} matches
+            </span>
+            {% endif %}
+            {% if entry.source == "saved" %}
+            <span class="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">
+              Saved
+            </span>
+            {% endif %}
+          </div>
+          <button class="th-btn th-btn-primary" data-toggle-target="{{ row_id }}">Show Sheet</button>
         </div>
-        <button class="th-btn th-btn-primary" id="toggleButton9" onclick="toggleSheet(9)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container9">
-        <iframe
-          id="google-sheet9"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSm8s3rrv6EX8K8GuHoYXdjWkNjwD5amepYKHjy3v8JpVYW4xQw7xnkQ78FBTM3KeG4ygApIkFD8jNG/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-
-    <!-- T1 -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>T1</strong><br />
-          <small>Created: Sep 16, 2025</small>
+        <div class="iframe-container hidden mt-2" id="sheet-container-{{ row_id }}">
+          <iframe
+            id="google-sheet-{{ row_id }}"
+            data-sheet-iframe="true"
+            src="{{ entry.spreadsheet_url }}"
+            frameborder="0"
+          ></iframe>
         </div>
-        <button class="th-btn th-btn-primary" id="toggleButton8" onclick="toggleSheet(8)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container8">
-        <iframe
-          id="google-sheet8"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQWl_UeYQ7q-dQx1qli8lTQw1yQSJUr9xYPVBwM2JU6JWxfdaxDMY6erp6YP6PJ95Af1a3HRkjbrpUy/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-
-    <!-- G2 -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>G2 Esports</strong><br />
-          <small>Created: Sep 4, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton7" onclick="toggleSheet(7)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container7">
-        <iframe
-          id="google-sheet7"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQYwi5MJ-e1y-UfVacDqZIagt0jEVQG0p71Gq-KdGw-1lT3TVEewAy5b5MOwh326qEhrzynhyhKjsuO/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-
-    <!-- TH -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Team Heretics</strong><br />
-          <small>Created: Sep 3, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton6" onclick="toggleSheet(6)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container6">
-        <iframe
-          id="google-sheet6"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQFz5eUhn8LiYr_70QgqvSW4IYP-hAkwXFmhzdYlDAX82WFbYj04wDyVQR9T2l8uI1glxZAKeircUo1/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-    
-    <!-- PRX -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Paper Rex (only EWC)</strong><br />
-          <small>Created: May 26, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton5" onclick="toggleSheet(5)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container5">
-        <iframe
-          id="google-sheet5"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTPdAniu0_3AZZxJ_BlnWfsHlpthgC5yRuarM0vJMOe5Wfk8ZVTzldZnT3j05BEKan7Ry-4vcB_p5u4/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-    
-    <!-- TH -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Team Heretics (self-report)</strong><br />
-          <small>Created: May 1, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton3" onclick="toggleSheet(3)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container3">
-        <iframe
-          id="google-sheet3"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ0TQlFVcvLbtDOoRJ2afqMc3fT622xjIojg1CfH7Mpuhcpu5LYyYq7-yOS2uHfO2snX6CamwOpoCd/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-    
-    <!-- TEAM VITALITY -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Team Vitality</strong><br />
-          <small>Created: January 30, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton4" onclick="toggleSheet(4)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container4">
-        <iframe
-          id="google-sheet4"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vT4u_2qPpXqvQ7hemqCcqWkbAcwX79znF6AcVGUN4Gu3koLvzYZe3mh0KxPUTrp4T1Nma75zDdGKv5u/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-
-    <!-- BBL ESPORTS -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>BBL Esports</strong><br />
-          <small>Created: January 24, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton1" onclick="toggleSheet(1)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container1">
-        <iframe
-          id="google-sheet1"
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSaY9mAspet0vgszrkmLnh2zxvkNSwd-0C2XDXlm2R45_eGRSIO4goWGVaCLI5fYoafK77mGHq8fJfL/pubhtml"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </li>
-
-    <!-- GENTLE MATES -->
-    <li class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Gentle Mates</strong><br />
-          <small>Created: January 17, 2025</small>
-        </div>
-        <button class="th-btn th-btn-primary" id="toggleButton2" onclick="toggleSheet(2)">Show Sheet</button>
-      </div>
-      <div class="iframe-container hidden mt-2" id="sheet-container2">
-        <iframe id="google-sheet2" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTqlYT6B9dryMktHIWL88he6N25xoBfnrPv30J7T6lhbsK41vflMcPE8Bp85rwmWsB-YFf0J6u-J86/pubhtml"></iframe>
-      </div>
-    </li>
-  </ul>
-</div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 
 <style>
@@ -225,25 +250,37 @@
 </style>
 
 <script>
-  // On page load, adjust iframe heights (optional).
-  window.onload = function () {
+  window.addEventListener("load", function () {
     setTimeout(function () {
-      ["google-sheet1", "google-sheet2", "google-sheet3"].forEach(function(id) {
-        let iframe = document.getElementById(id);
-        if (iframe) {
-          iframe.style.height = "100%";
-        }
+      document.querySelectorAll("[data-sheet-iframe]").forEach(function (iframe) {
+        iframe.style.height = "100%";
       });
-    }, 100);
-  };
+    }, 200);
+  });
 
-  // Show/Hide the specific sheet container (Tailwind hidden class)
-  function toggleSheet(sheetNumber) {
-    const container = document.getElementById("sheet-container" + sheetNumber);
-    const button = document.getElementById("toggleButton" + sheetNumber);
-    const isHidden = container.classList.contains('hidden');
-    container.classList.toggle('hidden', !isHidden);
-    button.innerText = isHidden ? "Hide Sheet" : "Show Sheet";
+  document.querySelectorAll("[data-toggle-target]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const targetId = button.getAttribute("data-toggle-target");
+      const container = document.getElementById("sheet-container-" + targetId);
+      if (!container) return;
+      const isHidden = container.classList.contains("hidden");
+      container.classList.toggle("hidden", !isHidden);
+      button.innerText = isHidden ? "Hide Sheet" : "Show Sheet";
+    });
+  });
+
+  const generatorButton = document.getElementById("initiate-generation-button");
+  if (generatorButton) {
+    generatorButton.addEventListener("click", function () {
+      generatorButton.classList.add("opacity-75", "pointer-events-none");
+      generatorButton.innerHTML = `
+        <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 .5v4a8 8 0 00-8 8h4z"></path>
+        </svg>
+        <span>Initiating…</span>
+      `;
+    });
   }
 </script>
 {% endblock %}

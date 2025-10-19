@@ -1,0 +1,1050 @@
+{% extends "base.html" %}
+
+{% block title %}Analytical Reports{% endblock %}
+
+{% block content %}
+<style>
+  .overview-page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    isolation: isolate;
+  }
+  .overview-page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at top right, rgba(99, 102, 241, 0.14), transparent 55%),
+      radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.12), transparent 60%),
+      linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(248, 249, 253, 0.65));
+    pointer-events: none;
+  }
+  .dark-mode .overview-page::before {
+    background:
+      radial-gradient(circle at top right, rgba(99, 102, 241, 0.28), transparent 60%),
+      radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.22), transparent 65%),
+      linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.92));
+  }
+  .overview-page > * { position: relative; z-index: 1; }
+  .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
+  .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
+  .dark-mode .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
+  .dark-mode .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+
+  .overview-hero {
+    position: relative;
+    border-radius: 1.25rem;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 16px 35px -22px rgba(15, 23, 42, 0.45);
+  }
+  .dark-mode .overview-hero {
+    background: rgba(17, 24, 39, 0.88);
+    border-color: rgba(99, 102, 241, 0.22);
+    box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+  }
+  .overview-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.15);
+    color: #4338ca;
+  }
+  .dark-mode .overview-hero-badge {
+    background: rgba(99, 102, 241, 0.22);
+    color: #a5b4fc;
+  }
+  .overview-hero-title { font-size: 1.5rem; font-weight: 600; color: #0f172a; }
+  .dark-mode .overview-hero-title { color: #f8fafc; }
+  .overview-hero-text { font-size: 0.95rem; color: #475569; }
+  .dark-mode .overview-hero-text { color: #cbd5f5; }
+  .overview-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .overview-status[data-state="online"] {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+  }
+  .overview-status[data-state="offline"] {
+    color: #f97316;
+    background: rgba(251, 191, 36, 0.15);
+  }
+  .dark-mode .overview-status[data-state="online"] {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.27);
+  }
+  .dark-mode .overview-status[data-state="offline"] {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.28);
+  }
+  .overview-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.65rem 1.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .report-detail {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 1.25rem;
+    box-shadow: 0 18px 35px -24px rgba(15, 23, 42, 0.45);
+  }
+  .report-detail-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .report-detail-empty {
+    padding: 1.25rem;
+    border-radius: 0.9rem;
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    background: rgba(248, 250, 252, 0.9);
+    font-size: 0.82rem;
+    color: #475569;
+  }
+  .report-detail-loading {
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+  .report-overview-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: rgba(248, 250, 252, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+  }
+  .report-overview-brand {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  .report-overview-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 1rem;
+    object-fit: cover;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: #e2e8f0;
+  }
+  .report-overview-titles { flex: 1; min-width: 200px; }
+  .report-overview-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+  .report-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.12);
+    color: #1e3a8a;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .report-stat-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .report-stat-card {
+    min-width: 150px;
+    padding: 1rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.35);
+  }
+  .report-stat-card span {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    color: #64748b;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+  }
+  .report-stat-card strong {
+    display: block;
+    font-size: 1.2rem;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  .report-stat-card small {
+    display: block;
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
+  .report-stat-card--overall { border-left: 4px solid rgba(59, 130, 246, 0.6); }
+  .report-stat-card--defence { border-left: 4px solid rgba(56, 189, 248, 0.7); }
+  .report-stat-card--attack { border-left: 4px solid rgba(249, 115, 22, 0.7); }
+  .report-stat-card.is-positive {
+    background: linear-gradient(120deg, rgba(16, 185, 129, 0.18), rgba(34, 197, 94, 0.08));
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+  .report-stat-card.is-negative {
+    background: linear-gradient(120deg, rgba(248, 113, 113, 0.18), rgba(239, 68, 68, 0.08));
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+  .report-stat-card.is-neutral {
+    background: linear-gradient(120deg, rgba(148, 163, 184, 0.1), rgba(226, 232, 240, 0.08));
+    border-color: rgba(148, 163, 184, 0.25);
+  }
+  .report-rate {
+    font-weight: 600;
+  }
+  .report-rate.is-positive { color: #16a34a; }
+  .report-rate.is-negative { color: #dc2626; }
+  .report-rate.is-neutral { color: #475569; }
+  .report-count { font-weight: 600; color: #1f2937; }
+  .report-agent-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .report-agent-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.75rem;
+    background: rgba(59, 130, 246, 0.12);
+    color: #1e3a8a;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .report-agent-chip-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .report-agent-chip-head span {
+    font-weight: 600;
+  }
+  .report-agent-chip img {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.55rem;
+    object-fit: cover;
+    box-shadow: 0 6px 16px -10px rgba(59, 130, 246, 0.6);
+  }
+  .report-agent-player {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #1f2937;
+  }
+  .report-scroll {
+    overflow-x: auto;
+    border-radius: 0.85rem;
+  }
+  .report-scroll::-webkit-scrollbar { height: 6px; }
+  .report-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+  }
+  .report-matches-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.82rem;
+  }
+  .report-matches-table thead th {
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #475569;
+    background: rgba(59, 130, 246, 0.1);
+  }
+  .report-matches-table tbody td {
+    padding: 0.6rem 0.75rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    color: #0f172a;
+    white-space: nowrap;
+  }
+  .report-matches-table tbody tr:nth-child(odd):not(.is-win):not(.is-loss) td {
+    background: rgba(248, 250, 252, 0.85);
+  }
+  .report-matches-table tbody tr.is-win td {
+    background: rgba(34, 197, 94, 0.16);
+    color: #14532d;
+    font-weight: 600;
+  }
+  .report-matches-table tbody tr.is-loss td {
+    background: rgba(248, 113, 113, 0.18);
+    color: #7f1d1d;
+    font-weight: 600;
+  }
+  .report-matches-table tbody tr.is-win td:first-child,
+  .report-matches-table tbody tr.is-loss td:first-child {
+    border-left: 4px solid currentColor;
+  }
+  .report-matches-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .report-performance-section {
+    margin-top: 1.25rem;
+  }
+  .report-map-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .report-map-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .report-map-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .report-map-tab {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.4rem 0.95rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(59, 130, 246, 0.1);
+    color: #1e3a8a;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .report-map-tab:hover { background: rgba(59, 130, 246, 0.16); }
+  .report-map-tab.is-active {
+    background: linear-gradient(120deg, rgba(59, 130, 246, 0.92), rgba(99, 102, 241, 0.92));
+    color: #ffffff;
+    box-shadow: 0 12px 24px -16px rgba(59, 130, 246, 0.65);
+  }
+  .report-map-tab::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.85);
+    transition: transform 0.2s ease;
+  }
+  .report-map-tab.is-active::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+  .report-map-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .report-map-performance {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .report-map-performance-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .report-subtitle {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 0.5rem;
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.8rem;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+  .report-table thead th {
+    padding: 0.55rem 0.7rem;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.68rem;
+    color: #1f2937;
+    background: rgba(59, 130, 246, 0.12);
+  }
+  .report-table tbody td {
+    padding: 0.55rem 0.7rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    color: #0f172a;
+  }
+  .report-table tbody tr:nth-child(odd) td {
+    background: rgba(248, 250, 252, 0.72);
+  }
+  .report-table--map-performance tbody tr td {
+    transition: background 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+  }
+  .report-table--map-performance tbody tr.is-positive td {
+    background: rgba(34, 197, 94, 0.12);
+    color: #166534;
+    font-weight: 600;
+  }
+  .report-table--map-performance tbody tr.is-negative td {
+    background: rgba(248, 113, 113, 0.16);
+    color: #991b1b;
+    font-weight: 600;
+  }
+  .report-table--map-performance tbody tr.is-neutral td {
+    background: rgba(226, 232, 240, 0.35);
+    color: #1f2937;
+    font-weight: 600;
+  }
+  .report-table--map-performance tbody tr.is-active td {
+    background: rgba(79, 70, 229, 0.18);
+    color: #1e1b4b;
+    box-shadow: inset 4px 0 0 #6366f1;
+    border-top: 1px solid rgba(99, 102, 241, 0.3);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    font-weight: 700;
+  }
+  .report-postplant-table thead th:nth-child(2),
+  .report-postplant-table thead th:nth-child(3),
+  .report-postplant-table thead th:nth-child(4),
+  .report-postplant-table thead th:nth-child(5) {
+    background: rgba(59, 130, 246, 0.2);
+    color: #1e3a8a;
+  }
+  .report-postplant-table tbody td:nth-child(2),
+  .report-postplant-table tbody td:nth-child(3),
+  .report-postplant-table tbody td:nth-child(4),
+  .report-postplant-table tbody td:nth-child(5) {
+    background: rgba(59, 130, 246, 0.08);
+  }
+  .report-postplant-table thead th:nth-child(6),
+  .report-postplant-table thead th:nth-child(7),
+  .report-postplant-table thead th:nth-child(8),
+  .report-postplant-table thead th:nth-child(9) {
+    background: rgba(249, 115, 22, 0.22);
+    color: #7c2d12;
+  }
+  .report-postplant-table tbody td:nth-child(6),
+  .report-postplant-table tbody td:nth-child(7),
+  .report-postplant-table tbody td:nth-child(8),
+  .report-postplant-table tbody td:nth-child(9) {
+    background: rgba(249, 115, 22, 0.1);
+  }
+  .report-postplant-table tbody td:first-child {
+    font-weight: 600;
+    color: #1f2937;
+  }
+  .report-visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .report-visual-card {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 0.85rem;
+    background: rgba(248, 250, 252, 0.9);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .report-visual-card span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+  }
+  .report-visual-trigger {
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+  .report-visual-trigger:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+  .report-lightbox {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .report-lightbox.is-open {
+    display: flex;
+  }
+  .report-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+  }
+  .report-lightbox-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 60px -20px rgba(15, 23, 42, 0.8);
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .report-lightbox-image {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 0.75rem;
+    box-shadow: 0 18px 45px -20px rgba(15, 23, 42, 0.75);
+  }
+  .report-lightbox-caption {
+    font-size: 0.75rem;
+    color: #e2e8f0;
+    text-align: center;
+  }
+  .report-lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    border: none;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #f8fafc;
+    width: 34px;
+    height: 34px;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px -12px rgba(15, 23, 42, 0.9);
+  }
+  .report-lightbox-close:hover {
+    background: rgba(37, 99, 235, 0.85);
+  }
+  .report-visual-card img {
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 0.7rem;
+    box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.55);
+  }
+  .report-overview-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+  }
+  .report-overview-links a { color: #2563eb; font-weight: 600; }
+  .report-overview-links a:hover { color: #1d4ed8; }
+
+  .delete-report-btn {
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    background: rgba(248, 113, 113, 0.12);
+    color: #dc2626;
+  }
+  .delete-report-btn:hover {
+    background: rgba(239, 68, 68, 0.18);
+    color: #b91c1c;
+  }
+
+  .dark-mode .report-detail {
+    background: rgba(17, 24, 39, 0.95);
+    border-color: rgba(55, 65, 81, 0.6);
+    box-shadow: 0 24px 45px -30px rgba(0, 0, 0, 0.65);
+  }
+  .dark-mode .report-detail-empty {
+    background: rgba(17, 24, 39, 0.9);
+    border-color: rgba(79, 70, 229, 0.35);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-detail-loading { color: #94a3b8; }
+  .dark-mode .report-overview-card {
+    background: rgba(17, 24, 39, 0.9);
+    border-color: rgba(79, 70, 229, 0.22);
+  }
+  .dark-mode .report-overview-logo { border-color: rgba(99, 102, 241, 0.28); }
+  .dark-mode .report-overview-meta { color: #9ca3af; }
+  .dark-mode .report-badge {
+    background: rgba(79, 70, 229, 0.24);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-stat-card {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(79, 70, 229, 0.25);
+  }
+  .dark-mode .report-stat-card.is-positive {
+    background: linear-gradient(120deg, rgba(34, 197, 94, 0.25), rgba(16, 185, 129, 0.12));
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+  .dark-mode .report-stat-card.is-negative {
+    background: linear-gradient(120deg, rgba(248, 113, 113, 0.28), rgba(239, 68, 68, 0.14));
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+  .dark-mode .report-stat-card.is-neutral {
+    background: linear-gradient(120deg, rgba(148, 163, 184, 0.2), rgba(71, 85, 105, 0.15));
+    border-color: rgba(148, 163, 184, 0.32);
+  }
+  .dark-mode .report-stat-card span { color: #a5b4fc; }
+  .dark-mode .report-stat-card strong { color: #e2e8f0; }
+  .dark-mode .report-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.45);
+  }
+  .dark-mode .report-matches-table thead th {
+    background: rgba(79, 70, 229, 0.28);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-matches-table tbody td {
+    color: #e2e8f0;
+    border-top-color: rgba(55, 65, 81, 0.65);
+  }
+  .dark-mode .report-matches-table tbody tr:nth-child(odd):not(.is-win):not(.is-loss) td {
+    background: rgba(30, 41, 59, 0.6);
+  }
+  .dark-mode .report-matches-table tbody tr.is-win td {
+    background: rgba(34, 197, 94, 0.24);
+    color: #bbf7d0;
+    font-weight: 600;
+  }
+  .dark-mode .report-matches-table tbody tr.is-loss td {
+    background: rgba(248, 113, 113, 0.26);
+    color: #fecaca;
+    font-weight: 600;
+  }
+  .dark-mode .report-map-tab {
+    background: rgba(79, 70, 229, 0.26);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-map-tab:hover {
+    background: rgba(59, 130, 246, 0.34);
+    color: #e0e7ff;
+  }
+  .dark-mode .report-map-tab.is-active {
+    box-shadow: 0 14px 28px -18px rgba(14, 165, 233, 0.7);
+  }
+  .dark-mode .report-map-tab::after {
+    background: rgba(129, 140, 248, 0.85);
+  }
+  .dark-mode .report-table {
+    border-color: rgba(55, 65, 81, 0.55);
+  }
+  .dark-mode .report-table thead th {
+    background: rgba(79, 70, 229, 0.26);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-table tbody td {
+    color: #e5e7eb;
+    border-top-color: rgba(31, 41, 55, 0.75);
+  }
+  .dark-mode .report-table tbody tr:nth-child(odd) td {
+    background: rgba(31, 41, 55, 0.6);
+  }
+  .dark-mode .report-table--map-performance tbody tr.is-positive td {
+    background: rgba(34, 197, 94, 0.24);
+    color: #bbf7d0;
+    font-weight: 600;
+  }
+  .dark-mode .report-table--map-performance tbody tr.is-negative td {
+    background: rgba(248, 113, 113, 0.28);
+    color: #fecaca;
+    font-weight: 600;
+  }
+  .dark-mode .report-table--map-performance tbody tr.is-neutral td {
+    background: rgba(76, 81, 146, 0.38);
+    color: #e0e7ff;
+    font-weight: 600;
+  }
+  .dark-mode .report-table--map-performance tbody tr.is-active td {
+    background: rgba(99, 102, 241, 0.35);
+    color: #ede9fe;
+    box-shadow: inset 4px 0 0 #a855f7;
+    border-top: 1px solid rgba(129, 140, 248, 0.55);
+    border-bottom: 1px solid rgba(129, 140, 248, 0.55);
+    font-weight: 700;
+  }
+  .dark-mode .report-postplant-table thead th:nth-child(2),
+  .dark-mode .report-postplant-table thead th:nth-child(3),
+  .dark-mode .report-postplant-table thead th:nth-child(4),
+  .dark-mode .report-postplant-table thead th:nth-child(5) {
+    background: rgba(99, 102, 241, 0.34);
+    color: #e0e7ff;
+  }
+  .dark-mode .report-postplant-table tbody td:nth-child(2),
+  .dark-mode .report-postplant-table tbody td:nth-child(3),
+  .dark-mode .report-postplant-table tbody td:nth-child(4),
+  .dark-mode .report-postplant-table tbody td:nth-child(5) {
+    background: rgba(79, 70, 229, 0.2);
+  }
+  .dark-mode .report-postplant-table thead th:nth-child(6),
+  .dark-mode .report-postplant-table thead th:nth-child(7),
+  .dark-mode .report-postplant-table thead th:nth-child(8),
+  .dark-mode .report-postplant-table thead th:nth-child(9) {
+    background: rgba(249, 115, 22, 0.34);
+    color: #fed7aa;
+  }
+  .dark-mode .report-postplant-table tbody td:nth-child(6),
+  .dark-mode .report-postplant-table tbody td:nth-child(7),
+  .dark-mode .report-postplant-table tbody td:nth-child(8),
+  .dark-mode .report-postplant-table tbody td:nth-child(9) {
+    background: rgba(234, 88, 12, 0.24);
+  }
+  .dark-mode .report-postplant-table tbody td:first-child {
+    color: #f8fafc;
+  }
+  .dark-mode .report-visual-card {
+    background: rgba(15, 23, 42, 0.92);
+    border-color: rgba(79, 70, 229, 0.28);
+  }
+  .dark-mode .report-visual-card span { color: #a5b4fc; }
+  .dark-mode .report-visual-card img {
+    box-shadow: 0 12px 28px -18px rgba(14, 165, 233, 0.6);
+  }
+  .dark-mode .report-rate.is-positive { color: #4ade80; }
+  .dark-mode .report-rate.is-negative { color: #f87171; }
+  .dark-mode .report-rate.is-neutral { color: #cbd5f5; }
+  .dark-mode .report-count { color: #e2e8f0; }
+  .dark-mode .report-agent-chip {
+    background: rgba(79, 70, 229, 0.28);
+    color: #cbd5f5;
+  }
+  .dark-mode .report-agent-player {
+    color: #dbeafe;
+  }
+  .dark-mode .report-lightbox-content {
+    background: rgba(10, 12, 24, 0.95);
+  }
+  .dark-mode .report-lightbox-caption {
+    color: #e2e8f0;
+  }
+  .dark-mode .report-lightbox-close {
+    background: rgba(30, 41, 59, 0.8);
+  }
+  .dark-mode .report-overview-links a { color: #93c5fd; }
+  .dark-mode .report-overview-links a:hover { color: #60a5fa; }
+  .dark-mode .delete-report-btn {
+    border-color: rgba(252, 165, 165, 0.3);
+    background: rgba(239, 68, 68, 0.22);
+    color: #fecaca;
+  }
+  .dark-mode .delete-report-btn:hover {
+    background: rgba(248, 113, 113, 0.28);
+    color: #fca5a5;
+  }
+</style>
+
+
+<div class="overview-page relative">
+  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="overview-hero p-6 sm:p-8">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="space-y-3">
+          <span class="overview-hero-badge">Analytical Reports</span>
+          <h1 class="overview-hero-title">Review past reports or kick off a new generation</h1>
+          <p class="overview-hero-text">
+            Browse the library below to reopen previous analytical sheets. When you are ready, launch the generator for a fresh report.
+          </p>
+        </div>
+        <div class="flex flex-col items-start gap-3 md:items-end">
+          <span
+            class="overview-status"
+            data-state="{{ 'online' if redis_available else 'offline' }}"
+          >
+            <span class="inline-flex h-1.5 w-1.5 rounded-full" style="background-color: currentColor;"></span>
+            {{ "Live generation ready" if redis_available else "Live generation offline" }}
+          </span>
+          <a
+            class="overview-action th-btn th-btn-primary"
+            href="{{ url_for('analytical_generator') }}"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Start generator
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="mt-8 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="mt-10 space-y-10">
+
+      {% if all_reports %}
+      <section class="space-y-3" id="report-library">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold text-gray-900 dark-mode:text-gray-100">Report library</h2>
+            <p class="text-sm text-gray-500 dark-mode:text-gray-400">Open an existing analytical sheet or reveal the inline preview table.</p>
+            
+            <span id="report-total-count" class="block text-xs font-semibold uppercase tracking-wide text-indigo-500 dark-mode:text-indigo-300">{{ all_reports|length }} total</span>
+            
+          </div>
+          <div class="w-full md:w-72">
+            <label class="relative block text-sm">
+              <span class="sr-only">Search reports</span>
+              <input
+                type="search"
+                id="report-search"
+                name="report-search"
+                placeholder="Search team or tag..."
+                class="w-full rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-3 text-sm text-gray-700 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark-mode:border-gray-700 dark-mode:bg-gray-900 dark-mode:text-gray-200 dark-mode:placeholder-gray-500"
+              />
+            </label>
+          </div>
+        </div>
+        <ul class="list-group space-y-2" id="report-list">
+          {% for entry in all_reports %}
+          {% set row_id = 'overview-report-' ~ loop.index0 %}
+          <li
+            class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted dark-mode:bg-gray-900/80"
+            data-report-item
+            data-team-search="{{ (entry.team_name ~ ' ' ~ (entry.team_tag or '')) | lower }}"
+            data-spreadsheet-url="{{ entry.spreadsheet_url }}"
+          >
+            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <strong class="text-gray-900 dark-mode:text-gray-100">{{ entry.team_name }}</strong><br />
+                <small class="text-gray-500 dark-mode:text-gray-400">Created: {{ entry.created_label }}</small>
+                {% if entry.match_count %}
+                <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark-mode:bg-gray-800 dark-mode:text-gray-300">
+                  {{ entry.match_count }} matches
+                </span>
+                {% endif %}
+                {% if entry.source == "saved" %}
+                <span class="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark-mode:bg-indigo-900/50 dark-mode:text-indigo-200">
+                  Saved
+                </span>
+                {% elif entry.source == "legacy" %}
+                <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark-mode:bg-gray-800 dark-mode:text-gray-300">
+                  Legacy library
+                </span>
+                {% endif %}
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <a
+                  class="th-btn th-btn-secondary"
+                  href="{{ entry.open_url }}"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open sheet
+                </a>
+                <button type="button" class="th-btn th-btn-primary" data-toggle-target="{{ row_id }}">View report</button>
+                {% if entry.source == "saved" %}
+                <button
+                  type="button"
+                  class="th-btn delete-report-btn"
+                  data-delete-report
+              data-team-name="{{ entry.team_name }}"
+              data-spreadsheet-url="{{ entry.spreadsheet_url }}"
+            >
+              Delete
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% if entry.has_payload %}
+        <div
+          class="report-detail hidden mt-3"
+          id="report-panel-{{ row_id }}"
+          data-report-card
+          data-report-payload='{{ entry.report_payload | tojson | forceescape }}'
+          data-open-url="{{ entry.open_url }}"
+          data-team-name="{{ entry.team_name }}"
+          data-team-tag="{{ entry.team_tag or '' }}"
+        >
+          <div class="report-detail-inner">
+            <section data-report-overview>
+              <div class="report-detail-loading">Loading overview…</div>
+            </section>
+            <section class="report-map-section">
+              <div class="report-map-head">
+                <h4 class="report-subtitle text-gray-700 dark-mode:text-gray-200">Map breakdown</h4>
+                <div class="report-map-tabs" data-report-tabs></div>
+              </div>
+              <div class="report-map-panel" data-report-map-panel>
+                <div class="report-detail-loading">Select a map to inspect the detailed metrics.</div>
+              </div>
+            </section>
+          </div>
+        </div>
+        {% else %}
+        <div class="report-detail hidden mt-3" id="report-panel-{{ row_id }}">
+          <div class="report-detail-empty">
+            Inline summary unavailable for this report. Use the “Open sheet” button to view it on Google Sheets.
+          </div>
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+        </ul>
+        <div
+          id="report-search-empty"
+          class="hidden rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 dark-mode:border-gray-700 dark-mode:bg-gray-900 dark-mode:text-gray-300"
+        >
+          No reports match your search. Try a different team name or tag.
+        </div>
+      </section>
+      {% endif %}
+
+      {% if not all_reports %}
+      <div class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500 dark-mode:border-gray-700 dark-mode:bg-gray-900 dark-mode:text-gray-300">
+        No reports found yet. Launch the generator to create your first analytical sheet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/report-previews.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof window.initReportPreviews === "function") {
+    window.initReportPreviews();
+  }
+
+  const searchInput = document.getElementById("report-search");
+  let reportItems = Array.from(document.querySelectorAll("[data-report-item]"));
+  const searchEmptyState = document.getElementById("report-search-empty");
+  const totalCountEl = document.getElementById("report-total-count");
+
+  const refreshReportItems = () => {
+    reportItems = Array.from(document.querySelectorAll("[data-report-item]"));
+  };
+
+  const updateTotalCount = () => {
+    if (!totalCountEl) return;
+    const count = document.querySelectorAll("[data-report-item]").length;
+    totalCountEl.textContent = `${count} total`;
+  };
+
+  const filterReports = (query) => {
+    const term = (query || "").trim().toLowerCase();
+    let visibleCount = 0;
+
+    reportItems.forEach((item) => {
+      const haystack = item.dataset.teamSearch || "";
+      const matches = !term || haystack.includes(term);
+      item.classList.toggle("hidden", !matches);
+      if (matches) visibleCount += 1;
+    });
+
+    if (searchEmptyState) {
+      searchEmptyState.classList.toggle("hidden", visibleCount !== 0);
+    }
+  };
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (event) => filterReports(event.target.value));
+    if (searchInput.value) {
+      filterReports(searchInput.value);
+    }
+  }
+
+  const handleDeleteClick = async (event) => {
+    const button = event.currentTarget;
+    const spreadsheetUrl = button.dataset.spreadsheetUrl;
+    if (!spreadsheetUrl) return;
+    const teamName = button.dataset.teamName || "this report";
+    const confirmed = window.confirm(`Delete the saved report for ${teamName}? This cannot be undone.`);
+    if (!confirmed) return;
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = "Deleting…";
+
+    try {
+      const response = await fetch("/analytical_reports/library", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ report_spreadsheet_url: spreadsheetUrl }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        alert(body.error || "Could not delete the report.");
+        button.disabled = false;
+        button.textContent = originalText;
+        return;
+      }
+      const listItem = button.closest("[data-report-item]");
+      if (listItem) {
+        listItem.remove();
+      }
+      updateTotalCount();
+      refreshReportItems();
+      filterReports(searchInput ? searchInput.value : "");
+      alert(body.message || "Report removed from the quick access list.");
+    } catch (error) {
+      console.error("Failed to delete report entry", error);
+      alert("Unexpected error while deleting the report.");
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  };
+
+  document.querySelectorAll("[data-delete-report]").forEach((button) => {
+    button.addEventListener("click", handleDeleteClick);
+  });
+
+  updateTotalCount();
+});
+</script>
+{% endblock %}

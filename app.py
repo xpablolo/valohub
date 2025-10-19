@@ -1,5 +1,16 @@
-from flask import Flask, redirect, url_for, session, request, render_template, jsonify, Response, stream_with_context
-from flask import session, flash, redirect
+from flask import (
+    Flask,
+    Response,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    stream_with_context,
+    url_for,
+)
 from flask_sqlalchemy import SQLAlchemy
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
@@ -7,10 +18,12 @@ import os
 import json
 import datetime as dt
 from datetime import datetime, date
+import time
 from google.oauth2.credentials import Credentials
 from functions.help_functions import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from typing import Optional, Tuple
 from werkzeug.utils import secure_filename
 import pyotp
 from google.cloud import storage
@@ -18,6 +31,11 @@ from google.oauth2 import service_account
 import calendar
 import uuid
 from functions import PROJECT_ROOT
+from redis.exceptions import RedisError
+from rq import Queue
+
+from jobs.analytical_report_job import run_analytical_report_job
+from services.analytical_jobs import AnalyticalJobStore, get_redis_connection, utc_now_iso
 
 app = Flask(__name__)
 app.secret_key = 'teamheretics'
@@ -26,6 +44,33 @@ BUCKET_NAME = "bucket-reports1"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "api_keys/reports.json"
 storage_client = storage.Client()
 bucket = storage_client.bucket(BUCKET_NAME)
+
+app.config.setdefault(
+    "ANALYTICAL_REPORT_SHARE_EMAIL",
+    os.getenv("ANALYTICAL_REPORT_SHARE_EMAIL", "pablolopezarauzo@gmail.com"),
+)
+app.config.setdefault(
+    "ANALYTICAL_REPORT_CREDENTIALS",
+    os.getenv("ANALYTICAL_REPORT_CREDENTIALS", "api_keys/valorant-sheets-credentials.json"),
+)
+app.config.setdefault("REDIS_URL", os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"))
+
+redis_connection = None
+analytical_queue = None
+analytical_job_store = None
+
+try:
+    redis_connection = get_redis_connection(app.config["REDIS_URL"])
+    # Force a connection attempt so we fail fast if Redis is offline.
+    redis_connection.ping()
+except RedisError as exc:
+    app.logger.warning("Redis unavailable for analytical reports: %s", exc)
+    redis_connection = None
+    analytical_queue = None
+    analytical_job_store = None
+else:
+    analytical_queue = Queue("analytical-reports", connection=redis_connection, default_timeout=1200)
+    analytical_job_store = AnalyticalJobStore(redis_connection)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -52,7 +97,7 @@ def upload_to_gcs(file, destination_blob_name):
     blob.upload_from_file(file, content_type='application/pdf')
 
     # Generate a signed URL that expires in 1 hour
-    expiration = datetime.timedelta(hours=1)
+    expiration = dt.timedelta(hours=1)
     signed_url = blob.generate_signed_url(expiration=expiration, method="GET")
     
     return signed_url
@@ -107,6 +152,145 @@ OPPONENTS_PATH = STATIC_DIR / "opponents.json"
 
 with OPPONENTS_PATH.open("r", encoding="utf-8") as f:
     opponents_data = json.load(f)
+
+ANALYTICAL_LIBRARY_FILE = DATA_DIR / "analytical_reports.json"
+ANALYTICAL_STATIC_REPORTS = [
+    {
+        "team_name": "MIBR",
+        "created_label": "Sep 23, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSm8s3rrv6EX8K8GuHoYXdjWkNjwD5amepYKHjy3v8JpVYW4xQw7xnkQ78FBTM3KeG4ygApIkFD8jNG/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "T1",
+        "created_label": "Sep 16, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWl_UeYQ7q-dQx1qli8lTQw1yQSJUr9xYPVBwM2JU6JWxfdaxDMY6erp6YP6PJ95Af1a3HRkjbrpUy/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "G2 Esports",
+        "created_label": "Sep 4, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYwi5MJ-e1y-UfVacDqZIagt0jEVQG0p71Gq-KdGw-1lT3TVEewAy5b5MOwh326qEhrzynhyhKjsuO/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "Team Heretics",
+        "created_label": "Sep 3, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFz5eUhn8LiYr_70QgqvSW4IYP-hAkwXFmhzdYlDAX82WFbYj04wDyVQR9T2l8uI1glxZAKeircUo1/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "Paper Rex (only EWC)",
+        "created_label": "May 26, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPdAniu0_3AZZxJ_BlnWfsHlpthgC5yRuarM0vJMOe5Wfk8ZVTzldZnT3j05BEKan7Ry-4vcB_p5u4/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "Team Heretics (self-report)",
+        "created_label": "May 1, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ0TQlFVcvLbtDOoRJ2afqMc3fT622xjIojg1CfH7Mpuhcpu5LYyYq7-yOS2uHfO2snX6CamwOpoCd/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "Team Vitality",
+        "created_label": "January 30, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4u_2qPpXqvQ7hemqCcqWkbAcwX79znF6AcVGUN4Gu3koLvzYZe3mh0KxPUTrp4T1Nma75zDdGKv5u/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "BBL Esports",
+        "created_label": "January 24, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaY9mAspet0vgszrkmLnh2zxvkNSwd-0C2XDXlm2R45_eGRSIO4goWGVaCLI5fYoafK77mGHq8fJfL/pubhtml",
+        "source": "legacy",
+    },
+    {
+        "team_name": "Gentle Mates",
+        "created_label": "January 17, 2025",
+        "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTqlYT6B9dryMktHIWL88he6N25xoBfnrPv30J7T6lhbsK41vflMcPE8Bp85rwmWsB-YFf0J6u-J86/pubhtml",
+        "source": "legacy",
+    },
+]
+
+def _clean_url(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+    return value or None
+
+
+def _resolve_spreadsheet_open_url(
+    edit_url: Optional[str], view_url: Optional[str], default_url: Optional[str]
+) -> Optional[str]:
+    for candidate in (edit_url, view_url, default_url):
+        if candidate:
+            return candidate
+    return None
+
+
+def load_analytical_library() -> list[dict]:
+    ANALYTICAL_LIBRARY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not ANALYTICAL_LIBRARY_FILE.exists():
+        ANALYTICAL_LIBRARY_FILE.write_text("[]", encoding="utf-8")
+        return []
+    try:
+        with ANALYTICAL_LIBRARY_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def save_analytical_library(entries: list[dict]) -> None:
+    ANALYTICAL_LIBRARY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with ANALYTICAL_LIBRARY_FILE.open("w", encoding="utf-8") as f:
+        json.dump(entries, f, indent=2)
+
+
+def format_created_label(iso_timestamp: str) -> str:
+    try:
+        dt_obj = datetime.fromisoformat(iso_timestamp)
+    except Exception:
+        return iso_timestamp
+    month_abbr = dt_obj.strftime("%b")
+    return f"{month_abbr} {dt_obj.day}, {dt_obj.year}"
+
+
+def build_team_indexes(teams: list[dict]) -> Tuple[dict, dict]:
+    """Return helper maps keyed by tag and name."""
+    by_tag = {team["tag"].upper(): team for team in teams}
+    by_name = {team["name"].strip().lower(): team for team in teams}
+    return by_tag, by_name
+
+
+def resolve_team_choice(raw_input: str, teams_by_tag: dict, teams_by_name: dict) -> Optional[dict]:
+    """Map user input to a team entry with a few parsing heuristics."""
+    if not raw_input:
+        return None
+    candidate = raw_input.strip()
+    if not candidate:
+        return None
+
+    lookup = teams_by_tag.get(candidate.upper())
+    if lookup:
+        return lookup
+
+    lookup = teams_by_name.get(candidate.lower())
+    if lookup:
+        return lookup
+
+    if "(" in candidate and ")" in candidate:
+        inner = candidate.split("(", 1)[1].split(")", 1)[0].strip()
+        lookup = teams_by_tag.get(inner.upper())
+        if lookup:
+            return lookup
+
+    tokens = candidate.replace("(", " ").replace(")", " ").split()
+    for token in reversed(tokens):
+        lookup = teams_by_tag.get(token.upper())
+        if lookup:
+            return lookup
+    return None
 
 # Decorator to check user role
 def login_required(f):
@@ -652,7 +836,7 @@ def list_reports_from_gcs(prefix):
                     reports[team_name] = []
 
                 # Generate a signed URL for the report file
-                signed_url = blob.generate_signed_url(expiration=datetime.timedelta(hours=1), method="GET")
+                signed_url = blob.generate_signed_url(expiration=dt.timedelta(hours=1), method="GET")
                 
                 reports[team_name].append({
                     "map": map_name,
@@ -683,10 +867,414 @@ def strategic():
 
 
 
-@app.route('/analytical_reports')
+def build_analytical_generator_context() -> dict:
+    error = None
+    share_email_default = app.config.get("ANALYTICAL_REPORT_SHARE_EMAIL", "pablolopezarauzo@gmail.com")
+    saved_reports_entries = load_analytical_library()
+    teams: list[dict] = []
+
+    try:
+        teams_raw = get_teams()
+    except Exception as exc:
+        error = f"Could not load teams list: {exc}"
+    else:
+        teams = [
+            {"tag": t["tag"], "name": t.get("name", t["tag"])}
+            for t in (teams_raw.values() if isinstance(teams_raw, dict) else teams_raw)
+        ]
+        teams.sort(key=lambda item: item["name"])
+
+    redis_available = analytical_job_store is not None and analytical_queue is not None and redis_connection is not None
+
+    active_job_meta: dict = {}
+    initial_events: list[dict] = []
+    active_job_id = session.get("analytical_active_job")
+    if not redis_available:
+        active_job_id = None
+    elif active_job_id:
+        active_job_meta = analytical_job_store.get_meta(active_job_id)
+        if active_job_meta:
+            initial_events = list(analytical_job_store.log_lines(active_job_id))
+        else:
+            active_job_id = None
+            session.pop("analytical_active_job", None)
+            session.modified = True
+
+    last_form = session.get("analytical_last_form", {})
+    selected_team_input = last_form.get("team", "")
+    match_count_value = last_form.get("match_count", "")
+    share_email_value = last_form.get("share_email") or share_email_default
+
+    saved_reports_display = []
+    for entry in saved_reports_entries:
+        spreadsheet_url = _clean_url(entry.get("spreadsheet_url"))
+        spreadsheet_edit_url = _clean_url(entry.get("spreadsheet_edit_url"))
+        spreadsheet_view_url = _clean_url(entry.get("spreadsheet_view_url"))
+        spreadsheet_csv_url = _clean_url(entry.get("spreadsheet_csv_url"))
+        open_url = _resolve_spreadsheet_open_url(spreadsheet_edit_url, spreadsheet_view_url, spreadsheet_url)
+
+        saved_reports_display.append(
+            {
+                "team_name": entry.get("team_name") or entry.get("team_tag") or "Unknown team",
+                "team_tag": entry.get("team_tag"),
+                "created_label": format_created_label(entry.get("created_at", "")),
+                "spreadsheet_url": spreadsheet_url,
+                "spreadsheet_edit_url": spreadsheet_edit_url,
+                "spreadsheet_view_url": spreadsheet_view_url,
+                "spreadsheet_csv_url": spreadsheet_csv_url,
+                "match_count": entry.get("match_count"),
+                "entry_id": entry.get("entry_id") or entry.get("id") or entry.get("spreadsheet_url"),
+                "source": "saved",
+                "open_url": open_url,
+            }
+        )
+
+    legacy_reports_display = []
+    for raw_entry in ANALYTICAL_STATIC_REPORTS:
+        entry = dict(raw_entry)
+        spreadsheet_url = _clean_url(entry.get("spreadsheet_url"))
+        spreadsheet_edit_url = _clean_url(entry.get("spreadsheet_edit_url"))
+        spreadsheet_view_url = _clean_url(entry.get("spreadsheet_view_url"))
+        spreadsheet_csv_url = _clean_url(entry.get("spreadsheet_csv_url"))
+        open_url = _resolve_spreadsheet_open_url(spreadsheet_edit_url, spreadsheet_view_url, spreadsheet_url)
+        entry.update(
+            {
+                "spreadsheet_url": spreadsheet_url,
+                "spreadsheet_edit_url": spreadsheet_edit_url,
+                "spreadsheet_view_url": spreadsheet_view_url,
+                "spreadsheet_csv_url": spreadsheet_csv_url,
+                "open_url": open_url,
+                "source": entry.get("source", "legacy"),
+            }
+        )
+        legacy_reports_display.append(entry)
+
+    all_reports = saved_reports_display + legacy_reports_display
+
+    return {
+        "error": error,
+        "teams": teams,
+        "selected_team_input": selected_team_input,
+        "match_count_value": match_count_value,
+        "share_email_value": share_email_value,
+        "all_reports": all_reports,
+        "saved_reports": saved_reports_display,
+        "legacy_reports": legacy_reports_display,
+        "initial_job_id": active_job_id,
+        "initial_job_meta": active_job_meta,
+        "initial_terminal_events": initial_events,
+        "share_email_default": share_email_default,
+        "redis_available": redis_available,
+    }
+
+
+@app.route("/analytical_reports", methods=["GET"])
 @login_required  # Protect this page
 def analytical():
-    return render_template('ana_reports.html', active_page="analytical")
+    context = build_analytical_generator_context()
+    all_reports = context.pop("all_reports")
+    return render_template(
+        "ana_reports_overview.html",
+        active_page="analytical",
+        all_reports = all_reports,
+        **context,
+    )
+
+
+@app.route("/analytical_reports/generator", methods=["GET"])
+@login_required
+def analytical_generator():
+    context = build_analytical_generator_context()
+    return render_template(
+        "ana_reports_generate.html",
+        active_page="analytical",
+        **context,
+    )
+
+
+@app.route("/analytical_reports/jobs", methods=["POST"])
+@login_required
+def create_analytical_job():
+    if analytical_job_store is None or analytical_queue is None:
+        return (
+            jsonify(
+                {
+                    "error": "Real-time generation is currently unavailable. Please ensure Redis is running and try again.",
+                    "details": "Redis connection failed during startup.",
+                }
+            ),
+            503,
+        )
+
+    payload = request.get_json(silent=True) or request.form
+    share_email_default = app.config.get("ANALYTICAL_REPORT_SHARE_EMAIL", "pablolopezarauzo@gmail.com")
+    raw_team = (payload.get("team") or "").strip()
+    match_count_raw = (payload.get("match_count") or "").strip()
+    share_email_value = (payload.get("share_email") or "").strip() or share_email_default
+
+    try:
+        teams_raw = get_teams()
+    except Exception as exc:
+        return jsonify({"error": f"Could not load teams list: {exc}"}), 500
+
+    teams = [
+        {"tag": t["tag"], "name": t.get("name", t["tag"])}
+        for t in (teams_raw.values() if isinstance(teams_raw, dict) else teams_raw)
+    ]
+    teams.sort(key=lambda item: item["name"])
+    teams_by_tag, teams_by_name = build_team_indexes(teams)
+
+    if not raw_team:
+        return jsonify({"error": "Please pick a team to analyze."}), 400
+
+    try:
+        match_count = int(match_count_raw) if match_count_raw else None
+        if match_count is not None and match_count <= 0:
+            raise ValueError
+    except ValueError:
+        return jsonify({"error": "Match count must be a positive integer."}), 400
+
+    if share_email_value and "@" not in share_email_value:
+        return jsonify({"error": "Please provide a valid email address."}), 400
+
+    match_team = resolve_team_choice(raw_team, teams_by_tag, teams_by_name)
+    if not match_team:
+        return jsonify({"error": "Team not recognized. Please pick a roster from the list."}), 400
+
+    selected_team_tag = match_team["tag"]
+    job_id = uuid.uuid4().hex
+
+    try:
+        analytical_job_store.bootstrap(
+            job_id,
+            team_tag=selected_team_tag,
+            match_count=match_count,
+            share_email=share_email_value or None,
+            created_by=session.get("username"),
+        )
+        analytical_job_store.merge_meta(
+            job_id,
+            {
+                "team_name": match_team.get("name"),
+            },
+        )
+        analytical_job_store.append_event(
+            job_id,
+            "progress",
+            {"message": "Job queued. Waiting for the worker to pick it up."},
+        )
+        rq_job = analytical_queue.enqueue(
+            run_analytical_report_job,
+            job_id,
+            team_tag=selected_team_tag,
+            match_count=match_count,
+            share_email=share_email_value or None,
+            credentials_path=app.config.get("ANALYTICAL_REPORT_CREDENTIALS"),
+            job_id=f"analytical-{job_id}",
+            description=f"Analytical report for {selected_team_tag}",
+            result_ttl=86400,
+            failure_ttl=86400,
+        )
+    except Exception as exc:
+        app.logger.exception("Failed to enqueue analytical report job")
+        analytical_job_store.update_status(job_id, "failed", error=str(exc))
+        return jsonify({"error": f"Could not enqueue job: {exc}"}), 500
+
+    session["analytical_active_job"] = job_id
+    session["analytical_last_form"] = {
+        "team": selected_team_tag,
+        "match_count": match_count_raw,
+        "share_email": share_email_value,
+    }
+    session.modified = True
+
+    meta = analytical_job_store.get_meta(job_id)
+    events = list(analytical_job_store.log_lines(job_id))
+
+    return jsonify(
+        {
+            "job_id": job_id,
+            "rq_job_id": rq_job.id,
+            "status": meta.get("status"),
+            "meta": meta,
+            "events": events,
+        }
+    ), 202
+
+
+@app.route("/analytical_reports/jobs/<job_id>", methods=["GET"])
+@login_required
+def analytical_job_details(job_id: str):
+    if analytical_job_store is None:
+        return (
+            jsonify(
+                {
+                    "error": "Live job tracking is unavailable because Redis is offline.",
+                    "details": "Start Redis before requesting job details.",
+                }
+            ),
+            503,
+        )
+    meta = analytical_job_store.get_meta(job_id)
+    if not meta:
+        return jsonify({"error": "Job not found."}), 404
+    events = list(analytical_job_store.log_lines(job_id))
+    return jsonify({"job_id": job_id, "meta": meta, "events": events})
+
+
+@app.route("/analytical_reports/jobs/<job_id>/stream", methods=["GET"])
+@login_required
+def analytical_job_stream(job_id: str):
+    if analytical_job_store is None or redis_connection is None:
+        abort(503, description="Live streaming is unavailable because Redis is offline.")
+    meta = analytical_job_store.get_meta(job_id)
+    if not meta:
+        abort(404, description="Job not found.")
+
+    keys = analytical_job_store.keys(job_id)
+    pubsub = redis_connection.pubsub()
+    pubsub.subscribe(keys.channel)
+
+    def generate_stream():
+        try:
+            for event in analytical_job_store.log_lines(job_id):
+                event_type = event.get("type", "progress")
+                yield f"event: {event_type}\n"
+                yield f"data: {json.dumps(event)}\n\n"
+            while True:
+                message = pubsub.get_message(timeout=15)
+                if message and message["type"] == "message":
+                    raw = message["data"]
+                    if isinstance(raw, bytes):
+                        raw = raw.decode("utf-8")
+                    try:
+                        event = json.loads(raw)
+                        event_type = event.get("type", "progress")
+                    except Exception:
+                        event = {
+                            "type": "progress",
+                            "origin": "system",
+                            "payload": {"message": str(raw)},
+                            "timestamp": utc_now_iso(),
+                        }
+                        event_type = "progress"
+                    yield f"event: {event_type}\n"
+                    yield f"data: {json.dumps(event)}\n\n"
+                else:
+                    yield ": keep-alive\n\n"
+        except GeneratorExit:
+            return
+        finally:
+            try:
+                pubsub.unsubscribe(keys.channel)
+                pubsub.close()
+            except Exception:
+                pass
+
+    response = Response(stream_with_context(generate_stream()), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response
+
+
+@app.route("/analytical_reports/jobs/<job_id>/input", methods=["POST"])
+@login_required
+def analytical_job_input(job_id: str):
+    if analytical_job_store is None:
+        return (
+            jsonify(
+                {
+                    "error": "Terminal input is disabled while Redis is offline.",
+                    "details": "Restart Redis to continue the interactive session.",
+                }
+            ),
+            503,
+        )
+    meta = analytical_job_store.get_meta(job_id)
+    if not meta:
+        return jsonify({"error": "Job not found."}), 404
+
+    payload = request.get_json(silent=True) or request.form
+    message = (payload.get("message") or payload.get("terminal_message") or "").strip()
+    if not message:
+        return jsonify({"error": "Message cannot be empty."}), 400
+
+    prompt_id = (payload.get("prompt_id") or "").strip() or None
+    analytical_job_store.push_user_input(
+        job_id,
+        message,
+        author=session.get("username"),
+        prompt_id=prompt_id,
+    )
+    return jsonify({"ok": True})
+
+
+@app.route("/analytical_reports/library", methods=["POST"])
+@login_required
+def save_analytical_report_entry():
+    data = request.get_json(silent=True) or request.form
+    spreadsheet_url = (data.get("report_spreadsheet_url") or data.get("spreadsheet_url") or "").strip()
+    if not spreadsheet_url:
+        return jsonify({"error": "Missing spreadsheet URL to save."}), 400
+
+    saved_entries = load_analytical_library()
+    if any(entry.get("spreadsheet_url") == spreadsheet_url for entry in saved_entries):
+        return jsonify({"message": "This report is already in the quick access list.", "status": "exists"}), 200
+
+    team_name = (data.get("report_team_name") or data.get("team_name") or "").strip() or "Unknown team"
+    team_tag = (data.get("report_team_tag") or data.get("team_tag") or "").strip() or None
+    match_count = (data.get("report_match_count") or data.get("match_count") or "").strip()
+    created_at_iso = (data.get("report_created_at") or data.get("created_at") or dt.datetime.utcnow().isoformat())
+    spreadsheet_edit_url = (
+        data.get("report_spreadsheet_edit_url") or data.get("spreadsheet_edit_url") or ""
+    ).strip()
+    spreadsheet_view_url = (
+        data.get("report_spreadsheet_view_url") or data.get("spreadsheet_view_url") or ""
+    ).strip()
+    spreadsheet_csv_url = (
+        data.get("report_spreadsheet_csv_url") or data.get("spreadsheet_csv_url") or ""
+    ).strip()
+    spreadsheet_id = (data.get("report_spreadsheet_id") or data.get("spreadsheet_id") or "").strip()
+
+    entry_id = uuid.uuid4().hex
+    entry = {
+        "team_name": team_name,
+        "team_tag": team_tag,
+        "spreadsheet_url": spreadsheet_url,
+        "match_count": match_count,
+        "created_at": created_at_iso,
+        "entry_id": entry_id,
+    }
+    if spreadsheet_edit_url:
+        entry["spreadsheet_edit_url"] = spreadsheet_edit_url
+    if spreadsheet_view_url:
+        entry["spreadsheet_view_url"] = spreadsheet_view_url
+    if spreadsheet_csv_url:
+        entry["spreadsheet_csv_url"] = spreadsheet_csv_url
+    if spreadsheet_id:
+        entry["spreadsheet_id"] = spreadsheet_id
+    saved_entries.insert(0, entry)
+    save_analytical_library(saved_entries)
+    return jsonify({"message": "Report saved to the quick access list.", "status": "saved", "entry": entry})
+
+
+@app.route("/analytical_reports/library", methods=["DELETE"])
+@login_required
+def delete_analytical_report_entry():
+    data = request.get_json(silent=True) or {}
+    target_url = (data.get("report_spreadsheet_url") or data.get("spreadsheet_url") or "").strip()
+    if not target_url:
+        target_url = (request.args.get("spreadsheet_url") or "").strip()
+    if not target_url:
+        return jsonify({"error": "Missing report identifier to delete."}), 400
+
+    saved_entries = load_analytical_library()
+    remaining_entries = [entry for entry in saved_entries if entry.get("spreadsheet_url") != target_url]
+    if len(remaining_entries) == len(saved_entries):
+        return jsonify({"error": "Report not found in saved library."}), 404
+
+    save_analytical_library(remaining_entries)
+    return jsonify({"message": "Report removed from the quick access list.", "status": "deleted"})
     
 @app.template_filter()
 def time_filter(date_str):
@@ -1124,8 +1712,8 @@ def two_factor_auth():
 
     return render_template('2fa.html')
 
-if __name__ == '__main__':
-    app.run(debug=True, port=int(os.environ.get('PORT', 5078)))
+if __name__ == "__main__":
+    app.run(debug=True, port=int(os.environ.get("PORT", 5086)))
 
 
 def role_required(roles):
