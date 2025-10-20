@@ -5,6 +5,7 @@
 {% block content %}
 <style>
   .overview-page {
+    width: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -12,6 +13,7 @@
     isolation: isolate;
   }
   .overview-page::before {
+  width: 100%;
   position: fixed;            /* covers the whole screen at all scroll positions */
   inset: 0;
   z-index: 0;                 /* stays behind your content */
@@ -33,11 +35,24 @@
   }
 
   /* ensure real content sits above */
-  .overview-page > * { position: relative; z-index: 1; }
+  .overview-page > * { width: 100%; position: relative; z-index: 1; }
   .surface-card { box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10); }
   .ring-muted   { box-shadow: 0 0 0 1px rgba(16,24,40,.08) inset; }
   .dark-mode .surface-card { background-color: #111827 !important; color: #e5e7eb !important; }
   .dark-mode .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; }
+
+  /* Utility compatibility for Tailwind-like dark-mode: classes used in markup */
+  .dark-mode .dark-mode\:text-gray-100 { color: #f3f4f6 !important; }
+  .dark-mode .dark-mode\:text-gray-200 { color: #e5e7eb !important; }
+  .dark-mode .dark-mode\:text-gray-300 { color: #d1d5db !important; }
+  .dark-mode .dark-mode\:text-gray-400 { color: #9ca3af !important; }
+  .dark-mode .dark-mode\:text-indigo-300 { color: #a5b4fc !important; }
+  .dark-mode .dark-mode\:bg-gray-800 { background-color: #1f2937 !important; }
+  .dark-mode .dark-mode\:bg-gray-900 { background-color: #111827 !important; }
+  .dark-mode .dark-mode\:bg-gray-900\/80 { background-color: rgba(17, 24, 39, 0.8) !important; }
+  .dark-mode .dark-mode\:bg-indigo-900\/50 { background-color: rgba(49, 46, 129, 0.5) !important; }
+  .dark-mode .dark-mode\:border-gray-700 { border-color: #374151 !important; }
+  .dark-mode .dark-mode\:placeholder-gray-500::placeholder { color: #6b7280 !important; }
 
   .overview-hero {
     position: relative;
@@ -802,18 +817,77 @@
     background: rgba(248, 113, 113, 0.28);
     color: #fca5a5;
   }
+
+  /* Back link + Live badge (shared with generator) */
+  .analytical-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(226, 232, 240, 1);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.55rem 0.95rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    box-shadow: 0 10px 25px -18px rgba(15, 23, 42, 0.35);
+    transition: background 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+  }
+  .analytical-back-link:hover { background: #f8fafc; }
+  .analytical-back-link svg { color: inherit; }
+  .dark-mode .analytical-back-link {
+    background: rgba(17, 24, 39, 0.9);
+    color: #d1d5db;
+    border-color: rgba(75, 85, 99, 0.7);
+    box-shadow: 0 10px 25px -18px rgba(0, 0, 0, 0.6);
+  }
+  .dark-mode .analytical-back-link:hover { background: rgba(31, 41, 55, 0.92); }
+
+  .analytical-live-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.75rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: #111827;
+    box-shadow: 0 10px 18px -16px rgba(15, 23, 42, 0.55);
+  }
+  .analytical-live-badge::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.4rem;
+    border-radius: 999px;
+    background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+  }
+  .dark-mode .analytical-live-badge { background: #1f2937; color: #f9fafb; }
 </style>
 
+  <div class="analytical-page mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Analytical Reports</h1>
+        <p class="text-sm text-gray-500">Browse the library below to reopen previous analytical sheets or go the generator to create a new report.</p>
+      </div>
+      <div class="flex flex-col items-start gap-2 sm:items-end">
+        
+        <span class="analytical-live-badge">Live workspace</span>
+      </div>
+    </div>
 
 <div class="overview-page relative">
-  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-10xl px-1 py-1 sm:px-6 lg:px-8">
     <div class="overview-hero p-6 sm:p-8">
       <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div class="space-y-3">
-          <span class="overview-hero-badge">Analytical Reports</span>
-          <h1 class="overview-hero-title">Review past reports or kick off a new generation</h1>
+          <span class="overview-hero-badge">report Generator</span>
+          <h1 class="overview-hero-title">Create a new analytical report with our generator</h1>
           <p class="overview-hero-text">
-            Browse the library below to reopen previous analytical sheets. When you are ready, launch the generator for a fresh report.
+            Generate a report with insights, data and visualizations, and analyze any team's performance on a specific number of maps.
           </p>
         </div>
         <div class="flex flex-col items-start gap-3 md:items-end">
@@ -825,8 +899,12 @@
             {{ "Live generation ready" if redis_available else "Live generation offline" }}
           </span>
           <a
+            id="overview-generate-btn"
             class="overview-action th-btn th-btn-primary"
             href="{{ url_for('analytical_generator') }}"
+            data-job-id="{{ initial_job_id or '' }}"
+            data-job-status="{{ (initial_job_meta.status if initial_job_meta else '') | lower }}"
+            data-redis="{{ '1' if redis_available else '0' }}"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.5v15m7.5-7.5h-15" />
@@ -850,7 +928,7 @@
         <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div class="space-y-1">
             <h2 class="text-lg font-semibold text-gray-900 dark-mode:text-gray-100">Report library</h2>
-            <p class="text-sm text-gray-500 dark-mode:text-gray-400">Open an existing analytical sheet or reveal the inline preview table.</p>
+            <p class="text-sm text-gray-500 dark-mode:text-gray-400">View the report embedded in the web or open it in a Google Sheet.</p>
             
             <span id="report-total-count" class="block text-xs font-semibold uppercase tracking-wide text-indigo-500 dark-mode:text-indigo-300">{{ all_reports|length }} total</span>
             
@@ -977,6 +1055,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof window.initReportPreviews === "function") {
     window.initReportPreviews();
+  }
+
+  const genBtn = document.getElementById("overview-generate-btn");
+  if (genBtn) {
+    const status = (genBtn.dataset.jobStatus || "").toLowerCase();
+    const hasJob = Boolean(genBtn.dataset.jobId) && ["queued", "started", "cancelling", "disconnected"].includes(status);
+    if (hasJob) {
+      genBtn.setAttribute('aria-busy', 'true');
+      genBtn.innerHTML = `
+        <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 .5v4a8 8 0 00-8 8h4z"></path>
+        </svg>
+        <span>View live progress</span>
+      `;
+    }
   }
 
   const searchInput = document.getElementById("report-search");

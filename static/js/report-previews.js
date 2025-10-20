@@ -521,7 +521,6 @@
       anchor.href = container.dataset.openUrl;
       anchor.target = "_blank";
       anchor.rel = "noopener";
-      anchor.textContent = "Open full Google Sheet →";
       links.appendChild(anchor);
       card.appendChild(links);
     }
@@ -1018,4 +1017,13 @@
   };
 
   window.initReportPreviews = initReportPreviews;
+  window.renderVisibleReports = () => {
+    const containers = document.querySelectorAll('[data-report-card]');
+    containers.forEach((container) => {
+      const state = getState(container);
+      if (state.payload && !state.rendered) {
+        renderReport(container, state);
+      }
+    });
+  };
 })();

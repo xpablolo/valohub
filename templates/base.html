@@ -229,9 +229,12 @@
               <i class="bi bi-moon-fill icon moon-icon"></i>
             </span>
           </label>
-          {% if session.get('username') %}
-            <span class="text-sm text-gray-200">Hello, {{ session.get('username') }}</span>
+          {% if current_user.logged_in %}
+            <span class="text-sm text-gray-200">Hello, {{ current_user.username }}</span>
             <a href="{{ url_for('logout') }}" class="th-btn th-btn-danger">Logout</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="th-btn th-btn-secondary">Login</a>
+            <a href="{{ url_for('signup') }}" class="th-btn th-btn-primary">Sign Up</a>
           {% endif %}
         </div>
         <button id="nav-toggle" class="md:hidden p-2 rounded hover:bg-gray-800" aria-label="Toggle navigation">
@@ -249,6 +252,7 @@
         <a href="/pick&bans" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'pick&bans' %}bg-gray-800{% endif %}">Pick &amp; Bans</a>
         <a href="/rankeds" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'rankeds' %}bg-gray-800{% endif %}">Rankeds</a>
         <a href="/search" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'search' %}bg-gray-800{% endif %}">Agents</a>
+        <a href="/pricing" class="block px-3 py-2 text-sm hover:bg-gray-800 rounded {% if active_page == 'pricing' %}bg-gray-800{% endif %}">Pricing</a>
         <div class="mt-2 px-3">
           <label class="switch">
             <input type="checkbox" id="darkModeToggleMobile" />
@@ -257,9 +261,17 @@
               <i class="bi bi-moon-fill icon moon-icon"></i>
             </span>
           </label>
-          {% if session.get('username') %}
-            <div class="text-sm text-gray-300 my-2">Hello, {{ session.get('username') }}</div>
+          {% if current_user.logged_in %}
+            <div class="text-sm text-gray-300 my-2">Hello, {{ current_user.username }}</div>
+            {% if current_user.subscribed %}
+              <a href="/pricing#billing" class="block text-center th-btn th-btn-secondary mb-2">Manage billing</a>
+            {% else %}
+              <a href="{{ url_for('pricing') }}" class="block text-center th-btn th-btn-primary mb-2">Upgrade</a>
+            {% endif %}
             <a href="{{ url_for('logout') }}" class="block text-center th-btn th-btn-danger">Logout</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="block text-center th-btn th-btn-secondary mb-2">Login</a>
+            <a href="{{ url_for('signup') }}" class="block text-center th-btn th-btn-primary">Sign Up</a>
           {% endif %}
         </div>
       </div>

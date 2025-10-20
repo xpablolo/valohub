@@ -459,7 +459,16 @@ def login_required_with_2fa(f):
 
 @app.before_request
 def restrict_pages():
-    open_routes = ['login', 'logout', 'pick_bans', 'static', "home"]  # endpoints that stay open
+    open_routes = [
+        'index',
+        'login',
+        'logout',
+        'signup',
+        'pricing',
+        'pick_bans',
+        'static',
+        'two_factor_auth',
+    ]  # endpoints that stay open
     if request.endpoint in open_routes or request.endpoint is None:
         return
 
@@ -475,9 +484,8 @@ def restrict_pages():
 
 
 
-# Home route
+# Home route (public landing)
 @app.route('/')
-@login_required  # Protect this page
 def index():
     return render_template('home.html', active_page="home")
 
@@ -1390,6 +1398,14 @@ def cancel_analytical_job(job_id: str):
         except NoSuchJobError:
             pass
 
+    # Also clear the entire analytical queue so no further jobs remain pending
+    # This ensures the whole report generation pipeline is halted as requested.
+    if analytical_queue is not None:
+        try:
+            analytical_queue.empty()
+        except Exception:
+            app.logger.exception("Failed to clear analytical queue during cancellation")
+
     if session.get("analytical_active_job") == job_id:
         session.pop("analytical_active_job", None)
         session.modified = True
@@ -1757,6 +1773,40 @@ def login():
     return render_template('login.html')
 
 
+# Signup Route (public)
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = (request.form.get('username') or '').strip()
+        password = (request.form.get('password') or '').strip()
+        if not username or not password:
+            flash('Please provide a username and password.', 'danger')
+            return render_template('signup.html')
+
+        existing = User.query.filter_by(username=username).first()
+        if existing:
+            flash('Username already exists. Choose another one.', 'danger')
+            return render_template('signup.html')
+
+        hashed = generate_password_hash(password)
+        user = User(username=username, password=hashed, role='member')
+        db.session.add(user)
+        db.session.commit()
+
+        session['user_id'] = user.id
+        session['username'] = user.username
+        session['role'] = user.role
+        flash('Account created successfully!', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('signup.html')
+
+
+# Pricing Route (public)
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html', active_page='pricing')
+
 # Logout Route
 @app.route('/logout')
 def logout():
@@ -1873,7 +1923,13 @@ def search_player_autocomplete():
 
 @app.context_processor
 def inject_user():
-    return {'user': {'is_admin': True}}  # Change this for non-admin users
+    current_user = {
+        'logged_in': 'user_id' in session,
+        'username': session.get('username'),
+        'role': session.get('role'),
+        'subscribed': session.get('subscribed', False),  # to be set after payment integration
+    }
+    return {'current_user': current_user}
 
 @app.route('/upload_report', methods=['POST'])
 @login_required  # Ensure the user is logged in
@@ -1938,7 +1994,7 @@ def two_factor_auth():
     return render_template('2fa.html')
 
 if __name__ == "__main__":
-    app.run(debug=True, port=int(os.environ.get("PORT", 5088)))
+    app.run(debug=True, port=int(os.environ.get("PORT", 5081)))
 
 
 def role_required(roles):

@@ -146,12 +146,67 @@
   .terminal-clear:disabled { opacity: 0.4; cursor: not-allowed; }
   .terminal-clear:hover:not(:disabled) { background: rgba(59, 130, 246, 0.38); }
 
+  /* Spinner shown while generating */
+  .spinner {
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(148, 163, 184, 0.35);
+    border-top-color: #60a5fa;
+    border-radius: 9999px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .terminal-log {
     background: rgba(15, 23, 42, 0.86);
     padding: 0.85rem 1.1rem;
     max-height: 22rem;
     overflow-y: auto;
   }
+  /* Timeline (replaces terminal log visuals) */
+  .timeline-root { padding: 0.85rem 0.2rem; max-height: 22rem; overflow-y: auto; }
+  .timeline-progress {
+    position: relative;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(99, 102, 241, 0.18);
+    overflow: hidden;
+    margin: 0.5rem 0.9rem 0.8rem;
+  }
+  .timeline-progress > span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(59,130,246,.9), rgba(99,102,241,.9));
+    box-shadow: 0 8px 18px -8px rgba(59, 130, 246, 0.6);
+    border-radius: 9999px;
+    transition: width .3s ease;
+  }
+  .timeline-list { display: grid; gap: 0.65rem; padding: 0.25rem 0.9rem 0.9rem; }
+  .timeline-item { display: grid; grid-template-columns: 18px 1fr; gap: 0.6rem; align-items: flex-start; }
+  .timeline-marker {
+    width: 18px; height: 18px; border-radius: 9999px;
+    background: rgba(148, 163, 184, 0.35);
+    border: 2px solid rgba(148, 163, 184, 0.45);
+    position: relative; margin-top: 2px;
+  }
+  .timeline-marker::after {
+    content: ""; position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+    width: 2px; height: calc(100% - 18px); background: rgba(148, 163, 184, 0.25);
+  }
+  .timeline-item:last-child .timeline-marker::after { display: none; }
+  .timeline-content { display: flex; flex-direction: column; gap: 0.15rem; }
+  .timeline-title { font-size: 0.85rem; font-weight: 600; color: #e2e8f0; }
+  .timeline-meta { font-size: 0.7rem; color: rgba(148,163,184,.8); }
+  .timeline-item.is-active .timeline-marker { background: rgba(59,130,246,.25); border-color: rgba(59,130,246,.65); }
+  .timeline-item.is-active .timeline-title { color: #bfdbfe; }
+  .timeline-item.is-done .timeline-marker { background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.7); }
+  .timeline-item.is-done .timeline-title { color: #86efac; }
+  .timeline-item.is-failed .timeline-marker { background: rgba(248,113,113,.25); border-color: rgba(248,113,113,.7); }
+  .timeline-item.is-failed .timeline-title { color: #fecaca; }
   .terminal-empty {
     text-align: center;
     padding: 1.5rem 0;
@@ -681,7 +736,93 @@
     color: #1f2937;
   }
   .report-visual-grid {
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .report-visual-card {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 0.85rem;
+    background: rgba(248, 250, 252, 0.9);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .report-visual-card span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+  }
+  .report-visual-trigger {
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+  .report-visual-trigger:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+  .report-lightbox {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .report-lightbox.is-open { display: flex; }
+  .report-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+  }
+  .report-lightbox-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 60px -20px rgba(15, 23, 42, 0.8);
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .report-lightbox-image {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 0.75rem;
+    box-shadow: 0 18px 45px -20px rgba(15, 23, 42, 0.75);
+  }
+  .report-lightbox-caption {
+    font-size: 0.75rem;
+    color: #e2e8f0;
+    text-align: center;
+  }
+  .report-lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    border: none;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #f8fafc;
+    width: 34px;
+    height: 34px;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px -12px rgba(15, 23, 42, 0.9);
   }
   .report-visual-card img {
     max-height: 420px;
@@ -718,6 +859,56 @@
   }
   .dark-mode .report-lightbox-close {
     background: rgba(30, 41, 59, 0.8);
+  }
+  .dark-mode .surface-card { background-color: #0f172a !important; color: #e5e7eb !important; }
+  .dark-mode .ring-muted   { box-shadow: 0 0 0 1px rgba(255,255,255,.10) inset; }
+  .dark-mode .analytical-terminal { background: rgba(10, 15, 25, 0.96); border-color: rgba(148,163,184,0.18); }
+  .dark-mode .analytical-terminal .terminal-top { background: linear-gradient(145deg, rgba(24,37,64,0.6), rgba(10,15,25,0.9)); border-bottom-color: rgba(148,163,184,0.18); }
+  .dark-mode .terminal-title { color: #a5b4fc; }
+  .dark-mode .terminal-meta { color: rgba(203, 213, 225, 0.8); }
+  .dark-mode .terminal-status-badge[data-status] { background: rgba(148,163,184,0.12); color: #cbd5f5; }
+  .dark-mode .report-detail { background: rgba(10, 15, 25, 0.98); border-color: rgba(55, 65, 81, 0.6); }
+  .dark-mode .report-overview-card { background: rgba(15, 23, 42, 0.92); border-color: rgba(79, 70, 229, 0.22); }
+  .dark-mode .report-visual-card { background: rgba(15, 23, 42, 0.92); border-color: rgba(79, 70, 229, 0.28); }
+  .dark-mode .report-visual-card span { color: #a5b4fc; }
+  .dark-mode .report-visual-card img { box-shadow: 0 12px 28px -18px rgba(14, 165, 233, 0.6); }
+  .dark-mode .report-map-tab { background: rgba(79, 70, 229, 0.26); color: #cbd5f5; }
+  .dark-mode .report-map-tab:hover { background: rgba(59, 130, 246, 0.34); color: #e0e7ff; }
+  .dark-mode .report-map-tab.is-active { box-shadow: 0 14px 28px -18px rgba(14, 165, 233, 0.7); }
+  .dark-mode .report-map-tab::after { background: rgba(129, 140, 248, 0.85); }
+  .dark-mode .report-table { border-color: rgba(55, 65, 81, 0.55); }
+  .dark-mode .report-table thead th { background: rgba(79, 70, 229, 0.26); color: #cbd5f5; }
+  .dark-mode .report-table tbody td { color: #e5e7eb; border-top-color: rgba(31, 41, 55, 0.75); }
+  .dark-mode .report-table tbody tr:nth-child(odd) td { background: rgba(31, 41, 55, 0.6); }
+  /* Night mode: generator hero/description */
+  .dark-mode .surface-card h2 { color: #e5e7eb; }
+  .dark-mode .surface-card p { color: #cbd5e1; }
+  .dark-mode .surface-card ul { color: #cbd5e1; }
+  .dark-mode .surface-card .inline-flex.bg-indigo-500\/10 { background-color: rgba(165, 180, 252, 0.15); }
+  .dark-mode .surface-card .text-indigo-600 { color: #c7d2fe; }
+
+  /* Night mode: team selector form */
+  .dark-mode #analytical-generator-form {
+    background: rgba(2, 6, 23, 0.6);
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: 0 12px 32px -20px rgba(2, 6, 23, 0.9);
+  }
+  .dark-mode #analytical-generator-form .text-gray-500 { color: #cbd5e1; }
+  .dark-mode #analytical-generator-form .text-gray-400 { color: #94a3b8; }
+  .dark-mode #analytical-generator-form input[type="text"],
+  .dark-mode #analytical-generator-form input[type="number"],
+  .dark-mode #analytical-generator-form input[type="email"] {
+    background-color: #0b1220;
+    color: #e5e7eb;
+    border-color: #334155;
+  }
+  .dark-mode #analytical-generator-form input::placeholder {
+    color: #94a3b8;
+  }
+  .dark-mode #analytical-generator-form input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
   }
   .analytical-back-link {
     display: inline-flex;
@@ -1346,7 +1537,6 @@
     <div>
       <h1 class="text-2xl font-semibold text-gray-900">Analytical Report Generator</h1>
       <p class="text-sm text-gray-500">Launch, monitor, and complete the live analytical report workflow.</p>
-      <p class="mt-1 text-sm text-yellow-600">Note: Some map and comp winrates are not correct right now.</p>
     </div>
     <div class="flex flex-col items-start gap-2 sm:items-end">
       <a
@@ -1377,90 +1567,33 @@
 
   <div class="relative mb-10 overflow-hidden rounded-2xl surface-card ring-muted">
     <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-sky-500/10 to-emerald-500/15"></div>
-    <div class="relative grid gap-8 px-6 py-8 lg:grid-cols-2 lg:px-10">
+    <div class="relative px-6 py-8 lg:px-10">
       <div class="space-y-4">
         <span class="inline-flex items-center rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">Generator</span>
-        <h2 class="text-2xl font-semibold text-gray-900">Create a fresh analytical report</h2>
+        <h2 class="text-2xl font-semibold text-gray-900">Create a new analytical report</h2>
         <p class="text-sm leading-relaxed text-gray-600">
-          Launch the workflow and keep this tab open. Progress streams in immediately through the live terminal, and
-          any follow-up prompts appear inline so you never lose your place.
+          Enter the team, the number of most recent matches to analyze, and your mail adress to receive the report. Follow the progress immediately through the live terminal.
         </p>
         <ul class="space-y-2 text-sm text-gray-600">
           <li class="flex items-start gap-2">
             <span class="mt-1 inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-indigo-500"></span>
-            <span>Generates the overall summary, per-map breakdowns, comps, economy trends, and positioning heatmaps.</span>
+            <span>Generates an overall summary, and a per-map breakdown, including comp anaysis, post-plant performance, and a visual breakdown.</span>
           </li>
           <li class="flex items-start gap-2">
             <span class="mt-1 inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-emerald-500"></span>
-            <span>Uploads imagery through the configured Google service account and returns a shareable sheet link.</span>
+            <span>The report can be viewed in the website or opened in a Google Sheet document, which is also shared via email.</span>
           </li>
         </ul>
-
-        <div id="latest-run-card" class="latest-run-card hidden">
-          <div class="flex flex-col gap-3">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">Latest run</p>
-              <h3 id="latest-run-team" class="text-lg font-semibold text-gray-900"></h3>
-              <p id="latest-run-meta" class="text-xs text-gray-600"></p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <a id="latest-run-link" class="th-btn th-btn-primary hidden" href="#" target="_blank" rel="noopener">Open report</a>
-              <button type="button" id="latest-run-copy" class="th-btn th-btn-secondary hidden">Copy link</button>
-              <button type="button" id="latest-run-save" class="th-btn th-btn-secondary hidden">Save to list</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="analytical-terminal hidden" data-terminal-root>
-          <div class="terminal-top">
-            <div>
-              <span class="terminal-title">Terminal • Analytical Generator</span>
-              <span class="terminal-meta" id="terminal-team-label">Idle</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <button type="button" class="terminal-cancel hidden" id="terminal-cancel">
-                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Cancel</span>
-              </button>
-              <span class="terminal-status-badge" id="terminal-status" data-status="idle">
-                <span class="terminal-status-dot" id="terminal-status-dot"></span>
-                <span id="terminal-status-text">Idle</span>
-              </span>
-              <span class="terminal-count" id="terminal-line-count">0</span>
-              <button type="button" class="terminal-clear" id="terminal-clear" disabled>Clear</button>
-            </div>
-          </div>
-          <div id="terminal-alert" class="terminal-alert hidden"></div>
-          <div id="terminal-log" class="terminal-log font-mono text-sm leading-relaxed">
-            <div id="terminal-empty" class="terminal-empty text-gray-500">
-              Awaiting generation. Queue a report to see real-time progress.
-            </div>
-          </div>
-          <div id="terminal-prompts" class="prompt-stack hidden"></div>
-          <form id="terminal-input-form" class="terminal-input">
-            <input
-              type="text"
-              name="message"
-              id="terminal-message"
-              class="terminal-input-field"
-              placeholder="{% if redis_available %}Start a generation to unlock the terminal.{% else %}Redis offline – start the service to enable input.{% endif %}"
-              autocomplete="off"
-              {% if not redis_available %}disabled{% endif %}
-            />
-            <button type="submit" class="terminal-send" {% if not redis_available %}disabled{% endif %}>Send</button>
-          </form>
-        </div>
       </div>
 
-      <div>
-        <form
-          id="analytical-generator-form"
-          action="{{ url_for('create_analytical_job') }}"
-          method="post"
-          class="rounded-xl border border-gray-100 bg-white/80 p-6 shadow-sm backdrop-blur"
-        >
+      <div class="mt-6 grid gap-8 lg:grid-cols-2">
+        <div>
+          <form
+            id="analytical-generator-form"
+            action="{{ url_for('create_analytical_job') }}"
+            method="post"
+            class="rounded-xl border border-gray-100 bg-white/80 p-6 shadow-sm backdrop-blur"
+          >
           <div class="space-y-5">
             <label class="block">
               <span class="text-xs font-semibold uppercase text-gray-500">Team</span>
@@ -1484,7 +1617,7 @@
               <p class="mt-1 text-xs text-gray-400">Autocomplete suggestions show as you type; press Enter to accept.</p>
             </label>
             <label class="block">
-              <span class="text-xs font-semibold uppercase text-gray-500">Matches / Events to include</span>
+              <span class="text-xs font-semibold uppercase text-gray-500">Nr. of Matches to include</span>
               <div class="mt-1 flex items-center gap-2">
                 <input
                   type="number"
@@ -1495,11 +1628,11 @@
                   class="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                   {% if not redis_available %}disabled{% endif %}
                 />
-                <span class="text-xs text-gray-400">optional</span>
               </div>
             </label>
             <label class="block">
               <span class="text-xs font-semibold uppercase text-gray-500">Share report with</span>
+              <div class="mt-1 flex items-center gap-2">
               <input
                 type="email"
                 name="share_email"
@@ -1508,6 +1641,7 @@
                 class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                 {% if not redis_available %}disabled{% endif %}
               />
+              <span class="text-xs text-gray-400">optional</span></div>
               <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to the default configured address.</p>
             </label>
             <button
@@ -1523,35 +1657,90 @@
             </button>
             <div id="generator-feedback" class="hidden rounded-lg border px-3 py-2 text-sm"></div>
             <p class="text-xs text-gray-500">
-              Processing can take up to a minute while match details, stats, and visual plots are created. The terminal
-              above streams updates instantly and keeps listening even if you switch tabs.
+              Processing can take up to some minutes while match details, stats, and visual plots are created. The terminal
+              updates instantly and keeps running even if you switch tabs.
             </p>
           </div>
-        </form>
+          </form>
+
+          <div id="latest-run-card" class="latest-run-card hidden mt-4">
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">Latest run</p>
+                <h3 id="latest-run-team" class="text-lg font-semibold text-gray-900"></h3>
+                <p id="latest-run-meta" class="text-xs text-gray-600"></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <a id="latest-run-link" class="th-btn th-btn-primary hidden" href="#" target="_blank" rel="noopener">Open report</a>
+                <button type="button" id="latest-run-copy" class="th-btn th-btn-secondary hidden">Copy link</button>
+                <button type="button" id="latest-run-save" class="th-btn th-btn-secondary hidden">Save to list</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="analytical-terminal hidden" data-terminal-root>
+            <div class="terminal-top">
+              <div>
+                <span class="terminal-title">Terminal • Analytical Generator</span>
+                <span class="terminal-meta" id="terminal-team-label">Idle</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" class="terminal-cancel hidden" id="terminal-cancel">
+                  <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Cancel</span>
+                </button>
+                <span class="terminal-status-badge" id="terminal-status" data-status="idle">
+                  <span class="terminal-status-dot" id="terminal-status-dot"></span>
+                  <span id="terminal-status-text">Idle</span>
+                </span>
+                <span id="terminal-spinner" class="spinner hidden" aria-label="Working"></span>
+                <span class="terminal-count" id="terminal-line-count">0%</span>
+                <button type="button" class="terminal-clear hidden" id="terminal-clear" disabled>Clear</button>
+              </div>
+            </div>
+            <div id="terminal-alert" class="terminal-alert hidden"></div>
+            <div id="terminal-log" class="timeline-root">
+              <div class="timeline-progress" aria-hidden="true"><span id="timeline-progress-bar" style="width:0%"></span></div>
+              <div class="timeline-list" id="timeline-list"></div>
+              <div class="terminal-empty text-gray-500" id="timeline-empty">Awaiting generation. Queue a report to see progress here.</div>
+            </div>
+            <div id="terminal-prompts" class="prompt-stack hidden"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="space-y-2">
-    <ul class="list-group space-y-2">
-      {% for entry in all_reports %}
-      {% set row_id = 'report-' ~ loop.index0 %}
-      <li
-        class="list-group-item surface-card bg-white rounded-xl p-3 ring-muted"
+    {% if all_reports and all_reports|length > 0 %}
+      <div class="flex items-end justify-between mb-2">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 dark-mode:text-gray-100">Latest report</h2>
+          <p class="text-sm text-gray-500 dark-mode:text-gray-400">Most recent generated analytical report.</p>
+        </div>
+      </div>
+      {% set entry = all_reports[0] %}
+      {% set row_id = 'latest-report' %}
+      <div
+        class="surface-card bg-white rounded-xl p-4 ring-muted dark-mode:bg-gray-900/80"
         data-report-item
         data-spreadsheet-url="{{ entry.spreadsheet_url }}"
       >
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <strong>{{ entry.team_name }}</strong><br />
-            <small>Created: {{ entry.created_label }}</small>
+            <strong class="text-gray-900 dark-mode:text-gray-100">{{ entry.team_name }}</strong><br />
+            <small class="text-gray-500 dark-mode:text-gray-400">Created: {{ entry.created_label }}</small>
             {% if entry.match_count %}
-            <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
+            <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark-mode:bg-gray-800 dark-mode:text-gray-300">
               {{ entry.match_count }} matches
             </span>
             {% endif %}
             {% if entry.source == "saved" %}
-            <span class="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">
+            <span class="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark-mode:bg-indigo-900/50 dark-mode:text-indigo-200">
               Saved
             </span>
             {% endif %}
@@ -1565,7 +1754,6 @@
             >
               Open sheet
             </a>
-            <button type="button" class="th-btn th-btn-primary" data-toggle-target="{{ row_id }}">View report</button>
             {% if entry.source == "saved" %}
             <button
               type="button"
@@ -1579,9 +1767,10 @@
             {% endif %}
           </div>
         </div>
+
         {% if entry.report_payload %}
         <div
-          class="report-detail hidden mt-3"
+          class="report-detail mt-3"
           id="report-panel-{{ row_id }}"
           data-report-card
           data-report-payload='{{ entry.report_payload | tojson | forceescape }}'
@@ -1605,15 +1794,18 @@
           </div>
         </div>
         {% else %}
-        <div class="report-detail hidden mt-3" id="report-panel-{{ row_id }}">
+        <div class="report-detail mt-3" id="report-panel-{{ row_id }}">
           <div class="report-detail-empty">
-            Inline preview unavailable. Use the “Open sheet” button to review this report on Google Sheets.
+            Inline summary unavailable for this report. Use the “Open sheet” button to view it on Google Sheets.
           </div>
         </div>
         {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
+      </div>
+    {% else %}
+      <div class="report-detail-empty">
+        No reports yet. Generate a report above to see it here.
+      </div>
+    {% endif %}
   </div>
 </div>
 
@@ -1656,7 +1848,9 @@ document.addEventListener("DOMContentLoaded", () => {
     generatorFeedback: document.getElementById("generator-feedback"),
     terminalRoot: document.querySelector("[data-terminal-root]"),
     terminalLog: document.getElementById("terminal-log"),
-    terminalEmpty: document.getElementById("terminal-empty"),
+    timelineList: document.getElementById("timeline-list"),
+    timelineEmpty: document.getElementById("timeline-empty"),
+    timelineBar: document.getElementById("timeline-progress-bar"),
     terminalAlert: document.getElementById("terminal-alert"),
     terminalForm: document.getElementById("terminal-input-form"),
     messageInput: document.getElementById("terminal-message"),
@@ -1664,6 +1858,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statusBadge: document.getElementById("terminal-status"),
     statusText: document.getElementById("terminal-status-text"),
     statusDot: document.getElementById("terminal-status-dot"),
+    spinner: document.getElementById("terminal-spinner"),
     lineCount: document.getElementById("terminal-line-count"),
     clearButton: document.getElementById("terminal-clear"),
     cancelButton: document.getElementById("terminal-cancel"),
@@ -1695,6 +1890,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /Creating worksheet for map/i,
     /Spreadsheet ready/i,
     /Spreadsheet created/i,
+    /Analytical report generated successfully/i,
     /Cancellation requested/i,
   ];
   const bannerVariants = {
@@ -1770,7 +1966,13 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.sendButton.disabled = !hasJob;
     }
     if (elements.clearButton) {
-      elements.clearButton.disabled = state.events.length === 0;
+      elements.clearButton.disabled = true; // timeline has no clear
+    }
+    if (elements.spinner) {
+      const active = isJobActive();
+      elements.spinner.classList.toggle("hidden", !active);
+      // Enforce inline display to prevent residual CSS animations when idle
+      elements.spinner.style.display = active ? "inline-flex" : "none";
     }
     if (elements.cancelButton) {
       const status = normaliseStatus(state.meta.status);
@@ -1784,19 +1986,22 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const clearLog = (preserveSeen = true) => {
-    if (elements.terminalLog) {
-      elements.terminalLog.innerHTML = "";
+    if (elements.timelineList) {
+      elements.timelineList.innerHTML = "";
     }
     state.events = [];
+    state.timeline = initTimelineState();
     if (!preserveSeen) {
       state.seenKeys.clear();
     }
-    if (elements.terminalEmpty) {
-      elements.terminalEmpty.classList.remove("hidden");
-      elements.terminalLog && elements.terminalLog.appendChild(elements.terminalEmpty);
+    if (elements.timelineEmpty) {
+      elements.timelineEmpty.classList.remove("hidden");
+    }
+    if (elements.timelineBar) {
+      elements.timelineBar.style.width = "0%";
     }
     if (elements.lineCount) {
-      elements.lineCount.textContent = "0";
+      elements.lineCount.textContent = "0%";
     }
     refreshTerminalControls();
   };
@@ -1848,100 +2053,100 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshTerminalControls();
   };
 
+  // Timeline logic
+  const CHECKPOINTS = [
+    { id: "started", label: "Job started", pattern: /Job .* started/i },
+    { id: "prepare", label: "Preparing match data", pattern: /Preparing match data/i },
+    { id: "basic", label: "Basic info gathered", pattern: /Basic info gathered/i },
+    { id: "tabs", label: "Creating per-map tabs", pattern: /Creating per-map tabs/i },
+    { id: "sheets", label: "Generating visualizations", pattern: /Creating worksheet for map|Spreadsheet (created|ready)/i },
+    { id: "completed", label: "Report ready", pattern: /Analytical report generated successfully|completed/i },
+  ];
+
+  const initTimelineState = () => {
+    const map = new Map();
+    CHECKPOINTS.forEach((c, idx) => {
+      map.set(c.id, { done: false, active: idx === 0, at: null });
+    });
+    return map;
+  };
+
+  state.timeline = initTimelineState();
+
+  const computeProgress = () => {
+    const per = 100 / CHECKPOINTS.length;
+    let done = 0;
+    CHECKPOINTS.forEach((c) => {
+      if (state.timeline.get(c.id)?.done) done += 1;
+    });
+    return Math.min(100, Math.round(done * per));
+  };
+
+  const renderTimeline = () => {
+    if (!elements.timelineList) return;
+    elements.timelineList.innerHTML = "";
+    let any = false;
+    CHECKPOINTS.forEach((c, idx) => {
+      const st = state.timeline.get(c.id);
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      if (st?.done) item.classList.add("is-done"); else if (st?.active) item.classList.add("is-active");
+      const marker = document.createElement("div"); marker.className = "timeline-marker";
+      const body = document.createElement("div"); body.className = "timeline-content";
+      const title = document.createElement("div"); title.className = "timeline-title"; title.textContent = c.label;
+      body.appendChild(title);
+      if (st?.at) { const meta = document.createElement("div"); meta.className = "timeline-meta"; meta.textContent = new Date(st.at).toLocaleTimeString(); body.appendChild(meta); }
+      item.appendChild(marker); item.appendChild(body);
+      elements.timelineList.appendChild(item);
+      if (st?.done || st?.active) any = true;
+      if (idx === CHECKPOINTS.length - 1 && state.meta.status === "failed") {
+        item.classList.remove("is-done", "is-active"); item.classList.add("is-failed");
+      }
+    });
+    if (elements.timelineEmpty) elements.timelineEmpty.classList.toggle("hidden", any);
+    const pct = computeProgress();
+    if (elements.timelineBar) elements.timelineBar.style.width = pct + "%";
+    if (elements.lineCount) elements.lineCount.textContent = pct + "%";
+  };
+
+  const bumpCheckpoint = (message) => {
+    if (!message) return false;
+    let bumped = false;
+    CHECKPOINTS.forEach((c, idx) => {
+      if (c.pattern.test(message)) {
+        const entry = state.timeline.get(c.id) || { done: false, active: idx === 0, at: null };
+        if (!entry.done) {
+          entry.done = true; entry.active = false; entry.at = new Date().toISOString();
+          state.timeline.set(c.id, entry);
+          const next = CHECKPOINTS[idx + 1];
+          if (next) {
+            const nxt = state.timeline.get(next.id) || { done: false, active: false, at: null };
+            nxt.active = true; state.timeline.set(next.id, nxt);
+          }
+          bumped = true;
+        }
+      }
+    });
+    return bumped;
+  };
+
   const appendLog = (evt) => {
     if (!elements.terminalLog) return;
     const key = eventKey(evt);
-    if (state.seenKeys.has(key)) {
-      return;
-    }
+    if (state.seenKeys.has(key)) return;
     state.seenKeys.add(key);
     const payload = evt.payload || {};
     const message = payload.message || "";
-    if (evt.type === "progress" && !shouldDisplayProgressMessage(message)) {
-      refreshTerminalControls();
-      return;
+    // Mark checkpoints on progress or completion
+    if (evt.type === "progress") {
+      bumpCheckpoint(message);
+    } else if (evt.type === "completed") {
+      bumpCheckpoint("Analytical report generated successfully");
+    } else if (evt.type === "error") {
+      state.meta.status = "failed";
     }
     state.events.push(evt);
-
-    if (elements.terminalEmpty && !elements.terminalEmpty.classList.contains("hidden")) {
-      elements.terminalEmpty.classList.add("hidden");
-    }
-
-    const lineNumber = state.events.length;
-    const row = document.createElement("div");
-    row.className = "terminal-line";
-    row.dataset.type = evt.type || "progress";
-    row.dataset.origin = evt.origin || "system";
-    row.classList.add("terminal-line--recent");
-
-    const indexEl = document.createElement("span");
-    indexEl.className = "terminal-line-index";
-    indexEl.textContent = `[${String(lineNumber).padStart(2, "0")}]`;
-    row.appendChild(indexEl);
-
-    const body = document.createElement("div");
-    body.className = "terminal-line-body";
-    row.appendChild(body);
-
-    const timestamp = formatTimestamp(evt.timestamp);
-    if (timestamp) {
-      const metaEl = document.createElement("span");
-      metaEl.className = "terminal-line-meta";
-      metaEl.textContent = timestamp;
-      body.appendChild(metaEl);
-    }
-
-    const text = document.createElement("span");
-    text.className = "terminal-line-text";
-
-    switch (evt.type) {
-      case "user_message":
-        text.textContent = `You ▸ ${message}`;
-        break;
-      case "status":
-        text.textContent = `Status ▸ ${toTitle(payload.status || "")}`;
-        break;
-      case "completed":
-        text.textContent = message || "Analytical report generated successfully.";
-        if (payload.result) {
-          const linkUrl =
-            payload.result.spreadsheet_edit_url ||
-            payload.result.spreadsheet_view_url ||
-            payload.result.spreadsheet_url;
-          if (linkUrl) {
-            const link = document.createElement("a");
-            link.href = linkUrl;
-            link.target = "_blank";
-            link.rel = "noopener";
-            link.className = "terminal-link";
-            link.textContent = "Open report";
-            text.appendChild(link);
-          }
-        }
-        break;
-      case "error":
-        text.textContent = message || "An unexpected error occurred.";
-        break;
-      case "prompt":
-        text.textContent = message || "Additional input requested.";
-        break;
-      case "prompt_resolved":
-        text.textContent = message || "Prompt resolved.";
-        break;
-      default:
-        text.textContent = message || evt.type || "progress";
-        break;
-    }
-    body.appendChild(text);
-
-    elements.terminalLog.appendChild(row);
-    if (elements.lineCount) {
-      elements.lineCount.textContent = String(lineNumber);
-    }
-    if (elements.terminalLog) {
-      elements.terminalLog.scrollTo({ top: elements.terminalLog.scrollHeight, behavior: "smooth" });
-    }
-    window.setTimeout(() => row.classList.remove("terminal-line--recent"), 600);
+    renderTimeline();
     refreshTerminalControls();
   };
 
@@ -2198,6 +2403,10 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.latestSave.classList.remove("hidden");
     }
     elements.latestCard.classList.remove("hidden");
+    // Once the latest run card is visible, hide the spinner in the terminal header
+    if (elements.spinner) {
+      elements.spinner.classList.add("hidden");
+    }
   };
 
   const handleEvent = (evt) => {
@@ -2205,6 +2414,10 @@ document.addEventListener("DOMContentLoaded", () => {
       case "status":
         setStatus(evt.payload && evt.payload.status, evt.payload);
         appendLog(evt);
+        // If status transitioned to a non-active state, make sure spinner is hidden
+        if (elements.spinner && !isJobActive()) {
+          elements.spinner.classList.add("hidden");
+        }
         break;
       case "progress":
       case "user_message":
@@ -2213,15 +2426,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (evt.type === "error") {
           showBanner(elements.terminalAlert, evt.payload && evt.payload.message ? evt.payload.message : "Job failed.", "error");
           setStatus("failed", evt.payload || {});
+          if (elements.spinner) elements.spinner.classList.add("hidden");
         }
         break;
       case "completed":
         appendLog(evt);
         setStatus("finished", evt.payload || {});
+        if (elements.spinner) elements.spinner.classList.add("hidden");
         if (evt.payload && evt.payload.result) {
           updateLatestRun(evt.payload.result, evt.payload);
         }
         clearBanner(elements.terminalAlert);
+        // Optionally collapse terminal after completion
+        if (elements.terminalRoot) {
+          elements.terminalRoot.classList.add("hidden");
+        }
+        if (elements.generatorForm) {
+          elements.generatorForm.classList.remove("hidden");
+        }
         break;
       case "prompt":
         appendLog(evt);
@@ -2436,6 +2658,20 @@ document.addEventListener("DOMContentLoaded", () => {
       showBanner(elements.terminalAlert, body.message || "Cancellation requested.", "warning");
       setStatus(body.status || "cancelling", state.meta);
       refreshTerminalControls();
+      // Close live stream immediately
+      if (state.eventSource) {
+        try { state.eventSource.close(); } catch (e) {}
+        state.eventSource = null;
+      }
+      // Put terminal into default idle state and keep it visible
+      state.jobId = null;
+      setStatus("idle", {});
+      if (elements.spinner) elements.spinner.classList.add("hidden");
+      if (elements.cancelButton) elements.cancelButton.classList.add("hidden");
+      if (elements.terminalRoot) elements.terminalRoot.classList.remove("hidden");
+      updateTeam({});
+      // Reload the page now that the queue is cleared to present a clean state
+      window.location.reload();
     } catch (error) {
       console.error("Failed to cancel analytical job", error);
       showBanner(elements.terminalAlert, "Unexpected error while cancelling the job.", "error");
@@ -2461,6 +2697,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       showBanner(elements.terminalAlert, body.message || "Report saved to quick access.", body.status === "saved" ? "info" : "warning");
+      // Reload the page to reflect the saved report consistently
+      window.location.reload();
     } catch (error) {
       console.error("Failed to save report entry", error);
       showBanner(elements.terminalAlert, "Unexpected error while saving to the library.", "error");
@@ -2541,12 +2779,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-delete-report]").forEach((button) => {
     button.addEventListener("click", handleDeleteClick);
   });
+  if (elements.cancelButton) {
+    elements.cancelButton.addEventListener("click", handleCancelClick);
+  }
 
   if (typeof window.initReportPreviews === "function") {
     window.initReportPreviews();
   }
+  if (typeof window.renderVisibleReports === "function") {
+    window.renderVisibleReports();
+  }
 
   hydrateFromBootstrap();
+
+  // Aggressively hide spinner on initial load if no active job
+  if (elements.spinner && !isJobActive()) {
+    elements.spinner.classList.add("hidden");
+    elements.spinner.style.display = "none";
+  }
 
   if (!redisAvailable) {
     showBanner(

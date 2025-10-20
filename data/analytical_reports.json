@@ -2,6 +2,3652 @@
   {
     "team_name": "Team Heretics",
     "team_tag": "TH",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkilMkmA-UMxqRJN4qgWzQn2aJr-LgE4g5PVto-Y-aUWzbslppyVCvGCULrS5O4ktefTVqJ9fKWhvn/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "3",
+    "created_at": "2025-10-19T23:25:47.774Z",
+    "entry_id": "579a459b722849109149bc5a3849ddbd",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/1ddh-mPIg-p_ii2JzGfua0BIK4PKWthBrnF5T4ugSHOs",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkilMkmA-UMxqRJN4qgWzQn2aJr-LgE4g5PVto-Y-aUWzbslppyVCvGCULrS5O4ktefTVqJ9fKWhvn/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkilMkmA-UMxqRJN4qgWzQn2aJr-LgE4g5PVto-Y-aUWzbslppyVCvGCULrS5O4ktefTVqJ9fKWhvn/pub?gid=0&output=csv",
+    "spreadsheet_id": "1ddh-mPIg-p_ii2JzGfua0BIK4PKWthBrnF5T4ugSHOs",
+    "report_payload": {
+      "team": {
+        "name": "Team Heretics",
+        "tag": "TH",
+        "player_riot_id": "TH Boo",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/81ea59ba-41c7-407f-65a5-6c6ef8404600/w=10000"
+      },
+      "summary": {
+        "match_count": 3,
+        "map_count": 3,
+        "record": {
+          "wins": 1,
+          "losses": 2
+        }
+      },
+      "matches": [
+        {
+          "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+          "map": "Lotus",
+          "opponent": "PRX",
+          "result": "Loss",
+          "score": {
+            "team": 4,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "team_color": "Blue",
+          "started_at": "2025-09-29T15:16:11.395000"
+        },
+        {
+          "match_id": "8fed1be2-f069-43d5-8139-628f65c0dc3e",
+          "map": "Bind",
+          "opponent": "PRX",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 9
+          },
+          "defence": {
+            "value": 80,
+            "won": 8,
+            "total": 10
+          },
+          "attack": {
+            "value": 42,
+            "won": 5,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-09-29T14:14:09.645000"
+        },
+        {
+          "match_id": "06cf12a5-287f-45cf-a4e0-a38a88ca9380",
+          "map": "Ascent",
+          "opponent": "PRX",
+          "result": "Loss",
+          "score": {
+            "team": 11,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 67,
+            "won": 8,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-09-29T13:07:02.894000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Lotus",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Chamber",
+                "Deadlock",
+                "Fade",
+                "Omen",
+                "Raze"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "TH benjyfishy": "Deadlock",
+                "TH RieNs": "Fade",
+                "TH Wo0t": "Chamber",
+                "TH Boo": "Omen",
+                "TH MiniBoo": "Raze"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 3
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 3
+              },
+              "opponent_plants": {
+                "count": 9
+              },
+              "retake_win": {
+                "value": 22,
+                "won": 2,
+                "total": 9
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 44
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 2,
+                  "total": 4
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 33
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 3
+                }
+              },
+              {
+                "site": "C",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 22
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": null
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1C1gW-uXFO9HcnWXifW3vHKxijA9zeuri"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1BklOzQ0Ko17Y1FCYsxrlIHHA_P8XidcF"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1ZrrSnZK-Fwbna-sE1-rPf2PUoXwxbzs0"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1J8LBq1Fk_sVzpOpFAjvbhvuFBVgoo3x9"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1zGswgbpQfi3TTw_aFzn_T9fx7IouoZS7"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1N8xQEmTNQtx_xN8SnwuAHGwtxGkAvlai"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1i7Uy_cdr9grIRgzeGIzZYMCR7tr0kTUd",
+              "attack": "https://lh3.googleusercontent.com/d/1JxVmqN1RGHSZ2pYpHW59bwWUuE-WKxPT"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+              "map": "Lotus",
+              "opponent": "PRX",
+              "result": "Loss",
+              "score": {
+                "team": 4,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 33,
+                "won": 4,
+                "total": 12
+              },
+              "attack": {
+                "value": 0,
+                "won": 0,
+                "total": 5
+              },
+              "team_color": "Blue",
+              "started_at": "2025-09-29T15:16:11.395000"
+            }
+          ]
+        },
+        {
+          "name": "Bind",
+          "wins": 1,
+          "losses": 0,
+          "winrate": 100,
+          "defence": {
+            "value": 80,
+            "won": 8,
+            "total": 10
+          },
+          "attack": {
+            "value": 42,
+            "won": 5,
+            "total": 12
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Brimstone",
+                "Fade",
+                "Viper",
+                "Waylay",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 1,
+              "losses": 0,
+              "winrate": 100,
+              "player_agents": {
+                "TH Wo0t": "Yoru",
+                "TH RieNs": "Fade",
+                "TH MiniBoo": "Waylay",
+                "TH Boo": "Brimstone",
+                "TH benjyfishy": "Viper"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 6
+              },
+              "post_plant": {
+                "value": 83,
+                "won": 5,
+                "total": 6
+              },
+              "opponent_plants": {
+                "count": 6
+              },
+              "retake_win": {
+                "value": 67,
+                "won": 4,
+                "total": 6
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 2,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 67
+                },
+                "retake_win": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 67
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 33
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": null
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/10x24edmt4C30YerwLMGzPWfK-JtZyPqp"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/125syEbfcD7RkcD7uVGDCIAud8HGZUNV9"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1Plt-qH5-9yTyY4f3LieolwSuSd2ob2Cv"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1dWtysV8k1sgbAR72yhHiQWP7Ci_KM7om"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1dHKvLd0c-g9QqpqHpAEwvZdV4RKrX4p1"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1Cz1hW2btnE5OOkWm6GPG_bKZDO7MAbkM"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1IYHMzTidbOv4PdHxRnBD4sqMSeHeE2Yx",
+              "attack": "https://lh3.googleusercontent.com/d/1qktyghqX3vDof84AeFnsi1j55Hamg_Gc"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "8fed1be2-f069-43d5-8139-628f65c0dc3e",
+              "map": "Bind",
+              "opponent": "PRX",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 9
+              },
+              "defence": {
+                "value": 80,
+                "won": 8,
+                "total": 10
+              },
+              "attack": {
+                "value": 42,
+                "won": 5,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-09-29T14:14:09.645000"
+            }
+          ]
+        },
+        {
+          "name": "Ascent",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 67,
+            "won": 8,
+            "total": 12
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Cypher",
+                "Jett",
+                "Omen",
+                "Sova",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "TH Boo": "Omen",
+                "TH benjyfishy": "Cypher",
+                "TH Wo0t": "Jett",
+                "TH MiniBoo": "Yoru",
+                "TH RieNs": "Sova"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 9
+              },
+              "post_plant": {
+                "value": 89,
+                "won": 8,
+                "total": 9
+              },
+              "opponent_plants": {
+                "count": 10
+              },
+              "retake_win": {
+                "value": 20,
+                "won": 2,
+                "total": 10
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 7,
+                  "share_pct": 78
+                },
+                "post_plant": {
+                  "value": 86,
+                  "won": 6,
+                  "total": 7
+                },
+                "opponent_plants": {
+                  "count": 5,
+                  "share_pct": 50
+                },
+                "retake_win": {
+                  "value": 40,
+                  "won": 2,
+                  "total": 5
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 22
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 2,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 5,
+                  "share_pct": 50
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 5
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1kEqQMqwG3kh8L_xGzZwsGSLKs28rpxI2"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1oYsqmQu9trG3OVn1iwVd0-A3oxMDF7qP"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1sy9g4yuTa14iPTcikSb--gXVOQkLMp8q"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1_2wsFH1Pw1KfpxCVQJGlvlEGZ6XSxcEY"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1GGESBAQ4ofFHbAeebxX7QkYFpNEPAZft"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1g0RuIpjlPdXWOXQKj2hnbh23Z2wnHc29"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1DdPq1deKrOUcvNW2d_X3M2K2eZCcYy0F",
+              "attack": "https://lh3.googleusercontent.com/d/1MMYfVm1090wMPaFxDfuwPz4AhKHyJ_5_"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "06cf12a5-287f-45cf-a4e0-a38a88ca9380",
+              "map": "Ascent",
+              "opponent": "PRX",
+              "result": "Loss",
+              "score": {
+                "team": 11,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 25,
+                "won": 3,
+                "total": 12
+              },
+              "attack": {
+                "value": 67,
+                "won": 8,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-09-29T13:07:02.894000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Team Heretics",
+    "team_tag": "TH",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPUQIzuyXdGUIROTfsl2umYgJ5xJhJlhGlPz4nXXu6UoS7n0CTIoU5MzxawiiUyg53ivbzj1gBYol4/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "2",
+    "created_at": "2025-10-19T23:19:05.793Z",
+    "entry_id": "0b9f4a65c48f42a5b481fdd05c820835",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/10FZTdLqW45jhWMcTc-s9VEXcHjShEmKhRUdRhA3mj7o",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPUQIzuyXdGUIROTfsl2umYgJ5xJhJlhGlPz4nXXu6UoS7n0CTIoU5MzxawiiUyg53ivbzj1gBYol4/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPUQIzuyXdGUIROTfsl2umYgJ5xJhJlhGlPz4nXXu6UoS7n0CTIoU5MzxawiiUyg53ivbzj1gBYol4/pub?gid=0&output=csv",
+    "spreadsheet_id": "10FZTdLqW45jhWMcTc-s9VEXcHjShEmKhRUdRhA3mj7o",
+    "report_payload": {
+      "team": {
+        "name": "Team Heretics",
+        "tag": "TH",
+        "player_riot_id": "TH Boo",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/81ea59ba-41c7-407f-65a5-6c6ef8404600/w=10000"
+      },
+      "summary": {
+        "match_count": 2,
+        "map_count": 2,
+        "record": {
+          "wins": 1,
+          "losses": 1
+        }
+      },
+      "matches": [
+        {
+          "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+          "map": "Lotus",
+          "opponent": "PRX",
+          "result": "Loss",
+          "score": {
+            "team": 4,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "team_color": "Blue",
+          "started_at": "2025-09-29T15:16:11.395000"
+        },
+        {
+          "match_id": "8fed1be2-f069-43d5-8139-628f65c0dc3e",
+          "map": "Bind",
+          "opponent": "PRX",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 9
+          },
+          "defence": {
+            "value": 80,
+            "won": 8,
+            "total": 10
+          },
+          "attack": {
+            "value": 42,
+            "won": 5,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-09-29T14:14:09.645000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Lotus",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Chamber",
+                "Deadlock",
+                "Fade",
+                "Omen",
+                "Raze"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "TH benjyfishy": "Deadlock",
+                "TH RieNs": "Fade",
+                "TH Wo0t": "Chamber",
+                "TH Boo": "Omen",
+                "TH MiniBoo": "Raze"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 3
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 3
+              },
+              "opponent_plants": {
+                "count": 9
+              },
+              "retake_win": {
+                "value": 22,
+                "won": 2,
+                "total": 9
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 44
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 2,
+                  "total": 4
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 33
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 3
+                }
+              },
+              {
+                "site": "C",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 22
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": null
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1sy012gV8BD3cFz-y4cDxaSzpj2ZTsLN5"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1ipTwAKTq8VBQmUk6OFJNSBcsIn_qMVoY"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/17WS2hIhJ3mNsYS7Q5pP4fkupzKMBumHw"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1qNVYW1hZ9ajtxJ5uQbk-2UvYrEtdk1Fs"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1cckUytBP3rUgy0Bu-3XNeVllkxjn1vRl"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1W1zRCXjfgPpVG-KpvROmnBSRcXpNqsq0"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1KhI3--8_F4JSXgNTA8UTSkM_aQcfOtd_",
+              "attack": "https://lh3.googleusercontent.com/d/1XdfHUNhfo-NrAqOYYdNQLMDnIG0gI8ra"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+              "map": "Lotus",
+              "opponent": "PRX",
+              "result": "Loss",
+              "score": {
+                "team": 4,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 33,
+                "won": 4,
+                "total": 12
+              },
+              "attack": {
+                "value": 0,
+                "won": 0,
+                "total": 5
+              },
+              "team_color": "Blue",
+              "started_at": "2025-09-29T15:16:11.395000"
+            }
+          ]
+        },
+        {
+          "name": "Bind",
+          "wins": 1,
+          "losses": 0,
+          "winrate": 100,
+          "defence": {
+            "value": 80,
+            "won": 8,
+            "total": 10
+          },
+          "attack": {
+            "value": 42,
+            "won": 5,
+            "total": 12
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Brimstone",
+                "Fade",
+                "Viper",
+                "Waylay",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 1,
+              "losses": 0,
+              "winrate": 100,
+              "player_agents": {
+                "TH Wo0t": "Yoru",
+                "TH RieNs": "Fade",
+                "TH MiniBoo": "Waylay",
+                "TH Boo": "Brimstone",
+                "TH benjyfishy": "Viper"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 6
+              },
+              "post_plant": {
+                "value": 83,
+                "won": 5,
+                "total": 6
+              },
+              "opponent_plants": {
+                "count": 6
+              },
+              "retake_win": {
+                "value": 67,
+                "won": 4,
+                "total": 6
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 2,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 67
+                },
+                "retake_win": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 67
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 33
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": null
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1PASgLiRkLVuNpeWFXevA9g_wn8gDrCRe"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1cayZvAati1Td9NdWrwUT3kfKTSgUPYt5"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1SZX1TvAh03GnLHYdyb_L1MVHLdR0q8K1"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1e0MVaGj0R_miY_DWiIg8mRgURRxEmWNC"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1ACsrBgaVRUOu_SpAtLFk7O-TSvwubkHF"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1i5l5e5M-y5xbcr4RPv-xSVATNH4R6PwS"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/16GTUFDHOVJE0pYYuGKScByqLfAJmdgwV",
+              "attack": "https://lh3.googleusercontent.com/d/1Z_8xNlhMpFMli03nmQY6eh2BKC9b1o0S"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "8fed1be2-f069-43d5-8139-628f65c0dc3e",
+              "map": "Bind",
+              "opponent": "PRX",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 9
+              },
+              "defence": {
+                "value": 80,
+                "won": 8,
+                "total": 10
+              },
+              "attack": {
+                "value": 42,
+                "won": 5,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-09-29T14:14:09.645000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "NRG Esports",
+    "team_tag": "NRG",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCnk7QSMJJXOCY_xjig2CO-ttMy5HU2hCYrtVDzJHhMWRa0jyKqi61R_TXV-VVcGUeX_zJgfJYejWR/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "1",
+    "created_at": "2025-10-19T23:09:32.927Z",
+    "entry_id": "bfe69deeba0a43d9a21f17802abe491a",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/1RCq0dWct2dXYPs8pw671O_IQJOW5YHvrXosQl9ANYqA",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCnk7QSMJJXOCY_xjig2CO-ttMy5HU2hCYrtVDzJHhMWRa0jyKqi61R_TXV-VVcGUeX_zJgfJYejWR/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCnk7QSMJJXOCY_xjig2CO-ttMy5HU2hCYrtVDzJHhMWRa0jyKqi61R_TXV-VVcGUeX_zJgfJYejWR/pub?gid=0&output=csv",
+    "spreadsheet_id": "1RCq0dWct2dXYPs8pw671O_IQJOW5YHvrXosQl9ANYqA",
+    "report_payload": {
+      "team": {
+        "name": "NRG Esports",
+        "tag": "NRG",
+        "player_riot_id": "NRG s0m",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/3d6adf79-0a92-406a-2b92-41d1a4446400/w=10000"
+      },
+      "summary": {
+        "match_count": 1,
+        "map_count": 1,
+        "record": {
+          "wins": 1,
+          "losses": 0
+        }
+      },
+      "matches": [
+        {
+          "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+          "map": "Sunset",
+          "opponent": "FNC",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 5
+          },
+          "defence": {
+            "value": 67,
+            "won": 4,
+            "total": 6
+          },
+          "attack": {
+            "value": 75,
+            "won": 9,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-10-05T15:40:22.815000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Sunset",
+          "wins": 1,
+          "losses": 0,
+          "winrate": 100,
+          "defence": {
+            "value": 67,
+            "won": 4,
+            "total": 6
+          },
+          "attack": {
+            "value": 75,
+            "won": 9,
+            "total": 12
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Breach",
+                "Cypher",
+                "Neon",
+                "Omen",
+                "Sova"
+              ],
+              "played": 1,
+              "wins": 1,
+              "losses": 0,
+              "winrate": 100,
+              "player_agents": {
+                "NRG s0m": "Omen",
+                "NRG brawk": "Sova",
+                "NRG mada": "Neon",
+                "NRG skuba": "Cypher",
+                "NRG Ethan": "Breach"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 10
+              },
+              "post_plant": {
+                "value": 80,
+                "won": 8,
+                "total": 10
+              },
+              "opponent_plants": {
+                "count": 5
+              },
+              "retake_win": {
+                "value": 60,
+                "won": 3,
+                "total": 5
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 6,
+                  "share_pct": 60
+                },
+                "post_plant": {
+                  "value": 83,
+                  "won": 5,
+                  "total": 6
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 60
+                },
+                "retake_win": {
+                  "value": 67,
+                  "won": 2,
+                  "total": 3
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 40
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 40
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1-Sj9v-HTSmfT23dxI8tW-aOXiKeayuig"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/18ljomdJFXLAbjrufS4ia5jebIPVHeq3I"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1wafpTIqRdYAEI_8wSEvMTA5jlQyW30OG"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1WyzuhLpmGE4BPg4OtO-j5D1HAibV0j_I"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/12YWQE4Y9Sfmwo377GiG32yFW7KwCpbdh"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/102Ew2GS1rkr8wQ8nXW3xtE0SGLOs-qmS"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1L3X0zOQO75Va7jdOleS3qAW27VZYM9O3",
+              "attack": "https://lh3.googleusercontent.com/d/1iHU3zz9huTPF64WVTEI0nk-OWLUeyQQN"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+              "map": "Sunset",
+              "opponent": "FNC",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 5
+              },
+              "defence": {
+                "value": 67,
+                "won": 4,
+                "total": 6
+              },
+              "attack": {
+                "value": 75,
+                "won": 9,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-10-05T15:40:22.815000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Fnatic",
+    "team_tag": "FNC",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2TcDYpB6r4Z1jeFUzH2b_2x08Xl4Z_NtX5dHif63i_G_NjZS_xvvQp3gGDu4LYnixHR2xYrbReD5b/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "1",
+    "created_at": "2025-10-19T22:51:06.237Z",
+    "entry_id": "59ab456213a1412f993118a00f8fa295",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/1sKTvuudsrXahlJy_wcUTuYaVsYdIGScW4XavfoXrrug",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2TcDYpB6r4Z1jeFUzH2b_2x08Xl4Z_NtX5dHif63i_G_NjZS_xvvQp3gGDu4LYnixHR2xYrbReD5b/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2TcDYpB6r4Z1jeFUzH2b_2x08Xl4Z_NtX5dHif63i_G_NjZS_xvvQp3gGDu4LYnixHR2xYrbReD5b/pub?gid=0&output=csv",
+    "spreadsheet_id": "1sKTvuudsrXahlJy_wcUTuYaVsYdIGScW4XavfoXrrug",
+    "report_payload": {
+      "team": {
+        "name": "Fnatic",
+        "tag": "FNC",
+        "player_riot_id": "FNC Boaster",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/92d4f872-2126-4494-e040-d63767b4ac00/w=10000"
+      },
+      "summary": {
+        "match_count": 1,
+        "map_count": 1,
+        "record": {
+          "wins": 0,
+          "losses": 1
+        }
+      },
+      "matches": [
+        {
+          "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+          "map": "Sunset",
+          "opponent": "NRG",
+          "result": "Loss",
+          "score": {
+            "team": 5,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-05T15:40:22.815000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Sunset",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Cypher",
+                "Fade",
+                "Neon",
+                "Omen",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "FNC Boaster": "Omen",
+                "FNC Alfajer": "Neon",
+                "FNC Kaajak": "Yoru",
+                "FNC Crashies": "Fade",
+                "FNC Chronicle": "Cypher"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 5
+              },
+              "post_plant": {
+                "value": 40,
+                "won": 2,
+                "total": 5
+              },
+              "opponent_plants": {
+                "count": 10
+              },
+              "retake_win": {
+                "value": 20,
+                "won": 2,
+                "total": 10
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 3,
+                  "share_pct": 60
+                },
+                "post_plant": {
+                  "value": 33,
+                  "won": 1,
+                  "total": 3
+                },
+                "opponent_plants": {
+                  "count": 6,
+                  "share_pct": 60
+                },
+                "retake_win": {
+                  "value": 17,
+                  "won": 1,
+                  "total": 6
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 40
+                },
+                "post_plant": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 40
+                },
+                "retake_win": {
+                  "value": 25,
+                  "won": 1,
+                  "total": 4
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1cDOubfM0fUe10A2gKVa8AqT4zTntAiCY"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1dokl0tptoMGvbZnOaxjRgnQFbJH5WyhS"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1kjk6lep9HPanGz8Acmh4L0VzuJ54XsDP"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1397n6Mlmg3ECmQ_9YafeIE8X6kW5sCkk"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1m0pC-uXe6Vjl7IlcYz4pQG3pUyo23yPB"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/16n4qlWsD_TAK6p6wPKJyHjcR4c7cHgMW"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1Q_7mqh4imEBclnB0tNj59zCvyn9b6WIe",
+              "attack": "https://lh3.googleusercontent.com/d/1oiEPwqT2tz8kaLKqrv2sZp0EqdBnp5RC"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+              "map": "Sunset",
+              "opponent": "NRG",
+              "result": "Loss",
+              "score": {
+                "team": 5,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 25,
+                "won": 3,
+                "total": 12
+              },
+              "attack": {
+                "value": 33,
+                "won": 2,
+                "total": 6
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-05T15:40:22.815000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Fnatic",
+    "team_tag": "FNC",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSlDgaoX8HQHOK3-Ca09xJafybvwsZiEnCd6GC0E8ZfTJXJMiggOodos259m91XZRy9OXmXX4S4Z_x/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "2",
+    "created_at": "2025-10-19T22:44:37.874Z",
+    "entry_id": "2ac7726fb66f44da9921e0dc1b48e71f",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/1LQDZQH0uAVe7bDbhMywNxJ5t0kXxX2EOxZYWbG4vj2E",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSlDgaoX8HQHOK3-Ca09xJafybvwsZiEnCd6GC0E8ZfTJXJMiggOodos259m91XZRy9OXmXX4S4Z_x/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSlDgaoX8HQHOK3-Ca09xJafybvwsZiEnCd6GC0E8ZfTJXJMiggOodos259m91XZRy9OXmXX4S4Z_x/pub?gid=0&output=csv",
+    "spreadsheet_id": "1LQDZQH0uAVe7bDbhMywNxJ5t0kXxX2EOxZYWbG4vj2E",
+    "report_payload": {
+      "team": {
+        "name": "Fnatic",
+        "tag": "FNC",
+        "player_riot_id": "FNC Boaster",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/92d4f872-2126-4494-e040-d63767b4ac00/w=10000"
+      },
+      "summary": {
+        "match_count": 2,
+        "map_count": 2,
+        "record": {
+          "wins": 1,
+          "losses": 1
+        }
+      },
+      "matches": [
+        {
+          "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+          "map": "Sunset",
+          "opponent": "NRG",
+          "result": "Loss",
+          "score": {
+            "team": 5,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-05T15:40:22.815000"
+        },
+        {
+          "match_id": "f2a4308b-badb-427b-a138-114fbfe13457",
+          "map": "Ascent",
+          "opponent": "NRG",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 8
+          },
+          "defence": {
+            "value": 56,
+            "won": 5,
+            "total": 9
+          },
+          "attack": {
+            "value": 67,
+            "won": 8,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-10-05T14:35:41.131000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Sunset",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Cypher",
+                "Fade",
+                "Neon",
+                "Omen",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "FNC Boaster": "Omen",
+                "FNC Alfajer": "Neon",
+                "FNC Kaajak": "Yoru",
+                "FNC Crashies": "Fade",
+                "FNC Chronicle": "Cypher"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 5
+              },
+              "post_plant": {
+                "value": 40,
+                "won": 2,
+                "total": 5
+              },
+              "opponent_plants": {
+                "count": 10
+              },
+              "retake_win": {
+                "value": 20,
+                "won": 2,
+                "total": 10
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 3,
+                  "share_pct": 60
+                },
+                "post_plant": {
+                  "value": 33,
+                  "won": 1,
+                  "total": 3
+                },
+                "opponent_plants": {
+                  "count": 6,
+                  "share_pct": 60
+                },
+                "retake_win": {
+                  "value": 17,
+                  "won": 1,
+                  "total": 6
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 40
+                },
+                "post_plant": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 40
+                },
+                "retake_win": {
+                  "value": 25,
+                  "won": 1,
+                  "total": 4
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1VCz3aN7Uc5xzDvl-pWUsN5qnYn6_ztYJ"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1DbCo_pRcAdyAErg42c2CSPl9IuPOVgcQ"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1wqtSOc_e-h2VhzG7ol3-Yb1ZzHyxTzOa"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1eBYJQLtLAH2mlwzM0sgDcL4CuCmUnKox"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1hunn3TancKuexSTDoXa1c4O53OK8y_Vm"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1ADhUVFHSeZm0K1fePHDbc7cITqJgsGz_"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1VNlbxRtrd3tMBHfPdUfNpFYrojUGgRQu",
+              "attack": "https://lh3.googleusercontent.com/d/1JqFCAlUMOqe6Z_gHKZI8PYLbffqQ_y8U"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+              "map": "Sunset",
+              "opponent": "NRG",
+              "result": "Loss",
+              "score": {
+                "team": 5,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 25,
+                "won": 3,
+                "total": 12
+              },
+              "attack": {
+                "value": 33,
+                "won": 2,
+                "total": 6
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-05T15:40:22.815000"
+            }
+          ]
+        },
+        {
+          "name": "Ascent",
+          "wins": 1,
+          "losses": 0,
+          "winrate": 100,
+          "defence": {
+            "value": 56,
+            "won": 5,
+            "total": 9
+          },
+          "attack": {
+            "value": 67,
+            "won": 8,
+            "total": 12
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Omen",
+                "Sage",
+                "Sova",
+                "Vyse",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 1,
+              "losses": 0,
+              "winrate": 100,
+              "player_agents": {
+                "FNC Kaajak": "Yoru",
+                "FNC Chronicle": "Vyse",
+                "FNC Alfajer": "Sage",
+                "FNC Boaster": "Omen",
+                "FNC Crashies": "Sova"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 10
+              },
+              "post_plant": {
+                "value": 80,
+                "won": 8,
+                "total": 10
+              },
+              "opponent_plants": {
+                "count": 7
+              },
+              "retake_win": {
+                "value": 43,
+                "won": 3,
+                "total": 7
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 3,
+                  "share_pct": 30
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 3,
+                  "total": 3
+                },
+                "opponent_plants": {
+                  "count": 5,
+                  "share_pct": 71
+                },
+                "retake_win": {
+                  "value": 60,
+                  "won": 3,
+                  "total": 5
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 7,
+                  "share_pct": 70
+                },
+                "post_plant": {
+                  "value": 71,
+                  "won": 5,
+                  "total": 7
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 29
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/12fEra1TjzIc-X6EGFrICDl5QkEl15aHR"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1eEwvU5JedP4vUfR0KWwUWRcaLcwQc4nN"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1-cIycusNbeqgx5mvdLZhzeb3BqMCEAGW"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1jzQCCq0Yw3-6AJYUVGfemcjbS2LIUx7N"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1s-5UZ3lmPNcydVb3A5PBnFoZ7bmeiXuX"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1zi7wDhjYQJTRi-Rr0jSf2zdw7ubT36EO"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1FR4GaPojNRGU4K9kgbzpMste6pfv8q_q",
+              "attack": "https://lh3.googleusercontent.com/d/1pNWU5eee5DYIUM8N9dXuPtk1QBRy4VYX"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "f2a4308b-badb-427b-a138-114fbfe13457",
+              "map": "Ascent",
+              "opponent": "NRG",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 8
+              },
+              "defence": {
+                "value": 56,
+                "won": 5,
+                "total": 9
+              },
+              "attack": {
+                "value": 67,
+                "won": 8,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-10-05T14:35:41.131000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Fnatic",
+    "team_tag": "FNC",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFoZs40FYszq_KkbwTZucLTvrfDGVMbzmv5o6EGRwVRmsnrVmjSkrrCuVxidk-azmyDByfqEwPgVF7/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "1",
+    "created_at": "2025-10-19T22:38:26.611Z",
+    "entry_id": "427119f52f584dc5b397295fb1bc1e8e",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/18KXpu2_0nirKOLTFqds70DN9_k7kOvYHFPhL-Okht-I",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFoZs40FYszq_KkbwTZucLTvrfDGVMbzmv5o6EGRwVRmsnrVmjSkrrCuVxidk-azmyDByfqEwPgVF7/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFoZs40FYszq_KkbwTZucLTvrfDGVMbzmv5o6EGRwVRmsnrVmjSkrrCuVxidk-azmyDByfqEwPgVF7/pub?gid=0&output=csv",
+    "spreadsheet_id": "18KXpu2_0nirKOLTFqds70DN9_k7kOvYHFPhL-Okht-I",
+    "report_payload": {
+      "team": {
+        "name": "Fnatic",
+        "tag": "FNC",
+        "player_riot_id": "FNC Boaster",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/92d4f872-2126-4494-e040-d63767b4ac00/w=10000"
+      },
+      "summary": {
+        "match_count": 1,
+        "map_count": 1,
+        "record": {
+          "wins": 0,
+          "losses": 1
+        }
+      },
+      "matches": [
+        {
+          "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+          "map": "Sunset",
+          "opponent": "NRG",
+          "result": "Loss",
+          "score": {
+            "team": 5,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-05T15:40:22.815000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Sunset",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 25,
+            "won": 3,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 2,
+            "total": 6
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Cypher",
+                "Fade",
+                "Neon",
+                "Omen",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "FNC Boaster": "Omen",
+                "FNC Alfajer": "Neon",
+                "FNC Kaajak": "Yoru",
+                "FNC Crashies": "Fade",
+                "FNC Chronicle": "Cypher"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 5
+              },
+              "post_plant": {
+                "value": 40,
+                "won": 2,
+                "total": 5
+              },
+              "opponent_plants": {
+                "count": 10
+              },
+              "retake_win": {
+                "value": 20,
+                "won": 2,
+                "total": 10
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 3,
+                  "share_pct": 60
+                },
+                "post_plant": {
+                  "value": 33,
+                  "won": 1,
+                  "total": 3
+                },
+                "opponent_plants": {
+                  "count": 6,
+                  "share_pct": 60
+                },
+                "retake_win": {
+                  "value": 17,
+                  "won": 1,
+                  "total": 6
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 2,
+                  "share_pct": 40
+                },
+                "post_plant": {
+                  "value": 50,
+                  "won": 1,
+                  "total": 2
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 40
+                },
+                "retake_win": {
+                  "value": 25,
+                  "won": 1,
+                  "total": 4
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1_IDUJaFxFugyRkVc9ALlQezf6BEoPgqr"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1A74DS_87tbFv2h6zFcK9zuDdIHARyOV4"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1FKBpfuBy-9WbYTgogCoAfTXn8m4RPaXq"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1gt8D0caspFjecfrkuqk935Q3bly2tw2i"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1MnfR0Q3KbWD5SP0n3R3hujpGcRJRFOoF"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/11hECMDEwFOZNEMyZmSwdAoIRr4f7sMhd"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1n9UvydaQZQywvW8Yw7DxCwVn-qNEDbe6",
+              "attack": "https://lh3.googleusercontent.com/d/1P81GQzV9bFXBRXCesGz8c5-PgOBCAAON"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "5be1e958-4182-452d-830e-a6b79c696c2d",
+              "map": "Sunset",
+              "opponent": "NRG",
+              "result": "Loss",
+              "score": {
+                "team": 5,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 25,
+                "won": 3,
+                "total": 12
+              },
+              "attack": {
+                "value": 33,
+                "won": 2,
+                "total": 6
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-05T15:40:22.815000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Paper Rex",
+    "team_tag": "PRX",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWhc-p_LtmVfJ2Z_9fMviD32nAxcbYCQVokuwQFwvIGCRbWm8OOhlvAnTj0416uyieRWdqaiMKcRuc/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "4",
+    "created_at": "2025-10-19T22:30:33.705Z",
+    "entry_id": "4a3949fb31ac42ddb8fb902d33551ae0",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/1DqalbMA-OEgfpqgZns5NslWDte80xgii6mFj4oh_5bU",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWhc-p_LtmVfJ2Z_9fMviD32nAxcbYCQVokuwQFwvIGCRbWm8OOhlvAnTj0416uyieRWdqaiMKcRuc/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWhc-p_LtmVfJ2Z_9fMviD32nAxcbYCQVokuwQFwvIGCRbWm8OOhlvAnTj0416uyieRWdqaiMKcRuc/pub?gid=0&output=csv",
+    "spreadsheet_id": "1DqalbMA-OEgfpqgZns5NslWDte80xgii6mFj4oh_5bU",
+    "report_payload": {
+      "team": {
+        "name": "Paper Rex",
+        "tag": "PRX",
+        "player_riot_id": "PRX f0rsakeN",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/6c0b89b2-5f91-4cbb-0059-d4369db15600/w=10000"
+      },
+      "summary": {
+        "match_count": 4,
+        "map_count": 3,
+        "record": {
+          "wins": 2,
+          "losses": 2
+        }
+      },
+      "matches": [
+        {
+          "match_id": "4e827996-affc-4183-a266-ecae785b55f2",
+          "map": "Lotus",
+          "opponent": "DRX",
+          "result": "Loss",
+          "score": {
+            "team": 8,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 42,
+            "won": 5,
+            "total": 12
+          },
+          "attack": {
+            "value": 33,
+            "won": 3,
+            "total": 9
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-03T14:52:15.018000"
+        },
+        {
+          "match_id": "29ae2a2f-9908-440e-904d-189462d1b822",
+          "map": "Ascent",
+          "opponent": "DRX",
+          "result": "Loss",
+          "score": {
+            "team": 13,
+            "opponent": 15
+          },
+          "defence": {
+            "value": 71,
+            "won": 10,
+            "total": 14
+          },
+          "attack": {
+            "value": 21,
+            "won": 3,
+            "total": 14
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-03T13:36:44.786000"
+        },
+        {
+          "match_id": "e0d26a03-28ca-49eb-87e6-08ce05811ea0",
+          "map": "Abyss",
+          "opponent": "DRX",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 2
+          },
+          "defence": {
+            "value": 92,
+            "won": 11,
+            "total": 12
+          },
+          "attack": {
+            "value": 67,
+            "won": 2,
+            "total": 3
+          },
+          "team_color": "Blue",
+          "started_at": "2025-10-02T13:36:00.319000"
+        },
+        {
+          "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+          "map": "Lotus",
+          "opponent": "TH",
+          "result": "Win",
+          "score": {
+            "team": 13,
+            "opponent": 4
+          },
+          "defence": {
+            "value": 100,
+            "won": 5,
+            "total": 5
+          },
+          "attack": {
+            "value": 67,
+            "won": 8,
+            "total": 12
+          },
+          "team_color": "Red",
+          "started_at": "2025-09-29T15:16:11.395000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Lotus",
+          "wins": 1,
+          "losses": 1,
+          "winrate": 50,
+          "defence": {
+            "value": 59,
+            "won": 10,
+            "total": 17
+          },
+          "attack": {
+            "value": 52,
+            "won": 11,
+            "total": 21
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Fade",
+                "Omen",
+                "Raze",
+                "Vyse",
+                "Yoru"
+              ],
+              "played": 2,
+              "wins": 1,
+              "losses": 1,
+              "winrate": 50,
+              "player_agents": {
+                "PRX d4v41": "Vyse",
+                "PRX Jinggg": "Raze",
+                "PRX something": "Yoru",
+                "PRX f0rsakeN": "Omen",
+                "PRX PatMen": "Fade"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 14
+              },
+              "post_plant": {
+                "value": 71,
+                "won": 10,
+                "total": 14
+              },
+              "opponent_plants": {
+                "count": 12
+              },
+              "retake_win": {
+                "value": 42,
+                "won": 5,
+                "total": 12
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 6,
+                  "share_pct": 43
+                },
+                "post_plant": {
+                  "value": 67,
+                  "won": 4,
+                  "total": 6
+                },
+                "opponent_plants": {
+                  "count": 6,
+                  "share_pct": 50
+                },
+                "retake_win": {
+                  "value": 33,
+                  "won": 2,
+                  "total": 6
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 29
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 25
+                },
+                "retake_win": {
+                  "value": 33,
+                  "won": 1,
+                  "total": 3
+                }
+              },
+              {
+                "site": "C",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 29
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 25
+                },
+                "retake_win": {
+                  "value": 67,
+                  "won": 2,
+                  "total": 3
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 0,
+                "won": 0,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "retake_win": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1QGFZglPcMR1bp4u70rksJBO9BuEeyV9E"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1BaZrbT17jXp4d--cTviBNan0OczG6x0F"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1YRh7asszjrQeLya58r-ScDPUG6-GByjr"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1fblKKzr6u1hL2LQP_tlDZ-LwR4CTuRKQ"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1_AK8VK46HS9tEnWS0Wyr6Kc-xRZBSoWV"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1dcpf3dEBrrr95eDRh3qpE-8sDIRC_k0a"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1Z8tizLFtolNvp0zXGXR-xzWom8TXaf1F",
+              "attack": "https://lh3.googleusercontent.com/d/18C9o4BEshQXj8PTWmIfLgVK25jtcIgm9"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "4e827996-affc-4183-a266-ecae785b55f2",
+              "map": "Lotus",
+              "opponent": "DRX",
+              "result": "Loss",
+              "score": {
+                "team": 8,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 42,
+                "won": 5,
+                "total": 12
+              },
+              "attack": {
+                "value": 33,
+                "won": 3,
+                "total": 9
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-03T14:52:15.018000"
+            },
+            {
+              "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+              "map": "Lotus",
+              "opponent": "TH",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 4
+              },
+              "defence": {
+                "value": 100,
+                "won": 5,
+                "total": 5
+              },
+              "attack": {
+                "value": 67,
+                "won": 8,
+                "total": 12
+              },
+              "team_color": "Red",
+              "started_at": "2025-09-29T15:16:11.395000"
+            }
+          ]
+        },
+        {
+          "name": "Ascent",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 71,
+            "won": 10,
+            "total": 14
+          },
+          "attack": {
+            "value": 21,
+            "won": 3,
+            "total": 14
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Omen",
+                "Sage",
+                "Sova",
+                "Vyse",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "PRX Jinggg": "Sage",
+                "PRX d4v41": "Vyse",
+                "PRX f0rsakeN": "Omen",
+                "PRX something": "Yoru",
+                "PRX PatMen": "Sova"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 4
+              },
+              "post_plant": {
+                "value": 75,
+                "won": 3,
+                "total": 4
+              },
+              "opponent_plants": {
+                "count": 4
+              },
+              "retake_win": {
+                "value": 0,
+                "won": 0,
+                "total": 4
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": 0
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 75
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 3
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 4,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 75,
+                  "won": 3,
+                  "total": 4
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 25
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 0
+              },
+              "retake_win": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              }
+            },
+            "sites": []
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1Ux7PflzkFIERIidqlpBBRqesv0_2qG-F"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1kQkOC5ZkC2ZqKitwQszTBn0migxUJJtV"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1OAbp6m7fE5Qrh9zU17CyFOPcEV7Q2u2h"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1eAteJ117tvsYKxDsSsjKDJusengiKMaY"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1DBzpAqoStOY2SWX7WdEBpWP2ANAGhm-3"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1ad_dYdPHHBsUperIGhma4jSlXpL__Gf8"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1g7rx6MGxpDKimO0EOf1Cuaz-PIWtGjk6",
+              "attack": "https://lh3.googleusercontent.com/d/10vF6oN_EMl7CPIAYtWwt7nUPFScuyRAz"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "29ae2a2f-9908-440e-904d-189462d1b822",
+              "map": "Ascent",
+              "opponent": "DRX",
+              "result": "Loss",
+              "score": {
+                "team": 13,
+                "opponent": 15
+              },
+              "defence": {
+                "value": 71,
+                "won": 10,
+                "total": 14
+              },
+              "attack": {
+                "value": 21,
+                "won": 3,
+                "total": 14
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-03T13:36:44.786000"
+            }
+          ]
+        },
+        {
+          "name": "Abyss",
+          "wins": 1,
+          "losses": 0,
+          "winrate": 100,
+          "defence": {
+            "value": 92,
+            "won": 11,
+            "total": 12
+          },
+          "attack": {
+            "value": 67,
+            "won": 2,
+            "total": 3
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Chamber",
+                "Clove",
+                "Neon",
+                "Reyna",
+                "Yoru"
+              ],
+              "played": 1,
+              "wins": 1,
+              "losses": 0,
+              "winrate": 100,
+              "player_agents": {
+                "PRX something": "Clove",
+                "PRX d4v41": "Chamber",
+                "PRX PatMen": "Neon",
+                "PRX f0rsakeN": "Yoru",
+                "PRX Jinggg": "Reyna"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 2
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 2,
+                "total": 2
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 2,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 1
+              },
+              "post_plant": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "post_plant": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1GzYzWYaKHGkrYAy96nstviJgtVU1wXBo"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1FZJoHaOAyQhesY5Rujt7pg-o1RwfMynM"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1f9bq11kb6OJwOZ2UXTea6mzxNu97Bv3c"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1h-mIOxHK3GekHomCMyWbuihSLBfhq9nt"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1Wr3GbH1UFbFhK6zlX07mfMsKxT6mAXgN"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1ASUqO5c85jIUEFQJgo6Kj5TDWEwcaLnL"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1j9wfQvlu4l9_-3k6JM5btxFxvsNdURTe",
+              "attack": "https://lh3.googleusercontent.com/d/10CGuUvvK1jUXOkNEa2iVfTz5pIdQbCHQ"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "e0d26a03-28ca-49eb-87e6-08ce05811ea0",
+              "map": "Abyss",
+              "opponent": "DRX",
+              "result": "Win",
+              "score": {
+                "team": 13,
+                "opponent": 2
+              },
+              "defence": {
+                "value": 92,
+                "won": 11,
+                "total": 12
+              },
+              "attack": {
+                "value": 67,
+                "won": 2,
+                "total": 3
+              },
+              "team_color": "Blue",
+              "started_at": "2025-10-02T13:36:00.319000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Team Heretics",
+    "team_tag": "TH",
+    "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDzzi9w_RwXJU0nmkjNEKSn2mG-r-W1r6iP1naMHFDekLqQxY-BeBhIcSSzPUV4gRxhXaBTphwdVqT/pubhtml?gid=0&widget=true&headers=false",
+    "match_count": "1",
+    "created_at": "2025-10-19T22:11:52.071Z",
+    "entry_id": "9eb8c7a5675546eeb14ed1c430ac76ac",
+    "spreadsheet_edit_url": "https://docs.google.com/spreadsheets/d/13WsIUL_m0_JkgX6JzBKlvK9Whn1OhITyALZBCoJKwAk",
+    "spreadsheet_view_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDzzi9w_RwXJU0nmkjNEKSn2mG-r-W1r6iP1naMHFDekLqQxY-BeBhIcSSzPUV4gRxhXaBTphwdVqT/pubhtml?gid=0",
+    "spreadsheet_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDzzi9w_RwXJU0nmkjNEKSn2mG-r-W1r6iP1naMHFDekLqQxY-BeBhIcSSzPUV4gRxhXaBTphwdVqT/pub?gid=0&output=csv",
+    "spreadsheet_id": "13WsIUL_m0_JkgX6JzBKlvK9Whn1OhITyALZBCoJKwAk",
+    "report_payload": {
+      "team": {
+        "name": "Team Heretics",
+        "tag": "TH",
+        "player_riot_id": "TH Boo",
+        "image_url": "https://imagedelivery.net/WUSOKAY-iA_QQPngCXgUJg/81ea59ba-41c7-407f-65a5-6c6ef8404600/w=10000"
+      },
+      "summary": {
+        "match_count": 1,
+        "map_count": 1,
+        "record": {
+          "wins": 0,
+          "losses": 1
+        }
+      },
+      "matches": [
+        {
+          "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+          "map": "Lotus",
+          "opponent": "PRX",
+          "result": "Loss",
+          "score": {
+            "team": 4,
+            "opponent": 13
+          },
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "team_color": "Blue",
+          "started_at": "2025-09-29T15:16:11.395000"
+        }
+      ],
+      "maps": [
+        {
+          "name": "Lotus",
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0,
+          "defence": {
+            "value": 33,
+            "won": 4,
+            "total": 12
+          },
+          "attack": {
+            "value": 0,
+            "won": 0,
+            "total": 5
+          },
+          "compositions": [
+            {
+              "agents": [
+                "Chamber",
+                "Deadlock",
+                "Fade",
+                "Omen",
+                "Raze"
+              ],
+              "played": 1,
+              "wins": 0,
+              "losses": 1,
+              "winrate": 0,
+              "player_agents": {
+                "TH benjyfishy": "Deadlock",
+                "TH RieNs": "Fade",
+                "TH Wo0t": "Chamber",
+                "TH Boo": "Omen",
+                "TH MiniBoo": "Raze"
+              }
+            }
+          ],
+          "post_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 3
+              },
+              "post_plant": {
+                "value": 0,
+                "won": 0,
+                "total": 3
+              },
+              "opponent_plants": {
+                "count": 9
+              },
+              "retake_win": {
+                "value": 22,
+                "won": 2,
+                "total": 9
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 4,
+                  "share_pct": 44
+                },
+                "retake_win": {
+                  "value": 50,
+                  "won": 2,
+                  "total": 4
+                }
+              },
+              {
+                "site": "B",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 3,
+                  "share_pct": 33
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 3
+                }
+              },
+              {
+                "site": "C",
+                "team_plants": {
+                  "count": 1,
+                  "share_pct": 33
+                },
+                "post_plant": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 1
+                },
+                "opponent_plants": {
+                  "count": 2,
+                  "share_pct": 22
+                },
+                "retake_win": {
+                  "value": 0,
+                  "won": 0,
+                  "total": 2
+                }
+              }
+            ]
+          },
+          "pistol_plants": {
+            "overall": {
+              "team_plants": {
+                "count": 0
+              },
+              "post_plant": {
+                "value": null,
+                "won": 0,
+                "total": 0
+              },
+              "opponent_plants": {
+                "count": 1
+              },
+              "retake_win": {
+                "value": 100,
+                "won": 1,
+                "total": 1
+              }
+            },
+            "sites": [
+              {
+                "site": "A",
+                "team_plants": {
+                  "count": 0,
+                  "share_pct": null
+                },
+                "post_plant": {
+                  "value": null,
+                  "won": 0,
+                  "total": 0
+                },
+                "opponent_plants": {
+                  "count": 1,
+                  "share_pct": 100
+                },
+                "retake_win": {
+                  "value": 100,
+                  "won": 1,
+                  "total": 1
+                }
+              }
+            ]
+          },
+          "visuals": {
+            "def_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1hdEPukC0z7OXC3nKm6U0AhdPyE_qqxbn"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/12dB36wjlgdY7FbZX24-YZfySQCWqjw97"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/1iwLaO4UIxSJrjl_Pt-3yRCeUwKzxubDQ"
+              }
+            ],
+            "atk_positions": [
+              {
+                "seconds": 10,
+                "image_url": "https://lh3.googleusercontent.com/d/1P-dTNRWVt3HZ8kJH_uFc3REDcK1nDm6H"
+              },
+              {
+                "seconds": 20,
+                "image_url": "https://lh3.googleusercontent.com/d/1402WnTnbZTl35N_bBs-XWTlv2hmwESAj"
+              },
+              {
+                "seconds": 30,
+                "image_url": "https://lh3.googleusercontent.com/d/18so_W9bsQ7XpTh9TpAn4SJ_demhwfK8A"
+              }
+            ],
+            "sniper": {
+              "defence": "https://lh3.googleusercontent.com/d/1fvmd89Ref3Xv12MNacIqzmnesaIX2xd3",
+              "attack": "https://lh3.googleusercontent.com/d/17E0b9BKnSWlWpo9jZtCPKo3_NvDz4QTk"
+            }
+          },
+          "matches": [
+            {
+              "match_id": "6fdb7c88-64b0-40fd-8a78-ea9fd82f4030",
+              "map": "Lotus",
+              "opponent": "PRX",
+              "result": "Loss",
+              "score": {
+                "team": 4,
+                "opponent": 13
+              },
+              "defence": {
+                "value": 33,
+                "won": 4,
+                "total": 12
+              },
+              "attack": {
+                "value": 0,
+                "won": 0,
+                "total": 5
+              },
+              "team_color": "Blue",
+              "started_at": "2025-09-29T15:16:11.395000"
+            }
+          ]
+        }
+      ]
+    },
+    "has_payload": true
+  },
+  {
+    "team_name": "Team Heretics",
+    "team_tag": "TH",
     "spreadsheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrlfxORIbIRSxgw7xrt8wdlFYuerD9RLC_LnG0n6BQDrruWDAADzpdxYNA6LpZ6cdawXpgSWQl2N52/pubhtml?gid=0&widget=true&headers=false",
     "match_count": "20",
     "created_at": "2025-10-19T16:35:42.989Z",

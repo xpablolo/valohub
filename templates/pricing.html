@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
+<style>
+  .pricing-page { color: #0f172a; }
+  .dark-mode .pricing-page { color: #f8fafc; }
+
+  .pricing-hero {
+    background: rgba(17, 24, 39, 0.72);
+    border-radius: 24px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    padding: clamp(1.6rem, 3vw, 2.6rem);
+    backdrop-filter: blur(18px);
+    margin-bottom: 1.75rem;
+  }
+  .pricing-hero h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 0 0 .35rem 0; }
+  .pricing-hero p { margin: 0; color: #cbd5f5; max-width: 780px; }
+
+  .billing-toggle { display: inline-flex; align-items: center; gap: .5rem; }
+  .billing-toggle .toggle {
+    position: relative; width: 52px; height: 30px; border-radius: 999px;
+    background: #111827; border: 1px solid rgba(148,163,184,.35);
+  }
+  .billing-toggle .toggle input { opacity: 0; width: 0; height: 0; }
+  .billing-toggle .toggle span {
+    position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; border-radius: 50%;
+    background: #fff; transition: transform .25s ease;
+  }
+  .billing-toggle input:checked + span { transform: translateX(22px); }
+  .dark-mode .billing-toggle .toggle { background: #0b1220; }
+
+  .pricing-grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .plan-card {
+    background: rgba(17, 24, 39, 0.68);
+    border-radius: 20px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    padding: 1.6rem;
+    backdrop-filter: blur(16px);
+    display: flex; flex-direction: column; gap: .9rem; position: relative; overflow: hidden;
+  }
+  .plan-badge { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #93c5fd; }
+  .plan-title { font-size: 1.25rem; margin: 0; color: #f8fafc; }
+  .plan-desc { color: #cbd5f5; font-size: .95rem; margin: 0; }
+  .price { display: flex; align-items: baseline; gap: .4rem; }
+  .price .amount { font-size: 2rem; font-weight: 700; color: #f8fafc; }
+  .price .per { color: #cbd5f5; }
+  .features { list-style: none; margin: .6rem 0 0 0; padding: 0; display: grid; gap: .55rem; }
+  .features li { display: inline-flex; gap: .5rem; align-items: center; color: #dbeafe; font-size: .95rem; }
+  .features i { color: #60a5fa; }
+  .plan-cta { margin-top: auto; display: grid; gap: .5rem; }
+
+  .plan-highlight { border-color: rgba(59,130,246,.65); box-shadow: 0 0 0 1px rgba(59,130,246,.35) inset; }
+  .plan-ribbon { position: absolute; top: 12px; right: 12px; font-size: .7rem; padding: .25rem .5rem; border-radius: 999px; background: rgba(59,130,246,.25); color: #dbeafe; border: 1px solid rgba(59,130,246,.45); }
+</style>
+
+<div class="pricing-page">
+  <section class="pricing-hero surface-card">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1>Simple pricing for coaches and teams</h1>
+        <p>Unlock scrim insights, strategic and analytical reports, map rankings and more. Start free, upgrade anytime.</p>
+      </div>
+      <label class="billing-toggle">
+        <span class="text-sm text-gray-300">Monthly</span>
+        <div class="toggle">
+          <input type="checkbox" id="billingToggle" aria-label="Toggle yearly billing">
+          <span></span>
+        </div>
+        <span class="text-sm text-gray-300">Yearly <span class="text-green-400">(save 15%)</span></span>
+      </label>
+    </div>
+  </section>
+
+  <section class="pricing-grid">
+    <article class="plan-card">
+      <div class="plan-badge">Starter</div>
+      <h3 class="plan-title">Individual Coach</h3>
+      <p class="plan-desc">Everything you need for solo prep and weekly reviews.</p>
+      <div class="price">
+        <div class="amount" data-monthly="€19" data-yearly="€16">€19</div>
+        <div class="per">per coach / month</div>
+      </div>
+      <ul class="features">
+        <li><i class="bi bi-check2-circle"></i> Scrims dashboard</li>
+        <li><i class="bi bi-check2-circle"></i> Map rankings</li>
+        <li><i class="bi bi-check2-circle"></i> Pick & bans sandbox</li>
+        <li><i class="bi bi-check2-circle"></i> Agents search</li>
+      </ul>
+      <div class="plan-cta">
+        <a href="{{ url_for('signup') }}" class="th-btn th-btn-primary w-100">Start free</a>
+        <a href="{{ url_for('login') }}" class="th-btn th-btn-secondary w-100">Login</a>
+      </div>
+    </article>
+
+    <article class="plan-card plan-highlight">
+      <div class="plan-badge">Pro</div>
+      <span class="plan-ribbon">Most popular</span>
+      <h3 class="plan-title">Team</h3>
+      <p class="plan-desc">Built for staff groups who need deeper analysis.</p>
+      <div class="price">
+        <div class="amount" data-monthly="€49" data-yearly="€42">€49</div>
+        <div class="per">per team / month</div>
+      </div>
+      <ul class="features">
+        <li><i class="bi bi-check2-circle"></i> Everything in Starter</li>
+        <li><i class="bi bi-check2-circle"></i> Analytical reports builder</li>
+        <li><i class="bi bi-check2-circle"></i> Strategic reports library</li>
+        <li><i class="bi bi-check2-circle"></i> Export & sharing</li>
+        <li><i class="bi bi-check2-circle"></i> Priority support</li>
+      </ul>
+      <div class="plan-cta">
+        <a href="{{ url_for('signup') }}" class="th-btn th-btn-primary w-100">Start Pro</a>
+        <a href="/pricing#compare" class="th-btn th-btn-outline w-100">Compare plans</a>
+      </div>
+    </article>
+
+    <article class="plan-card">
+      <div class="plan-badge">Enterprise</div>
+      <h3 class="plan-title">Org / Academy</h3>
+      <p class="plan-desc">Custom setup, SSO, SLAs and onboarding for larger orgs.</p>
+      <div class="price">
+        <div class="amount">Custom</div>
+        <div class="per">contact sales</div>
+      </div>
+      <ul class="features">
+        <li><i class="bi bi-check2-circle"></i> Unlimited seats</li>
+        <li><i class="bi bi-check2-circle"></i> Custom data pipelines</li>
+        <li><i class="bi bi-check2-circle"></i> Dedicated support</li>
+        <li><i class="bi bi-check2-circle"></i> Security review</li>
+      </ul>
+      <div class="plan-cta">
+        <a href="mailto:pablolopezarauzo@teamheretics.com" class="th-btn th-btn-secondary w-100">Contact sales</a>
+      </div>
+    </article>
+  </section>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('billingToggle');
+    const amounts = document.querySelectorAll('.amount[data-monthly]');
+    function updatePrices() {
+      const yearly = toggle && toggle.checked;
+      amounts.forEach(a => {
+        a.textContent = yearly ? a.getAttribute('data-yearly') : a.getAttribute('data-monthly');
+      });
+    }
+    if (toggle) toggle.addEventListener('change', updatePrices);
+    updatePrices();
+  });
+</script>
+{% endblock %}
